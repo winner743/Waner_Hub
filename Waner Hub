@@ -301,19 +301,138 @@ end
 pcall(createWelcome)
 wait(3.5)
 
-print("Step 9: Loading Rayfield UI...")
+-- Animated Text Screen
+local function createAnimatedText()
+    print("Step 9a: Creating animated text screen...")
+    
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerAnimation"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    -- Black blur background
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.BorderSizePixel = 0
+    Background.Parent = ScreenGui
+    
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = game.Lighting
+    
+    -- Container for text
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 600, 0, 200)
+    Container.Position = UDim2.new(0.5, -300, 0.5, -100)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
+    
+    -- Create scrambled letters
+    local letters = {}
+    local finalText = "WANER HUB"
+    local scrambledPositions = {}
+    
+    -- Generate random positions for scrambled letters
+    for i = 1, #finalText do
+        local char = finalText:sub(i, i)
+        if char ~= " " then
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(0, 60, 0, 80)
+            label.Position = UDim2.new(
+                math.random(0, 100) / 100,
+                math.random(-200, 200),
+                math.random(0, 100) / 100,
+                math.random(-200, 200)
+            )
+            label.BackgroundTransparency = 1
+            label.Text = char
+            label.TextColor3 = Color3.fromRGB(139, 0, 255)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 60
+            label.TextTransparency = 1
+            label.Rotation = math.random(-180, 180)
+            label.Parent = Container
+            
+            table.insert(letters, {
+                label = label,
+                finalPos = UDim2.new(0, (i - 1) * 60 - (#finalText * 30), 0.5, -40),
+                finalRot = 0
+            })
+        end
+    end
+    
+    local TweenService = game:GetService("TweenService")
+    
+    task.spawn(function()
+        -- Fade in background and blur
+        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
+        wait(0.5)
+        
+        -- Show scrambled letters
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        end
+        wait(0.8)
+        
+        -- Animate letters to correct positions
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Position = data.finalPos,
+                Rotation = data.finalRot
+            }):Play()
+        end
+        wait(1.5)
+        
+        -- Fade out
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        end
+        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
+        wait(0.6)
+        
+        Blur:Destroy()
+        ScreenGui:Destroy()
+    end)
+    
+    wait(4)
+end
 
--- Load Rayfield
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-print("Step 10: Rayfield loaded!")
+pcall(createAnimatedText)
 
-local Window = Rayfield:CreateWindow({
+print("Step 9: Loading Obsidian UI...")
+
+-- Load Obsidian UI
+local Obsidian = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+print("Step 10: Obsidian loaded!")
+
+local Window = Obsidian:CreateWindow({
     Name = "Waner Hub",
     LoadingTitle = "Waner Hub",
     LoadingSubtitle = "by Waner",
-    ConfigurationSaving = {Enabled = false},
-    Discord = {Enabled = false},
-    KeySystem = false
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil,
+        FileName = "WanerHub"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Waner Hub",
+        Subtitle = "Key System",
+        Note = "Key: Wene-you",
+        FileName = "WanerKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Wene-you"}
+    }
 })
 
 print("Step 11: Window created!")
@@ -325,6 +444,8 @@ local entityEspObjects = {}
 local playerEspObjects = {}
 local bookEspObjects = {}
 local codeEspObjects = {}
+local leverEspObjects = {}
+local itemEspObjects = {}
 
 -- States
 local doorEspEnabled = false
@@ -332,9 +453,13 @@ local keyEspEnabled = false
 local entityEspEnabled = false
 local playerEspEnabled = false
 local figureEspEnabled = false
+local leverEspEnabled = false
+local itemEspEnabled = false
 local rushNotifEnabled = false
 local infVitaminsEnabled = false
 local autoUnlockEnabled = false
+local autoFigureEnabled = false
+local autoCollectEnabled = false
 local currentSpeed = 1
 local vitaminConnections = {}
 
