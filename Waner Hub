@@ -1,4 +1,4 @@
--- Waner Hub v3.0 | Complete with Debug
+-- Waner Hub v3.0 | Complete with Ultra Entity Notifications
 print("=== WANER HUB STARTING ===")
 print("Step 1: Initializing...")
 
@@ -996,21 +996,62 @@ end
 
 print("Step 15: Auto functions ready!")
 
--- Entity Notifications
+-- ==========================================
+-- ULTRA ENTITY NOTIFICATIONS (MODIFIED)
+-- ==========================================
 local function setupEntityNotif()
+    local function notify(title, content, duration, color)
+        Rayfield:Notify({
+            Title = title,
+            Content = content,
+            Duration = duration or 5,
+            Image = 4483362458
+        })
+        -- Tambahkan print ke console log untuk debug tambahan
+        warn("[ENTITY]: " .. title .. " - " .. content)
+    end
+
     workspace.ChildAdded:Connect(function(child)
-        if rushNotifEnabled then
-            if child.Name == "RushMoving" or child.Name == "AmbushMoving" then
-                local name = child.Name:gsub("Moving", ""):upper()
-                Rayfield:Notify({Title = "⚠️ " .. name .. "!", Content = "HIDE NOW!", Duration = 5, Image = 4483362458})
-            elseif child.Name == "Eyes" or child.Name == "Screech" or child.Name == "BackdoorLookman" or child.Name:find("Timothy") then
-                Rayfield:Notify({Title = "👁️ " .. child.Name:upper() .. "!", Content = "Look away!", Duration = 4, Image = 4483362458})
-            end
+        if not rushNotifEnabled then return end
+        
+        local name = child.Name:lower()
+        
+        -- ULTRA RUSH / AMBUSH ALERT (DOUBLE NOTIF)
+        if name:find("rush") then
+            notify("⚠️ RUSH INCOMING!", "RUSH IS COMING! HIDE IN THE CLOSET NOW!", 8)
+            notify("⚠️ RUSH ALERT!", "STAY HIDDEN UNTIL IT PASSES!", 5)
+        elseif name:find("ambush") then
+            notify("📢 AMBUSH DETECTED!", "AMBUSH IS HERE! HIDE! GO OUT! HIDE AGAIN!", 10)
+            notify("📢 AMBUSH ALERT!", "MULTIPLE ATTACKS INCOMING!", 6)
+            
+        -- OTHER ENTITIES
+        elseif name:find("eyes") then
+            notify("👁️ EYES SPAWNED", "LOOK AWAY FROM THE EYES!", 5)
+        elseif name:find("screech") then
+            notify("😱 SCREECH ALERT", "FIND HIM AND STARE AT HIM!", 4)
+        elseif name:find("lookman") or name:find("backdoorlookman") then
+            notify("👀 LOOKMAN", "DON'T LOOK AT HIM!", 5)
+        elseif name:find("blitz") then
+            notify("⚡ BLITZ INCOMING", "HIDE QUICKLY!", 6)
+        elseif name:find("vacuum") then
+            notify("🌀 VACUUM", "GO TO THE NEXT ROOM!", 5)
+        elseif name:find("timothy") then
+            notify("🕷️ TIMOTHY", "SPIDER IN THE DRAWER!", 3)
+        elseif name:find("halt") then
+            notify("🌀 HALT SPAWNED", "FOLLOW THE SCREEN COMMANDS!", 7)
+        elseif name:find("seek") then
+            notify("🏃 SEEK CHASE START", "RUN! AVOID OBSTACLES!", 8)
+        elseif name:find("a60") then
+            notify("🚨 A-60 ALERT", "HIDE NOW! ROOMS ENTITY!", 7)
+        elseif name:find("a90") then
+            notify("🚨 A-90 ALERT", "STOP MOVING! DON'T LOOK!", 6)
+        elseif name:find("a120") then
+            notify("🚨 A-120 ALERT", "HIDE IMMEDIATELY!", 7)
         end
     end)
 end
 
-print("Step 16: Entity notifications ready!")
+print("Step 16: Ultra Entity notifications ready!")
 
 -- Create Tabs
 local InfoTab = Window:CreateTab("📋 Info", 4483362458)
@@ -1022,7 +1063,7 @@ print("Step 17: Tabs created!")
 
 -- Info Tab
 InfoTab:CreateParagraph({Title = "👤 Player", Content = "Name: " .. player.Name .. "\nDisplay: " .. player.DisplayName .. (isOwner and "\n\n👑 OWNER STATUS" or "")})
-InfoTab:CreateParagraph({Title = "📌 Features", Content = "• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
+InfoTab:CreateParagraph({Title = "📌 Features", Content = "• Ultra Notifications (Rush/Ambush Extreme)\n• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
 
 print("Step 18: Info tab populated!")
 
@@ -1037,15 +1078,15 @@ MainTab:CreateSlider({
 })
 
 MainTab:CreateToggle({
-    Name = "Entity Notifications",
-    CurrentValue = false,
+    Name = "Ultra Entity Notifications",
+    CurrentValue = true,
     Callback = function(v) rushNotifEnabled = v end
 })
 
 print("Step 19: Main tab populated!")
 
 -- ESP Tab
-ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP automatically shows FAKE doors in RED!\nNo need to toggle separately."})
+ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP otomatis deteksi pintu palsu (Dupe) dalam warna MERAH."})
 
 ESPTab:CreateToggle({
     Name = "Door ESP (Auto-Refresh)",
@@ -1174,5 +1215,5 @@ if keyValid then
 end
 print("=================================")
 print("")
-print("All features ready to use!")
-print("Enjoy Waner Hub! 🚀")
+print("Semua fitur siap digunakan!")
+print("Gunakan Ultra Notification untuk bertahan hidup! 🚀")
