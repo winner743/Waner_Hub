@@ -1,5 +1,5 @@
--- Waner Hub v3.0 | Complete with Debug
-print("=== WANER HUB STARTING ===")
+-- WANER HUB v3.5 | Enhanced Version
+print("=== WENER HUB STARTING ===")
 print("Step 1: Initializing...")
 
 -- Loading Screen
@@ -35,7 +35,7 @@ local function createLoadingScreen()
     Title.Size = UDim2.new(1, 0, 0, 60)
     Title.Position = UDim2.new(0, 0, 0, 30)
     Title.BackgroundTransparency = 1
-    Title.Text = "WANER HUB"
+    Title.Text = "WENER HUB"
     Title.TextColor3 = Color3.fromRGB(139, 0, 255)
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 42
@@ -310,7 +310,6 @@ local function createAnimatedText()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
-    -- Black blur background
     local Background = Instance.new("Frame")
     Background.Size = UDim2.new(1, 0, 1, 0)
     Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -322,19 +321,16 @@ local function createAnimatedText()
     Blur.Size = 0
     Blur.Parent = game.Lighting
     
-    -- Container for text
     local Container = Instance.new("Frame")
     Container.Size = UDim2.new(0, 600, 0, 200)
     Container.Position = UDim2.new(0.5, -300, 0.5, -100)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
     
-    -- Create scrambled letters
     local letters = {}
-    local finalText = "WANER HUB"
+    local finalText = "WENER HUB"
     local scrambledPositions = {}
     
-    -- Generate random positions for scrambled letters
     for i = 1, #finalText do
         local char = finalText:sub(i, i)
         if char ~= " " then
@@ -366,18 +362,15 @@ local function createAnimatedText()
     local TweenService = game:GetService("TweenService")
     
     task.spawn(function()
-        -- Fade in background and blur
         TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
         TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
         wait(0.5)
         
-        -- Show scrambled letters
         for _, data in pairs(letters) do
             TweenService:Create(data.label, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
         end
         wait(0.8)
         
-        -- Animate letters to correct positions
         for _, data in pairs(letters) do
             TweenService:Create(data.label, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Position = data.finalPos,
@@ -386,7 +379,6 @@ local function createAnimatedText()
         end
         wait(1.5)
         
-        -- Fade out
         for _, data in pairs(letters) do
             TweenService:Create(data.label, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
         end
@@ -403,20 +395,73 @@ end
 
 pcall(createAnimatedText)
 
-print("Step 9: Loading Obsidian UI...")
+-- Permanent Logo "WENER HUB" dengan Decal
+local function createPermanentLogo()
+    print("Step 9b: Creating permanent logo...")
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerLogo"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 350, 0, 70)
+    Container.Position = UDim2.new(0.5, -175, 0.02, 0)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 1, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "WENER HUB"
+    Title.TextColor3 = Color3.fromRGB(139, 0, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 36
+    Title.TextStrokeTransparency = 0.5
+    Title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    Title.Parent = Container
+    
+    local DecalFrame = Instance.new("Frame")
+    DecalFrame.Size = UDim2.new(0, 25, 0, 25)
+    DecalFrame.Position = UDim2.new(0.78, 0, 0.5, -12)
+    DecalFrame.BackgroundTransparency = 1
+    DecalFrame.Parent = Container
+    
+    local Decal = Instance.new("ImageLabel")
+    Decal.Size = UDim2.new(1, 0, 1, 0)
+    Decal.BackgroundTransparency = 1
+    Decal.Image = "rbxassetid://92354465728192"
+    Decal.ScaleType = Enum.ScaleType.Fit
+    Decal.Parent = DecalFrame
+    
+    task.spawn(function()
+        while true do
+            wait(5)
+            local TweenService = game:GetService("TweenService")
+            TweenService:Create(Title, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
+            wait(0.5)
+            TweenService:Create(Title, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+        end
+    end)
+    
+    return ScreenGui
+end
+
+pcall(createPermanentLogo)
+
+print("Step 10: Loading Obsidian UI...")
 
 -- Load Obsidian UI
-local Obsidian = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-print("Step 10: Obsidian loaded!")
+local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
+print("Step 11: Obsidian loaded!")
 
 local Window = Obsidian:CreateWindow({
-    Name = "Waner Hub",
-    LoadingTitle = "Waner Hub",
+    Name = "Wener Hub",
+    LoadingTitle = "Wener Hub",
     LoadingSubtitle = "by Waner",
     ConfigurationSaving = {
         Enabled = false,
         FolderName = nil,
-        FileName = "WanerHub"
+        FileName = "WenerHub"
     },
     Discord = {
         Enabled = false,
@@ -425,17 +470,17 @@ local Window = Obsidian:CreateWindow({
     },
     KeySystem = false,
     KeySettings = {
-        Title = "Waner Hub",
+        Title = "Wener Hub",
         Subtitle = "Key System",
         Note = "Key: Wene-you",
-        FileName = "WanerKey",
+        FileName = "WenerKey",
         SaveKey = true,
         GrabKeyFromSite = false,
         Key = {"Wene-you"}
     }
 })
 
-print("Step 11: Window created!")
+print("Step 12: Window created!")
 
 -- ESP Storage
 local espObjects = {}
@@ -456,16 +501,37 @@ local figureEspEnabled = false
 local leverEspEnabled = false
 local itemEspEnabled = false
 local rushNotifEnabled = false
+local allEntityNotifications = false
 local infVitaminsEnabled = false
 local autoUnlockEnabled = false
 local autoFigureEnabled = false
 local autoCollectEnabled = false
+local noclipEnabled = false
+local godModeEnabled = false
+local bypassAntiCheat = false
 local currentSpeed = 1
 local vitaminConnections = {}
+local noclipConnection
 
-print("Step 12: Variables initialized!")
+-- Auto Collect Settings
+local autoCollectSettings = {
+    Vitamins = true,
+    Lockpick = true,
+    FlashlightPickup = true,
+    Lighter = true,
+    Candle = true,
+    Crucifix = true,
+    Bandage = true,
+    SkeletonKey = true,
+    Shakelight = true,
+    Key = true,
+    Book = true,
+    Paper = true
+}
 
--- Anti-Detect Speed
+print("Step 13: Variables initialized!")
+
+-- Anti-Detect Speed dengan Bypass
 local oldSpeed = 16
 local function setSpeed(multiplier)
     currentSpeed = multiplier
@@ -482,12 +548,77 @@ local function setSpeed(multiplier)
     end
 end
 
+-- Bypass Anti-Cheat Speed Detection
+local function enableBypassAntiCheat()
+    bypassAntiCheat = true
+    print("Bypass Anti-Cheat diaktifkan!")
+end
+
 player.CharacterAdded:Connect(function(char)
     wait(0.5)
     if char:FindFirstChild("Humanoid") then
         setSpeed(currentSpeed)
     end
 end)
+
+-- Noclip System
+local function enableNoclip()
+    noclipEnabled = true
+    if player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+    noclipConnection = player.CharacterAdded:Connect(function(char)
+        wait(0.5)
+        if noclipEnabled then
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end
+
+local function disableNoclip()
+    noclipEnabled = false
+    if noclipConnection then noclipConnection:Disconnect() end
+    if player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
+    end
+end
+
+-- God Mode (No Damage)
+local function enableGodMode()
+    godModeEnabled = true
+    if player.Character then
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = math.huge
+            humanoid.Health = math.huge
+        end
+    end
+    
+    player.CharacterAdded:Connect(function(char)
+        wait(0.5)
+        if godModeEnabled then
+            local humanoid = char:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.MaxHealth = math.huge
+                humanoid.Health = math.huge
+            end
+        end
+    end)
+end
 
 -- ESP Function
 local function createESP(obj, color, txt)
@@ -513,7 +644,7 @@ local function createESP(obj, color, txt)
     return billboard
 end
 
-print("Step 13: ESP functions loaded!")
+print("Step 14: ESP functions loaded!")
 
 -- Door ESP with Auto-Refresh + Dupe Detection
 local doorConnection
@@ -616,7 +747,7 @@ end
 -- Entity ESP (All Entities) with Auto-Refresh
 local entityConnection
 local function addEntityESP()
-    local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90"}
+    local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90", "Timothy"}
     for _, v in pairs(workspace:GetChildren()) do
         for _, entityName in pairs(entities) do
             if v.Name:find(entityName) and not v:FindFirstChild("ESP") then
@@ -751,10 +882,7 @@ local function disableFigureESP()
 end
 
 -- Lever ESP
-local leverEspObjects = {}
-local leverEspEnabled = false
 local leverConnection
-
 local function addLeverESP()
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("Model") and (v.Name == "LeverForGate" or v.Name:lower():find("lever")) and not v:FindFirstChild("ESP") then
@@ -790,7 +918,7 @@ local function disableLeverESP()
     removeLeverESP()
 end
 
--- Item ESP
+-- Item ESP dengan semua item termasuk key, book, paper
 local itemConnection
 local function addItemESP()
     local itemsToESP = {
@@ -802,7 +930,10 @@ local function addItemESP()
         {name = "Crucifix", emoji = "✝️", color = Color3.fromRGB(255, 215, 0)},
         {name = "Bandage", emoji = "🩹", color = Color3.fromRGB(255, 100, 100)},
         {name = "SkeletonKey", emoji = "🔑", color = Color3.fromRGB(200, 200, 200)},
-        {name = "Shakelight", emoji = "💡", color = Color3.fromRGB(100, 200, 255)}
+        {name = "Shakelight", emoji = "💡", color = Color3.fromRGB(100, 200, 255)},
+        {name = "Key", emoji = "🗝️", color = Color3.fromRGB(255, 215, 0)},
+        {name = "Book", emoji = "📖", color = Color3.fromRGB(150, 0, 255)},
+        {name = "Paper", emoji = "📄", color = Color3.fromRGB(0, 255, 255)}
     }
     
     for _, v in pairs(workspace:GetDescendants()) do
@@ -842,8 +973,6 @@ local function disableItemESP()
 end
 
 -- Auto Figure Code
-local autoFigureEnabled = false
-
 local function collectFigureCode()
     collectedCode = {}
     for _, paper in pairs(workspace:GetDescendants()) do
@@ -854,7 +983,6 @@ local function collectFigureCode()
                         if img:IsA("ImageLabel") then
                             local imgId = img.Image
                             if imgId and imgId ~= "" then
-                                -- Extract number from image ID
                                 for i = 0, 9 do
                                     if imgId:find(tostring(i)) then
                                         table.insert(collectedCode, i)
@@ -911,27 +1039,13 @@ local function disableAutoFigure()
     autoFigureEnabled = false
 end
 
--- Auto Collect Items
-local autoCollectEnabled = false
-
+-- Auto Collect Items dengan pilihan
 local function autoCollectItems()
     if not autoCollectEnabled then return end
     
-    local itemsToCollect = {
-        "Vitamins",
-        "Lockpick",
-        "FlashlightPickup",
-        "Lighter",
-        "Candle",
-        "Crucifix",
-        "Bandage",
-        "SkeletonKey",
-        "Shakelight"
-    }
-    
     for _, item in pairs(workspace:GetDescendants()) do
-        for _, targetItem in pairs(itemsToCollect) do
-            if item:IsA("Model") and item.Name == targetItem then
+        for itemName, enabled in pairs(autoCollectSettings) do
+            if enabled and item:IsA("Model") and item.Name == itemName then
                 local prompt = item:FindFirstChildOfClass("ProximityPrompt", true)
                 if prompt and prompt.Enabled then
                     pcall(function()
@@ -957,7 +1071,7 @@ local function disableAutoCollect()
     autoCollectEnabled = false
 end
 
-print("Step 14: All ESP functions + Auto features ready!")
+print("Step 15: All ESP functions + Auto features ready!")
 
 -- Infinite Vitamins
 local function enableInfVitamins()
@@ -1045,11 +1159,12 @@ local function enableAutoUnlock()
     end)
 end
 
-print("Step 15: Auto functions ready!")
+print("Step 16: Auto functions ready!")
 
--- Entity Notifications
+-- Entity Notifications dengan semua entity
 local function setupEntityNotif()
     workspace.ChildAdded:Connect(function(child)
+        -- Untuk notifikasi Rush/Ambush (jika rushNotifEnabled aktif)
         if rushNotifEnabled then
             if child.Name == "RushMoving" or child.Name == "AmbushMoving" then
                 local name = child.Name:gsub("Moving", ""):upper()
@@ -1058,10 +1173,25 @@ local function setupEntityNotif()
                 Obsidian:Notify({Title = "👁️ " .. child.Name:upper() .. "!", Content = "Look away!", Duration = 4})
             end
         end
+        
+        -- Untuk notifikasi SEMUA entity (jika allEntityNotifications aktif)
+        if allEntityNotifications then
+            local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90", "Timothy"}
+            for _, entityName in pairs(entities) do
+                if child.Name:find(entityName) then
+                    Obsidian:Notify({
+                        Title = "👻 ENTITY SPAWNED!",
+                        Content = "Entity: " .. child.Name .. "\nWaspada!",
+                        Duration = 4
+                    })
+                    break
+                end
+            end
+        end
     end)
 end
 
-print("Step 16: Entity notifications ready!")
+print("Step 17: Entity notifications ready!")
 
 -- Create Tabs
 local InfoTab = Window:CreateTab("📋 Info")
@@ -1069,13 +1199,13 @@ local MainTab = Window:CreateTab("⚙️ Main")
 local ESPTab = Window:CreateTab("👁️ ESP")
 local AutoTab = Window:CreateTab("🤖 Auto")
 
-print("Step 17: Tabs created!")
+print("Step 18: Tabs created!")
 
 -- Info Tab
 InfoTab:CreateParagraph({Title = "👤 Player", Content = "Name: " .. player.Name .. "\nDisplay: " .. player.DisplayName .. (isOwner and "\n\n👑 OWNER STATUS" or "")})
-InfoTab:CreateParagraph({Title = "📌 Features", Content = "• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
+InfoTab:CreateParagraph({Title = "📌 Features", Content = "• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed\n• Noclip & God Mode\n• Bypass Anti-Cheat\n• Entity Notifications"})
 
-print("Step 18: Info tab populated!")
+print("Step 19: Info tab populated!")
 
 -- Main Tab
 MainTab:CreateSlider({
@@ -1088,12 +1218,44 @@ MainTab:CreateSlider({
 })
 
 MainTab:CreateToggle({
-    Name = "Entity Notifications",
+    Name = "Noclip",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableNoclip() else disableNoclip() end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "God Mode (No Damage)",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableGodMode() else godModeEnabled = false end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Bypass Anti-Cheat",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableBypassAntiCheat() else bypassAntiCheat = false end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "Entity Notifications (Rush/Ambush)",
     CurrentValue = false,
     Callback = function(v) rushNotifEnabled = v end
 })
 
-print("Step 19: Main tab populated!")
+MainTab:CreateToggle({
+    Name = "Notifikasi Semua Entity",
+    CurrentValue = false,
+    Callback = function(v) 
+        allEntityNotifications = v 
+    end
+})
+
+print("Step 20: Main tab populated!")
 
 -- ESP Tab
 ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP automatically shows FAKE doors in RED!\nNo need to toggle separately."})
@@ -1168,7 +1330,7 @@ ESPTab:CreateButton({
     end
 })
 
-print("Step 20: ESP tab populated!")
+print("Step 21: ESP tab populated!")
 
 -- Auto Tab
 AutoTab:CreateParagraph({Title = "🔧 Figure Features", Content = "Auto collect code from papers and input to door!"})
@@ -1206,26 +1368,63 @@ AutoTab:CreateToggle({
     end
 })
 
-print("Step 21: Auto tab populated!")
+-- Buat section untuk Auto Collect Settings
+AutoTab:CreateSection("Auto Collect Settings")
+
+local itemToggles = {}
+for itemName, _ in pairs(autoCollectSettings) do
+    itemToggles[itemName] = AutoTab:CreateToggle({
+        Name = "Auto Collect: " .. itemName,
+        CurrentValue = true,
+        Callback = function(v)
+            autoCollectSettings[itemName] = v
+        end
+    })
+end
+
+-- Button untuk toggle semua
+AutoTab:CreateButton({
+    Name = "Toggle Semua Items",
+    Callback = function()
+        local allOn = true
+        for _, enabled in pairs(autoCollectSettings) do
+            if not enabled then allOn = false break end
+        end
+        
+        for itemName, _ in pairs(autoCollectSettings) do
+            autoCollectSettings[itemName] = not allOn
+            if itemToggles[itemName] then
+                itemToggles[itemName]:Set(not allOn)
+            end
+        end
+    end
+})
+
+print("Step 22: Auto tab populated!")
 
 -- Setup
 setupEntityNotif()
 
-print("Step 22: Entity notifications setup complete!")
+print("Step 23: Entity notifications setup complete!")
 
 local hours = math.floor(timeLeft)
 local minutes = math.floor((timeLeft - hours) * 60)
 
 Obsidian:Notify({
-    Title = "Waner Hub Loaded!",
-    Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. (keyValid and string.format("\n⏰ Key: %dh %dm", hours, minutes) or ""),
-    Duration = 5
+    Title = "🚀 WENER HUB v3.5 Loaded!",
+    Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. 
+              "\n✅ Fitur Lengkap Aktif!" ..
+              "\n• ESP + Notifikasi Entity" ..
+              "\n• Noclip & God Mode" ..
+              "\n• Bypass Anti-Cheat" ..
+              (keyValid and string.format("\n⏰ Key: %dh %dm", hours, minutes) or ""),
+    Duration = 6
 })
 
-print("Step 23: Notification sent!")
+print("Step 24: Notification sent!")
 print("")
 print("=================================")
-print("✅ WANER HUB LOADED SUCCESSFULLY!")
+print("✅ WENER HUB v3.5 LOADED SUCCESSFULLY!")
 print("=================================")
 print("User: " .. player.Name .. (isOwner and " (OWNER)" or ""))
 if keyValid then
@@ -1233,5 +1432,12 @@ if keyValid then
 end
 print("=================================")
 print("")
-print("All features ready to use!")
-print("Enjoy Waner Hub! 🚀")
+print("Fitur yang tersedia:")
+print("- Logo WENER HUB permanen di layar")
+print("- ESP untuk semua entity + notifikasi")
+print("- Item ESP yang lengkap")
+print("- Auto Collect dengan pilihan item")
+print("- Noclip & God Mode")
+print("- Bypass Anti-Cheat Speed")
+print("")
+print("Enjoy Wener Hub! 🚀")
