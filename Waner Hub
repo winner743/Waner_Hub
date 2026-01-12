@@ -1,4 +1,4 @@
--- Waner Hub v3.0 | Complete with Ultra Entity Notifications
+-- Waner Hub v3.0 | Complete with Debug
 print("=== WANER HUB STARTING ===")
 print("Step 1: Initializing...")
 
@@ -406,7 +406,7 @@ pcall(createAnimatedText)
 print("Step 9: Loading Obsidian UI...")
 
 -- Load Obsidian UI
-local Obsidian = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
 print("Step 10: Obsidian loaded!")
 
 local Window = Obsidian:CreateWindow({
@@ -790,6 +790,57 @@ local function disableLeverESP()
     removeLeverESP()
 end
 
+-- Item ESP
+local itemConnection
+local function addItemESP()
+    local itemsToESP = {
+        {name = "Vitamins", emoji = "💊", color = Color3.fromRGB(0, 255, 0)},
+        {name = "Lockpick", emoji = "🔓", color = Color3.fromRGB(255, 255, 0)},
+        {name = "FlashlightPickup", emoji = "🔦", color = Color3.fromRGB(255, 255, 255)},
+        {name = "Lighter", emoji = "🔥", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Candle", emoji = "🕯️", color = Color3.fromRGB(255, 200, 100)},
+        {name = "Crucifix", emoji = "✝️", color = Color3.fromRGB(255, 215, 0)},
+        {name = "Bandage", emoji = "🩹", color = Color3.fromRGB(255, 100, 100)},
+        {name = "SkeletonKey", emoji = "🔑", color = Color3.fromRGB(200, 200, 200)},
+        {name = "Shakelight", emoji = "💡", color = Color3.fromRGB(100, 200, 255)}
+    }
+    
+    for _, v in pairs(workspace:GetDescendants()) do
+        for _, itemData in pairs(itemsToESP) do
+            if v:IsA("Model") and v.Name == itemData.name and not v:FindFirstChild("ESP") then
+                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    local esp = createESP(part, itemData.color, itemData.emoji .. " " .. itemData.name)
+                    if esp then table.insert(itemEspObjects, esp) end
+                end
+            end
+        end
+    end
+end
+
+local function removeItemESP()
+    for _, esp in pairs(itemEspObjects) do pcall(function() esp:Destroy() end) end
+    itemEspObjects = {}
+end
+
+local function enableItemESP()
+    itemEspEnabled = true
+    addItemESP()
+    if itemConnection then itemConnection:Disconnect() end
+    itemConnection = workspace.DescendantAdded:Connect(function(v)
+        if itemEspEnabled and v:IsA("Model") then
+            wait(0.2)
+            addItemESP()
+        end
+    end)
+end
+
+local function disableItemESP()
+    itemEspEnabled = false
+    if itemConnection then itemConnection:Disconnect() end
+    removeItemESP()
+end
+
 -- Auto Figure Code
 local autoFigureEnabled = false
 
@@ -996,74 +1047,33 @@ end
 
 print("Step 15: Auto functions ready!")
 
--- ==========================================
--- ULTRA ENTITY NOTIFICATIONS (MODIFIED)
--- ==========================================
+-- Entity Notifications
 local function setupEntityNotif()
-    local function notify(title, content, duration, color)
-        Rayfield:Notify({
-            Title = title,
-            Content = content,
-            Duration = duration or 5,
-            Image = 4483362458
-        })
-        -- Tambahkan print ke console log untuk debug tambahan
-        warn("[ENTITY]: " .. title .. " - " .. content)
-    end
-
     workspace.ChildAdded:Connect(function(child)
-        if not rushNotifEnabled then return end
-        
-        local name = child.Name:lower()
-        
-        -- ULTRA RUSH / AMBUSH ALERT (DOUBLE NOTIF)
-        if name:find("rush") then
-            notify("⚠️ RUSH INCOMING!", "RUSH IS COMING! HIDE IN THE CLOSET NOW!", 8)
-            notify("⚠️ RUSH ALERT!", "STAY HIDDEN UNTIL IT PASSES!", 5)
-        elseif name:find("ambush") then
-            notify("📢 AMBUSH DETECTED!", "AMBUSH IS HERE! HIDE! GO OUT! HIDE AGAIN!", 10)
-            notify("📢 AMBUSH ALERT!", "MULTIPLE ATTACKS INCOMING!", 6)
-            
-        -- OTHER ENTITIES
-        elseif name:find("eyes") then
-            notify("👁️ EYES SPAWNED", "LOOK AWAY FROM THE EYES!", 5)
-        elseif name:find("screech") then
-            notify("😱 SCREECH ALERT", "FIND HIM AND STARE AT HIM!", 4)
-        elseif name:find("lookman") or name:find("backdoorlookman") then
-            notify("👀 LOOKMAN", "DON'T LOOK AT HIM!", 5)
-        elseif name:find("blitz") then
-            notify("⚡ BLITZ INCOMING", "HIDE QUICKLY!", 6)
-        elseif name:find("vacuum") then
-            notify("🌀 VACUUM", "GO TO THE NEXT ROOM!", 5)
-        elseif name:find("timothy") then
-            notify("🕷️ TIMOTHY", "SPIDER IN THE DRAWER!", 3)
-        elseif name:find("halt") then
-            notify("🌀 HALT SPAWNED", "FOLLOW THE SCREEN COMMANDS!", 7)
-        elseif name:find("seek") then
-            notify("🏃 SEEK CHASE START", "RUN! AVOID OBSTACLES!", 8)
-        elseif name:find("a60") then
-            notify("🚨 A-60 ALERT", "HIDE NOW! ROOMS ENTITY!", 7)
-        elseif name:find("a90") then
-            notify("🚨 A-90 ALERT", "STOP MOVING! DON'T LOOK!", 6)
-        elseif name:find("a120") then
-            notify("🚨 A-120 ALERT", "HIDE IMMEDIATELY!", 7)
+        if rushNotifEnabled then
+            if child.Name == "RushMoving" or child.Name == "AmbushMoving" then
+                local name = child.Name:gsub("Moving", ""):upper()
+                Obsidian:Notify({Title = "⚠️ " .. name .. "!", Content = "HIDE NOW!", Duration = 5})
+            elseif child.Name == "Eyes" or child.Name == "Screech" or child.Name == "BackdoorLookman" or child.Name:find("Timothy") then
+                Obsidian:Notify({Title = "👁️ " .. child.Name:upper() .. "!", Content = "Look away!", Duration = 4})
+            end
         end
     end)
 end
 
-print("Step 16: Ultra Entity notifications ready!")
+print("Step 16: Entity notifications ready!")
 
 -- Create Tabs
-local InfoTab = Window:CreateTab("📋 Info", 4483362458)
-local MainTab = Window:CreateTab("⚙️ Main", 4483362458)
-local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
-local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
+local InfoTab = Window:CreateTab("📋 Info")
+local MainTab = Window:CreateTab("⚙️ Main")
+local ESPTab = Window:CreateTab("👁️ ESP")
+local AutoTab = Window:CreateTab("🤖 Auto")
 
 print("Step 17: Tabs created!")
 
 -- Info Tab
 InfoTab:CreateParagraph({Title = "👤 Player", Content = "Name: " .. player.Name .. "\nDisplay: " .. player.DisplayName .. (isOwner and "\n\n👑 OWNER STATUS" or "")})
-InfoTab:CreateParagraph({Title = "📌 Features", Content = "• Ultra Notifications (Rush/Ambush Extreme)\n• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
+InfoTab:CreateParagraph({Title = "📌 Features", Content = "• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
 
 print("Step 18: Info tab populated!")
 
@@ -1078,15 +1088,15 @@ MainTab:CreateSlider({
 })
 
 MainTab:CreateToggle({
-    Name = "Ultra Entity Notifications",
-    CurrentValue = true,
+    Name = "Entity Notifications",
+    CurrentValue = false,
     Callback = function(v) rushNotifEnabled = v end
 })
 
 print("Step 19: Main tab populated!")
 
 -- ESP Tab
-ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP otomatis deteksi pintu palsu (Dupe) dalam warna MERAH."})
+ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP automatically shows FAKE doors in RED!\nNo need to toggle separately."})
 
 ESPTab:CreateToggle({
     Name = "Door ESP (Auto-Refresh)",
@@ -1136,6 +1146,14 @@ ESPTab:CreateToggle({
     end
 })
 
+ESPTab:CreateToggle({
+    Name = "Item ESP (All Items)",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableItemESP() else disableItemESP() end
+    end
+})
+
 ESPTab:CreateButton({
     Name = "Refresh All ESP",
     Callback = function()
@@ -1145,7 +1163,8 @@ ESPTab:CreateButton({
         if playerEspEnabled then removePlayerESP() addPlayerESP() end
         if figureEspEnabled then removeFigureESP() addFigureESP() end
         if leverEspEnabled then removeLeverESP() addLeverESP() end
-        Rayfield:Notify({Title = "✓ Refreshed", Content = "All ESP updated", Duration = 2})
+        if itemEspEnabled then removeItemESP() addItemESP() end
+        Obsidian:Notify({Title = "✓ Refreshed", Content = "All ESP updated", Duration = 2})
     end
 })
 
@@ -1197,11 +1216,10 @@ print("Step 22: Entity notifications setup complete!")
 local hours = math.floor(timeLeft)
 local minutes = math.floor((timeLeft - hours) * 60)
 
-Rayfield:Notify({
+Obsidian:Notify({
     Title = "Waner Hub Loaded!",
     Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. (keyValid and string.format("\n⏰ Key: %dh %dm", hours, minutes) or ""),
-    Duration = 5,
-    Image = 4483362458
+    Duration = 5
 })
 
 print("Step 23: Notification sent!")
@@ -1215,5 +1233,5 @@ if keyValid then
 end
 print("=================================")
 print("")
-print("Semua fitur siap digunakan!")
-print("Gunakan Ultra Notification untuk bertahan hidup! 🚀")
+print("All features ready to use!")
+print("Enjoy Waner Hub! 🚀")
