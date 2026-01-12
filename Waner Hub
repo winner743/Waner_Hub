@@ -1,0 +1,604 @@
+-- Waner Hub v3.0 | Complete with Debug
+print("=== WANER HUB STARTING ===")
+print("Step 1: Initializing...")
+
+-- Loading Screen
+local function createLoadingScreen()
+    print("Step 2: Creating loading screen...")
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerLoading"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = game.Lighting
+    
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
+    
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 450, 0, 220)
+    Container.Position = UDim2.new(0.5, -225, 0.5, -110)
+    Container.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 15)
+    Corner.Parent = Container
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 60)
+    Title.Position = UDim2.new(0, 0, 0, 30)
+    Title.BackgroundTransparency = 1
+    Title.Text = "WANER HUB"
+    Title.TextColor3 = Color3.fromRGB(139, 0, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 42
+    Title.TextTransparency = 1
+    Title.Parent = Container
+    
+    local Status = Instance.new("TextLabel")
+    Status.Size = UDim2.new(1, 0, 0, 30)
+    Status.Position = UDim2.new(0, 0, 0, 100)
+    Status.BackgroundTransparency = 1
+    Status.Text = "Loading..."
+    Status.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Status.Font = Enum.Font.Gotham
+    Status.TextSize = 18
+    Status.TextTransparency = 1
+    Status.Parent = Container
+    
+    local Progress = Instance.new("Frame")
+    Progress.Size = UDim2.new(0.8, 0, 0, 6)
+    Progress.Position = UDim2.new(0.1, 0, 0, 150)
+    Progress.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    Progress.BorderSizePixel = 0
+    Progress.Parent = Container
+    
+    local ProgressCorner = Instance.new("UICorner")
+    ProgressCorner.CornerRadius = UDim.new(1, 0)
+    ProgressCorner.Parent = Progress
+    
+    local TweenService = game:GetService("TweenService")
+    
+    task.spawn(function()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
+        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
+        TweenService:Create(Container, TweenInfo.new(0.5), {BackgroundTransparency = 0.1}):Play()
+        wait(0.5)
+        TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        TweenService:Create(Status, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        wait(0.5)
+        
+        for i = 1, 3 do
+            Status.Text = "Loading" .. string.rep(".", i)
+            TweenService:Create(Progress, TweenInfo.new(0.8), {Size = UDim2.new(0.8 * (i/3), 0, 0, 6)}):Play()
+            wait(0.8)
+        end
+        
+        Status.Text = "Complete!"
+        wait(0.5)
+        
+        TweenService:Create(Title, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+        TweenService:Create(Status, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+        TweenService:Create(Container, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
+        wait(0.6)
+        
+        Blur:Destroy()
+        ScreenGui:Destroy()
+    end)
+    print("Step 2: Loading screen created!")
+end
+
+pcall(createLoadingScreen)
+wait(4)
+
+print("Step 3: Loading complete, starting key system...")
+
+-- Key System
+local KeySystemEnabled = true
+local CorrectKey = "Wene-you"
+local KeyExpireHours = 8
+
+local function checkKey()
+    local HttpService = game:GetService("HttpService")
+    local success, data = pcall(function()
+        return HttpService:JSONDecode(readfile("WanerHubKey.json"))
+    end)
+    if success and data then
+        local currentTime = os.time()
+        local savedTime = data.time or 0
+        local timeDiff = (currentTime - savedTime) / 3600
+        if timeDiff < KeyExpireHours and data.key == CorrectKey then
+            return true, KeyExpireHours - timeDiff
+        end
+    end
+    return false, 0
+end
+
+local function saveKey()
+    local HttpService = game:GetService("HttpService")
+    writefile("WanerHubKey.json", HttpService:JSONEncode({key = CorrectKey, time = os.time()}))
+end
+
+local function createKeyUI()
+    print("Step 4: Creating key UI...")
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerKeySystem"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 400, 0, 250)
+    MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.Parent = MainFrame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    Title.Text = "🔐 Waner Hub Key"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 20
+    Title.Parent = MainFrame
+    
+    local TitleCorner = Instance.new("UICorner")
+    TitleCorner.CornerRadius = UDim.new(0, 12)
+    TitleCorner.Parent = Title
+    
+    local Desc = Instance.new("TextLabel")
+    Desc.Size = UDim2.new(1, -40, 0, 60)
+    Desc.Position = UDim2.new(0, 20, 0, 60)
+    Desc.BackgroundTransparency = 1
+    Desc.Text = "Masukkan key untuk akses\n\n💡 Clue: Wene-***"
+    Desc.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextSize = 14
+    Desc.TextWrapped = true
+    Desc.TextYAlignment = Enum.TextYAlignment.Top
+    Desc.Parent = MainFrame
+    
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Size = UDim2.new(1, -40, 0, 40)
+    KeyInput.Position = UDim2.new(0, 20, 0, 130)
+    KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    KeyInput.PlaceholderText = "Enter Key..."
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.TextSize = 16
+    KeyInput.Parent = MainFrame
+    
+    local InputCorner = Instance.new("UICorner")
+    InputCorner.CornerRadius = UDim.new(0, 8)
+    InputCorner.Parent = KeyInput
+    
+    local Padding = Instance.new("UIPadding")
+    Padding.PaddingLeft = UDim.new(0, 10)
+    Padding.Parent = KeyInput
+    
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Size = UDim2.new(1, -40, 0, 40)
+    SubmitBtn.Position = UDim2.new(0, 20, 0, 180)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    SubmitBtn.Text = "✓ Submit"
+    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.TextSize = 16
+    SubmitBtn.Parent = MainFrame
+    
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 8)
+    BtnCorner.Parent = SubmitBtn
+    
+    local Status = Instance.new("TextLabel")
+    Status.Size = UDim2.new(1, -40, 0, 20)
+    Status.Position = UDim2.new(0, 20, 0, 225)
+    Status.BackgroundTransparency = 1
+    Status.Text = ""
+    Status.TextColor3 = Color3.fromRGB(255, 100, 100)
+    Status.Font = Enum.Font.Gotham
+    Status.TextSize = 12
+    Status.Parent = MainFrame
+    
+    return ScreenGui, KeyInput, SubmitBtn, Status
+end
+
+local player = game.Players.LocalPlayer
+local ownerUsername = "winnertupiq52"
+local isOwner = player.Name == ownerUsername
+
+print("Step 5: Checking key...")
+local keyValid, timeLeft = checkKey()
+
+if KeySystemEnabled and not keyValid then
+    print("Step 6: Key required, showing key UI...")
+    local gui, input, button, status = createKeyUI()
+    local submitted = false
+    
+    button.MouseButton1Click:Connect(function()
+        if submitted then return end
+        print("Key submitted:", input.Text)
+        if input.Text == CorrectKey then
+            print("Key correct!")
+            status.Text = "✓ Your key correct!"
+            status.TextColor3 = Color3.fromRGB(100, 255, 100)
+            saveKey()
+            submitted = true
+            wait(1.5)
+            gui:Destroy()
+        else
+            print("Wrong key!")
+            status.Text = "✗ Wrong Key!"
+            status.TextColor3 = Color3.fromRGB(255, 100, 100)
+            input.Text = ""
+        end
+    end)
+    
+    repeat wait(0.1) until submitted
+    print("Step 7: Key accepted!")
+else
+    print("Step 6: Key valid, skipping key UI...")
+end
+
+-- Welcome Screen
+local function createWelcome()
+    print("Step 8: Creating welcome screen...")
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerWelcome"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 450, 0, 140)
+    Frame.Position = UDim2.new(0.5, -225, 0.5, -70)
+    Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.Parent = Frame
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.Position = UDim2.new(0, 0, 0, 20)
+    Title.BackgroundTransparency = 1
+    Title.Text = isOwner and "👑 WELCOME OWNER" or "✨ WELCOME"
+    Title.TextColor3 = isOwner and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(139, 0, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 32
+    Title.Parent = Frame
+    
+    local Name = Instance.new("TextLabel")
+    Name.Size = UDim2.new(1, 0, 0, 35)
+    Name.Position = UDim2.new(0, 0, 0, 75)
+    Name.BackgroundTransparency = 1
+    Name.Text = player.DisplayName
+    Name.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Name.Font = Enum.Font.Gotham
+    Name.TextSize = 22
+    Name.Parent = Frame
+    
+    task.delay(3, function()
+        ScreenGui:Destroy()
+    end)
+end
+
+pcall(createWelcome)
+wait(3.5)
+
+-- Animated Text Screen
+local function createAnimatedText()
+    print("Step 9a: Creating animated text screen...")
+    
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerAnimation"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    -- Black blur background
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.BorderSizePixel = 0
+    Background.Parent = ScreenGui
+    
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = game.Lighting
+    
+    -- Container for text
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 600, 0, 200)
+    Container.Position = UDim2.new(0.5, -300, 0.5, -100)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
+    
+    -- Create scrambled letters
+    local letters = {}
+    local finalText = "WANER HUB"
+    local scrambledPositions = {}
+    
+    -- Generate random positions for scrambled letters
+    for i = 1, #finalText do
+        local char = finalText:sub(i, i)
+        if char ~= " " then
+            local label = Instance.new("TextLabel")
+            label.Size = UDim2.new(0, 60, 0, 80)
+            label.Position = UDim2.new(
+                math.random(0, 100) / 100,
+                math.random(-200, 200),
+                math.random(0, 100) / 100,
+                math.random(-200, 200)
+            )
+            label.BackgroundTransparency = 1
+            label.Text = char
+            label.TextColor3 = Color3.fromRGB(139, 0, 255)
+            label.Font = Enum.Font.GothamBold
+            label.TextSize = 60
+            label.TextTransparency = 1
+            label.Rotation = math.random(-180, 180)
+            label.Parent = Container
+            
+            table.insert(letters, {
+                label = label,
+                finalPos = UDim2.new(0, (i - 1) * 60 - (#finalText * 30), 0.5, -40),
+                finalRot = 0
+            })
+        end
+    end
+    
+    local TweenService = game:GetService("TweenService")
+    
+    task.spawn(function()
+        -- Fade in background and blur
+        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
+        wait(0.5)
+        
+        -- Show scrambled letters
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+        end
+        wait(0.8)
+        
+        -- Animate letters to correct positions
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Position = data.finalPos,
+                Rotation = data.finalRot
+            }):Play()
+        end
+        wait(1.5)
+        
+        -- Fade out
+        for _, data in pairs(letters) do
+            TweenService:Create(data.label, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        end
+        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
+        wait(0.6)
+        
+        Blur:Destroy()
+        ScreenGui:Destroy()
+    end)
+    
+    wait(4)
+end
+
+pcall(createAnimatedText)
+
+print("Step 9: Loading Obsidian UI...")
+
+-- Load Obsidian UI
+local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
+print("Step 10: Obsidian loaded!")
+
+local Window = Obsidian:CreateWindow({
+    Name = "Waner Hub",
+    LoadingTitle = "Waner Hub",
+    LoadingSubtitle = "by Waner",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil,
+        FileName = "WanerHub"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Waner Hub",
+        Subtitle = "Key System",
+        Note = "Key: Wene-you",
+        FileName = "WanerKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Wene-you"}
+    }
+})
+
+print("Step 11: Window created!")
+
+-- ESP Storage
+local espObjects = {}
+local keyEspObjects = {}
+local entityEspObjects = {}
+local playerEspObjects = {}
+local bookEspObjects = {}
+local codeEspObjects = {}
+local leverEspObjects = {}
+local itemEspObjects = {}
+
+-- States
+local doorEspEnabled = false
+local keyEspEnabled = false
+local entityEspEnabled = false
+local playerEspEnabled = false
+local figureEspEnabled = false
+local leverEspEnabled = false
+local itemEspEnabled = false
+local rushNotifEnabled = false
+local infVitaminsEnabled = false
+local autoUnlockEnabled = false
+local autoFigureEnabled = false
+local autoCollectEnabled = false
+local currentSpeed = 1
+local vitaminConnections = {}
+
+print("Step 12: Variables initialized!")
+
+-- Anti-Detect Speed
+local oldSpeed = 16
+local function setSpeed(multiplier)
+    currentSpeed = multiplier
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        local hum = player.Character.Humanoid
+        local targetSpeed = 16 * multiplier
+        local steps = 10
+        for i = 1, steps do
+            local progress = i / steps
+            hum.WalkSpeed = oldSpeed + (targetSpeed - oldSpeed) * progress
+            wait(0.05)
+        end
+        oldSpeed = targetSpeed
+    end
+end
+
+player.CharacterAdded:Connect(function(char)
+    wait(0.5)
+    if char:FindFirstChild("Humanoid") then
+        setSpeed(currentSpeed)
+    end
+end)
+
+-- ESP Function
+local function createESP(obj, color, txt)
+    if not obj or obj:FindFirstChild("ESP") then return nil end
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "ESP"
+    billboard.Adornee = obj
+    billboard.Size = UDim2.new(0, 100, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = obj
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = txt
+    label.TextColor3 = color
+    label.TextStrokeTransparency = 0.5
+    label.TextScaled = true
+    label.Font = Enum.Font.SourceSansBold
+    label.Parent = billboard
+    
+    return billboard
+end
+
+print("Step 13: ESP functions loaded!")
+
+-- Door ESP with Auto-Refresh + Dupe Detection
+local doorConnection
+local function addDoorESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v.Name == "Door" and not v:FindFirstChild("ESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local isDupe = false
+                local doorNum = nil
+                for _, desc in pairs(v:GetDescendants()) do
+                    if desc:IsA("SurfaceGui") then
+                        local label = desc:FindFirstChild("Number")
+                        if label and label:IsA("TextLabel") then
+                            doorNum = tonumber(label.Text)
+                            break
+                        end
+                    end
+                end
+                
+                if doorNum then
+                    local gameData = game:GetService("ReplicatedStorage"):FindFirstChild("GameData")
+                    if gameData then
+                        local latest = gameData:FindFirstChild("LatestRoom")
+                        if latest and doorNum ~= (latest.Value + 1) then
+                            isDupe = true
+                        end
+                    end
+                end
+                
+                local color = isDupe and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(0, 255, 0)
+                local text = isDupe and "❌ FAKE " .. (doorNum or "") or "🚪 Door"
+                local esp = createESP(part, color, text)
+                if esp then table.insert(espObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeDoorESP()
+    for _, esp in pairs(espObjects) do pcall(function() esp:Destroy() end) end
+    espObjects = {}
+end
+
+local function enableDoorESP()
+    doorEspEnabled = true
+    addDoorESP()
+    if doorConnection then doorConnection:Disconnect() end
+    doorConnection = workspace.DescendantAdded:Connect(function(v)
+        if doorEspEnabled and v:IsA("Model") and v.Name == "Door" then
+            wait(0.5)
+            addDoorESP()
+        end
+    end)
+end
+
+local function disableDoorESP()
+    doorEspEnabled = false
+    if doorConnection then doorConnection:Disconnect() end
+    removeDoorESP()
+end
+
+-- Key ESP with Auto-Refresh
+local keyConnection
+local function addKeyESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "Key" and not v:FindFirstChild("ESP") then
+            local part = v:IsA("Model") and (v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")) or v
+            if part then
+                local esp = createESP(part, Color3.fromRGB(255, 255, 0), "🔑 Key")
+                if esp then table.insert(keyEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeKeyESP()
+    for _, esp in pairs(keyEspObjects) do pcall(function() esp:Destroy() end) end
+    keyEspObjects = {}
+end
+
+local function enableKeyESP()
+    keyEspEnabled = true
+    addKeyESP()
+    if keyConnection then keyConnection:Disconnect() end
+    keyConnection = workspace.DescendantAdded:Connect(function(v)
+        if keyEspEnabled and v.Name == "Key" then
+            
