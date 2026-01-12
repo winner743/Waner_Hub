@@ -406,7 +406,7 @@ pcall(createAnimatedText)
 print("Step 9: Loading Obsidian UI...")
 
 -- Load Obsidian UI
-local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
+local rayfield= loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 print("Step 10: Obsidian loaded!")
 
 local Window = Obsidian:CreateWindow({
