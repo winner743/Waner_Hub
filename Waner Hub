@@ -301,138 +301,19 @@ end
 pcall(createWelcome)
 wait(3.5)
 
--- Animated Text Screen
-local function createAnimatedText()
-    print("Step 9a: Creating animated text screen...")
-    
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WanerAnimation"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game.CoreGui
-    
-    -- Black blur background
-    local Background = Instance.new("Frame")
-    Background.Size = UDim2.new(1, 0, 1, 0)
-    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Background.BackgroundTransparency = 1
-    Background.BorderSizePixel = 0
-    Background.Parent = ScreenGui
-    
-    local Blur = Instance.new("BlurEffect")
-    Blur.Size = 0
-    Blur.Parent = game.Lighting
-    
-    -- Container for text
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 600, 0, 200)
-    Container.Position = UDim2.new(0.5, -300, 0.5, -100)
-    Container.BackgroundTransparency = 1
-    Container.Parent = ScreenGui
-    
-    -- Create scrambled letters
-    local letters = {}
-    local finalText = "WANER HUB"
-    local scrambledPositions = {}
-    
-    -- Generate random positions for scrambled letters
-    for i = 1, #finalText do
-        local char = finalText:sub(i, i)
-        if char ~= " " then
-            local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(0, 60, 0, 80)
-            label.Position = UDim2.new(
-                math.random(0, 100) / 100,
-                math.random(-200, 200),
-                math.random(0, 100) / 100,
-                math.random(-200, 200)
-            )
-            label.BackgroundTransparency = 1
-            label.Text = char
-            label.TextColor3 = Color3.fromRGB(139, 0, 255)
-            label.Font = Enum.Font.GothamBold
-            label.TextSize = 60
-            label.TextTransparency = 1
-            label.Rotation = math.random(-180, 180)
-            label.Parent = Container
-            
-            table.insert(letters, {
-                label = label,
-                finalPos = UDim2.new(0, (i - 1) * 60 - (#finalText * 30), 0.5, -40),
-                finalRot = 0
-            })
-        end
-    end
-    
-    local TweenService = game:GetService("TweenService")
-    
-    task.spawn(function()
-        -- Fade in background and blur
-        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
-        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
-        wait(0.5)
-        
-        -- Show scrambled letters
-        for _, data in pairs(letters) do
-            TweenService:Create(data.label, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-        end
-        wait(0.8)
-        
-        -- Animate letters to correct positions
-        for _, data in pairs(letters) do
-            TweenService:Create(data.label, TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Position = data.finalPos,
-                Rotation = data.finalRot
-            }):Play()
-        end
-        wait(1.5)
-        
-        -- Fade out
-        for _, data in pairs(letters) do
-            TweenService:Create(data.label, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-        end
-        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
-        wait(0.6)
-        
-        Blur:Destroy()
-        ScreenGui:Destroy()
-    end)
-    
-    wait(4)
-end
+print("Step 9: Loading Rayfield UI...")
 
-pcall(createAnimatedText)
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+print("Step 10: Rayfield loaded!")
 
-print("Step 9: Loading Obsidian UI...")
-
--- Load Obsidian UI
-local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
-print("Step 10: Obsidian loaded!")
-
-local Window = Obsidian:CreateWindow({
+local Window = Rayfield:CreateWindow({
     Name = "Waner Hub",
     LoadingTitle = "Waner Hub",
     LoadingSubtitle = "by Waner",
-    ConfigurationSaving = {
-        Enabled = false,
-        FolderName = nil,
-        FileName = "WanerHub"
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "noinvitelink",
-        RememberJoins = true
-    },
-    KeySystem = false,
-    KeySettings = {
-        Title = "Waner Hub",
-        Subtitle = "Key System",
-        Note = "Key: Wene-you",
-        FileName = "WanerKey",
-        SaveKey = true,
-        GrabKeyFromSite = false,
-        Key = {"Wene-you"}
-    }
+    ConfigurationSaving = {Enabled = false},
+    Discord = {Enabled = false},
+    KeySystem = false
 })
 
 print("Step 11: Window created!")
@@ -444,8 +325,6 @@ local entityEspObjects = {}
 local playerEspObjects = {}
 local bookEspObjects = {}
 local codeEspObjects = {}
-local leverEspObjects = {}
-local itemEspObjects = {}
 
 -- States
 local doorEspEnabled = false
@@ -453,13 +332,9 @@ local keyEspEnabled = false
 local entityEspEnabled = false
 local playerEspEnabled = false
 local figureEspEnabled = false
-local leverEspEnabled = false
-local itemEspEnabled = false
 local rushNotifEnabled = false
 local infVitaminsEnabled = false
 local autoUnlockEnabled = false
-local autoFigureEnabled = false
-local autoCollectEnabled = false
 local currentSpeed = 1
 local vitaminConnections = {}
 
@@ -601,4 +476,578 @@ local function enableKeyESP()
     if keyConnection then keyConnection:Disconnect() end
     keyConnection = workspace.DescendantAdded:Connect(function(v)
         if keyEspEnabled and v.Name == "Key" then
-            
+            wait(0.2)
+            addKeyESP()
+        end
+    end)
+end
+
+local function disableKeyESP()
+    keyEspEnabled = false
+    if keyConnection then keyConnection:Disconnect() end
+    removeKeyESP()
+end
+
+-- Entity ESP (All Entities) with Auto-Refresh
+local entityConnection
+local function addEntityESP()
+    local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90"}
+    for _, v in pairs(workspace:GetChildren()) do
+        for _, entityName in pairs(entities) do
+            if v.Name:find(entityName) and not v:FindFirstChild("ESP") then
+                local part = v:FindFirstChildWhichIsA("BasePart", true)
+                if part then
+                    local displayName = v.Name:gsub("Moving", ""):upper()
+                    local esp = createESP(part, Color3.fromRGB(255, 0, 0), "⚠️ " .. displayName)
+                    if esp then table.insert(entityEspObjects, esp) end
+                end
+            end
+        end
+    end
+end
+
+local function removeEntityESP()
+    for _, esp in pairs(entityEspObjects) do pcall(function() esp:Destroy() end) end
+    entityEspObjects = {}
+end
+
+local function enableEntityESP()
+    entityEspEnabled = true
+    addEntityESP()
+    if entityConnection then entityConnection:Disconnect() end
+    entityConnection = workspace.ChildAdded:Connect(function(v)
+        if entityEspEnabled then
+            wait(0.1)
+            addEntityESP()
+        end
+    end)
+end
+
+local function disableEntityESP()
+    entityEspEnabled = false
+    if entityConnection then entityConnection:Disconnect() end
+    removeEntityESP()
+end
+
+-- Player ESP
+local playerConnection
+local function addPlayerESP()
+    for _, plr in pairs(game.Players:GetPlayers()) do
+        if plr ~= player and plr.Character then
+            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hrp and not hrp:FindFirstChild("ESP") then
+                local esp = createESP(hrp, Color3.fromRGB(0, 150, 255), "👤 " .. plr.Name)
+                if esp then table.insert(playerEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removePlayerESP()
+    for _, esp in pairs(playerEspObjects) do pcall(function() esp:Destroy() end) end
+    playerEspObjects = {}
+end
+
+local function enablePlayerESP()
+    playerEspEnabled = true
+    addPlayerESP()
+    if playerConnection then playerConnection:Disconnect() end
+    playerConnection = game.Players.PlayerAdded:Connect(function()
+        if playerEspEnabled then
+            wait(1)
+            addPlayerESP()
+        end
+    end)
+end
+
+local function disablePlayerESP()
+    playerEspEnabled = false
+    if playerConnection then playerConnection:Disconnect() end
+    removePlayerESP()
+end
+
+-- Figure ESP with Auto-Refresh
+local figureConnection
+local collectedCode = {}
+
+local function addFigureESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v.Name == "Book" then
+            local isCorrect = false
+            for _, child in pairs(v:GetDescendants()) do
+                if (child:IsA("Decal") or child:IsA("Texture")) and child.Texture then
+                    if child.Texture:lower():find("libraryhintpaper") then
+                        isCorrect = true
+                        break
+                    end
+                end
+            end
+            if isCorrect and not v:FindFirstChild("ESP") then
+                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    local esp = createESP(part, Color3.fromRGB(150, 0, 255), "📖 BOOK")
+                    if esp then table.insert(bookEspObjects, esp) end
+                end
+            end
+        end
+        if v:IsA("Model") and v.Name == "Paper" and not v:FindFirstChild("ESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local esp = createESP(part, Color3.fromRGB(0, 255, 255), "🔢 CODE")
+                if esp then table.insert(codeEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeFigureESP()
+    for _, esp in pairs(bookEspObjects) do pcall(function() esp:Destroy() end) end
+    for _, esp in pairs(codeEspObjects) do pcall(function() esp:Destroy() end) end
+    bookEspObjects = {}
+    codeEspObjects = {}
+end
+
+local function enableFigureESP()
+    figureEspEnabled = true
+    addFigureESP()
+    if figureConnection then figureConnection:Disconnect() end
+    figureConnection = workspace.DescendantAdded:Connect(function(v)
+        if figureEspEnabled and v:IsA("Model") and (v.Name == "Book" or v.Name == "Paper") then
+            wait(0.3)
+            addFigureESP()
+        end
+    end)
+end
+
+local function disableFigureESP()
+    figureEspEnabled = false
+    if figureConnection then figureConnection:Disconnect() end
+    removeFigureESP()
+end
+
+-- Lever ESP
+local leverEspObjects = {}
+local leverEspEnabled = false
+local leverConnection
+
+local function addLeverESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and (v.Name == "LeverForGate" or v.Name:lower():find("lever")) and not v:FindFirstChild("ESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local esp = createESP(part, Color3.fromRGB(255, 165, 0), "🔧 LEVER")
+                if esp then table.insert(leverEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeLeverESP()
+    for _, esp in pairs(leverEspObjects) do pcall(function() esp:Destroy() end) end
+    leverEspObjects = {}
+end
+
+local function enableLeverESP()
+    leverEspEnabled = true
+    addLeverESP()
+    if leverConnection then leverConnection:Disconnect() end
+    leverConnection = workspace.DescendantAdded:Connect(function(v)
+        if leverEspEnabled and v:IsA("Model") and v.Name:lower():find("lever") then
+            wait(0.2)
+            addLeverESP()
+        end
+    end)
+end
+
+local function disableLeverESP()
+    leverEspEnabled = false
+    if leverConnection then leverConnection:Disconnect() end
+    removeLeverESP()
+end
+
+-- Auto Figure Code
+local autoFigureEnabled = false
+
+local function collectFigureCode()
+    collectedCode = {}
+    for _, paper in pairs(workspace:GetDescendants()) do
+        if paper:IsA("Model") and paper.Name == "Paper" then
+            for _, gui in pairs(paper:GetDescendants()) do
+                if gui:IsA("SurfaceGui") then
+                    for _, img in pairs(gui:GetDescendants()) do
+                        if img:IsA("ImageLabel") then
+                            local imgId = img.Image
+                            if imgId and imgId ~= "" then
+                                -- Extract number from image ID
+                                for i = 0, 9 do
+                                    if imgId:find(tostring(i)) then
+                                        table.insert(collectedCode, i)
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return collectedCode
+end
+
+local function autoInputCode()
+    local code = collectFigureCode()
+    if #code > 0 then
+        print("Collected code:", table.concat(code, ""))
+        for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+            for _, door in pairs(room:GetDescendants()) do
+                if door:IsA("Model") and door.Name == "Door" then
+                    local lock = door:FindFirstChild("Lock", true)
+                    if lock then
+                        for _, button in pairs(lock:GetDescendants()) do
+                            if button:IsA("ProximityPrompt") then
+                                for _, num in pairs(code) do
+                                    pcall(function()
+                                        fireproximityprompt(button)
+                                    end)
+                                    wait(0.3)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function enableAutoFigure()
+    autoFigureEnabled = true
+    task.spawn(function()
+        while autoFigureEnabled do
+            autoInputCode()
+            task.wait(2)
+        end
+    end)
+end
+
+local function disableAutoFigure()
+    autoFigureEnabled = false
+end
+
+-- Auto Collect Items
+local autoCollectEnabled = false
+
+local function autoCollectItems()
+    if not autoCollectEnabled then return end
+    
+    local itemsToCollect = {
+        "Vitamins",
+        "Lockpick",
+        "FlashlightPickup",
+        "Lighter",
+        "Candle",
+        "Crucifix",
+        "Bandage",
+        "SkeletonKey",
+        "Shakelight"
+    }
+    
+    for _, item in pairs(workspace:GetDescendants()) do
+        for _, targetItem in pairs(itemsToCollect) do
+            if item:IsA("Model") and item.Name == targetItem then
+                local prompt = item:FindFirstChildOfClass("ProximityPrompt", true)
+                if prompt and prompt.Enabled then
+                    pcall(function()
+                        fireproximityprompt(prompt)
+                    end)
+                end
+            end
+        end
+    end
+end
+
+local function enableAutoCollect()
+    autoCollectEnabled = true
+    task.spawn(function()
+        while autoCollectEnabled do
+            autoCollectItems()
+            task.wait(1)
+        end
+    end)
+end
+
+local function disableAutoCollect()
+    autoCollectEnabled = false
+end
+
+print("Step 14: All ESP functions + Auto features ready!")
+
+-- Infinite Vitamins
+local function enableInfVitamins()
+    infVitaminsEnabled = true
+    task.spawn(function()
+        while infVitaminsEnabled do
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item:IsA("Model") and item.Name == "Vitamins" then
+                    local prompt = item:FindFirstChildOfClass("ProximityPrompt", true)
+                    if prompt and prompt.Enabled then
+                        pcall(function() fireproximityprompt(prompt) end)
+                    end
+                end
+            end
+            task.wait(1)
+        end
+    end)
+    
+    local function patch(vit)
+        for _, v in pairs(vit:GetDescendants()) do
+            if v:IsA("IntValue") and v.Name == "Uses" then
+                v.Value = 999999
+                local conn = v:GetPropertyChangedSignal("Value"):Connect(function()
+                    if infVitaminsEnabled then v.Value = 999999 end
+                end)
+                table.insert(vitaminConnections, conn)
+            end
+        end
+    end
+    
+    for _, item in pairs(player.Character:GetDescendants()) do
+        if item:IsA("Model") and item.Name == "Vitamins" then
+            patch(item)
+        end
+    end
+    
+    local conn = player.Character.DescendantAdded:Connect(function(item)
+        if infVitaminsEnabled and item:IsA("Model") and item.Name == "Vitamins" then
+            task.wait(0.2)
+            patch(item)
+        end
+    end)
+    table.insert(vitaminConnections, conn)
+end
+
+local function disableInfVitamins()
+    infVitaminsEnabled = false
+    for _, conn in pairs(vitaminConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    vitaminConnections = {}
+end
+
+-- Auto Unlock
+local function enableAutoUnlock()
+    autoUnlockEnabled = true
+    task.spawn(function()
+        while autoUnlockEnabled do
+            pcall(function()
+                for _, room in pairs(workspace.CurrentRooms:GetChildren()) do
+                    for _, obj in pairs(room:GetDescendants()) do
+                        if obj:IsA("Model") and obj.Name == "Door" then
+                            local lock = obj:FindFirstChild("Lock", true)
+                            if lock then
+                                local prompt = lock:FindFirstChildOfClass("ProximityPrompt")
+                                if prompt and prompt.Enabled then
+                                    local hasKey = false
+                                    for _, item in pairs(player.Character:GetChildren()) do
+                                        if item.Name:lower():find("key") then
+                                            hasKey = true
+                                            break
+                                        end
+                                    end
+                                    if hasKey then
+                                        fireproximityprompt(prompt)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            task.wait(0.5)
+        end
+    end)
+end
+
+print("Step 15: Auto functions ready!")
+
+-- Entity Notifications
+local function setupEntityNotif()
+    workspace.ChildAdded:Connect(function(child)
+        if rushNotifEnabled then
+            if child.Name == "RushMoving" or child.Name == "AmbushMoving" then
+                local name = child.Name:gsub("Moving", ""):upper()
+                Rayfield:Notify({Title = "⚠️ " .. name .. "!", Content = "HIDE NOW!", Duration = 5, Image = 4483362458})
+            elseif child.Name == "Eyes" or child.Name == "Screech" or child.Name == "BackdoorLookman" or child.Name:find("Timothy") then
+                Rayfield:Notify({Title = "👁️ " .. child.Name:upper() .. "!", Content = "Look away!", Duration = 4, Image = 4483362458})
+            end
+        end
+    end)
+end
+
+print("Step 16: Entity notifications ready!")
+
+-- Create Tabs
+local InfoTab = Window:CreateTab("📋 Info", 4483362458)
+local MainTab = Window:CreateTab("⚙️ Main", 4483362458)
+local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
+
+print("Step 17: Tabs created!")
+
+-- Info Tab
+InfoTab:CreateParagraph({Title = "👤 Player", Content = "Name: " .. player.Name .. "\nDisplay: " .. player.DisplayName .. (isOwner and "\n\n👑 OWNER STATUS" or "")})
+InfoTab:CreateParagraph({Title = "📌 Features", Content = "• ESP Auto-Refresh (No manual refresh)\n• ESP shows FAKE doors in RED\n• All Entity ESP\n• Player ESP\n• Anti-Detect Speed"})
+
+print("Step 18: Info tab populated!")
+
+-- Main Tab
+MainTab:CreateSlider({
+    Name = "Speed (Anti-Detect)",
+    Range = {1, 4},
+    Increment = 0.1,
+    Suffix = "x",
+    CurrentValue = 1,
+    Callback = function(v) setSpeed(v) end
+})
+
+MainTab:CreateToggle({
+    Name = "Entity Notifications",
+    CurrentValue = false,
+    Callback = function(v) rushNotifEnabled = v end
+})
+
+print("Step 19: Main tab populated!")
+
+-- ESP Tab
+ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP automatically shows FAKE doors in RED!\nNo need to toggle separately."})
+
+ESPTab:CreateToggle({
+    Name = "Door ESP (Auto-Refresh)",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableDoorESP() else disableDoorESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "Key ESP (Auto-Refresh)",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableKeyESP() else disableKeyESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "All Entity ESP (Auto-Refresh)",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableEntityESP() else disableEntityESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "Player ESP",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enablePlayerESP() else disablePlayerESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "Figure Book & Code ESP",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableFigureESP() else disableFigureESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "Lever ESP",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableLeverESP() else disableLeverESP() end
+    end
+})
+
+ESPTab:CreateButton({
+    Name = "Refresh All ESP",
+    Callback = function()
+        if doorEspEnabled then removeDoorESP() addDoorESP() end
+        if keyEspEnabled then removeKeyESP() addKeyESP() end
+        if entityEspEnabled then removeEntityESP() addEntityESP() end
+        if playerEspEnabled then removePlayerESP() addPlayerESP() end
+        if figureEspEnabled then removeFigureESP() addFigureESP() end
+        if leverEspEnabled then removeLeverESP() addLeverESP() end
+        Rayfield:Notify({Title = "✓ Refreshed", Content = "All ESP updated", Duration = 2})
+    end
+})
+
+print("Step 20: ESP tab populated!")
+
+-- Auto Tab
+AutoTab:CreateParagraph({Title = "🔧 Figure Features", Content = "Auto collect code from papers and input to door!"})
+
+AutoTab:CreateToggle({
+    Name = "Auto Figure Code & Door",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableAutoFigure() else disableAutoFigure() end
+    end
+})
+
+AutoTab:CreateToggle({
+    Name = "Auto Unlock Doors",
+    CurrentValue = false,
+    Callback = function(v)
+        autoUnlockEnabled = v
+        if v then enableAutoUnlock() end
+    end
+})
+
+AutoTab:CreateToggle({
+    Name = "Auto Collect Items",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableAutoCollect() else disableAutoCollect() end
+    end
+})
+
+AutoTab:CreateToggle({
+    Name = "Infinite Vitamins",
+    CurrentValue = false,
+    Callback = function(v)
+        if v then enableInfVitamins() else disableInfVitamins() end
+    end
+})
+
+print("Step 21: Auto tab populated!")
+
+-- Setup
+setupEntityNotif()
+
+print("Step 22: Entity notifications setup complete!")
+
+local hours = math.floor(timeLeft)
+local minutes = math.floor((timeLeft - hours) * 60)
+
+Rayfield:Notify({
+    Title = "Waner Hub Loaded!",
+    Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. (keyValid and string.format("\n⏰ Key: %dh %dm", hours, minutes) or ""),
+    Duration = 5,
+    Image = 4483362458
+})
+
+print("Step 23: Notification sent!")
+print("")
+print("=================================")
+print("✅ WANER HUB LOADED SUCCESSFULLY!")
+print("=================================")
+print("User: " .. player.Name .. (isOwner and " (OWNER)" or ""))
+if keyValid then
+    print("Key remaining: " .. hours .. "h " .. minutes .. "m")
+end
+print("=================================")
+print("")
+print("All features ready to use!")
+print("Enjoy Waner Hub! 🚀")
