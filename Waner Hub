@@ -1,131 +1,138 @@
--- WANER HUB v3.5 | Auto Reconnect + Auto Execute System
-print("=== WENER HUB STARTING ===")
-print("Step 1: Initializing...")
+-- WANER HUB v4.0 | COMPLETE ULTIMATE EDITION - ALL FEATURES COMBINED
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE STARTING ===")
+print("🚀 Loading the most advanced Doors script ever created...")
 
--- Services
+-- ============================================================================
+-- SERVICES & INITIALIZATION
+-- ============================================================================
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiService = game:GetService("GuiService")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 local player = Players.LocalPlayer
 
--- Auto Execute System
+-- ============================================================================
+-- AUTO EXECUTE SYSTEM
+-- ============================================================================
+
 local function setupAutoExecute()
     local autoExecuteCode = [[
--- WANER HUB AUTO EXECUTE
-loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors.lua"))()
+-- WANER HUB ULTIMATE AUTO EXECUTE COMPLETE
+print("🚀 WANER HUB Auto Execute Triggered!")
+loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate.lua"))()
 ]]
     
-    -- Save auto execute
     if not isfolder("WenerHub") then
         makefolder("WenerHub")
     end
     
     writefile("WenerHub/AutoExecute.lua", autoExecuteCode)
-    
-    -- Auto execute on join
-    if isfile("WenerHub/AutoExecute.lua") then
-        local code = readfile("WenerHub/AutoExecute.lua")
-        if code and code:find("WANER HUB AUTO EXECUTE") then
-            print("🔄 Auto Execute: Script akan otomatis execute saat reconnect")
-        end
-    end
+    print("🚀 Auto Execute: CONFIGURED SUCCESSFULLY")
 end
 
--- Disconnect Detection & Auto Reconnect System
+-- ============================================================================
+-- ADVANCED DISCONNECT DETECTION & AUTO RECONNECT SYSTEM
+-- ============================================================================
+
 local function setupAutoReconnect()
     local disconnectDetected = false
     
-    -- Create persistent disconnect GUI
     local function createDisconnectGUI()
         local ScreenGui = Instance.new("ScreenGui")
         ScreenGui.Name = "WenerDisconnectGUI"
         ScreenGui.ResetOnSpawn = false
         ScreenGui.Parent = game.CoreGui
         
-        -- Full screen background
+        local Blur = Instance.new("BlurEffect")
+        Blur.Size = 0
+        Blur.Parent = Lighting
+        
         local Background = Instance.new("Frame")
         Background.Size = UDim2.new(1, 0, 1, 0)
         Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        Background.BackgroundTransparency = 0.2
+        Background.BackgroundTransparency = 1
         Background.BorderSizePixel = 0
         Background.Parent = ScreenGui
         
-        -- Main disconnect panel
         local DisconnectPanel = Instance.new("Frame")
-        DisconnectPanel.Size = UDim2.new(0, 500, 0, 300)
-        DisconnectPanel.Position = UDim2.new(0.5, -250, 0.5, -150)
-        DisconnectPanel.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+        DisconnectPanel.Size = UDim2.new(0, 650, 0, 400)
+        DisconnectPanel.Position = UDim2.new(0.5, -325, 0.5, -200)
+        DisconnectPanel.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
         DisconnectPanel.BorderSizePixel = 0
         DisconnectPanel.Parent = ScreenGui
         
         local PanelCorner = Instance.new("UICorner")
-        PanelCorner.CornerRadius = UDim.new(0, 15)
+        PanelCorner.CornerRadius = UDim.new(0, 25)
         PanelCorner.Parent = DisconnectPanel
         
-        -- Gradient background
         local Gradient = Instance.new("UIGradient")
         Gradient.Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(75, 0, 130))
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(75, 0, 130)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(139, 0, 255))
         })
         Gradient.Rotation = 45
         Gradient.Parent = DisconnectPanel
         
-        -- Disconnect icon/title
         local Icon = Instance.new("TextLabel")
         Icon.Size = UDim2.new(1, 0, 0, 80)
-        Icon.Position = UDim2.new(0, 0, 0, 20)
+        Icon.Position = UDim2.new(0, 0, 0, 30)
         Icon.BackgroundTransparency = 1
         Icon.Text = "⚠️ CONNECTION LOST"
         Icon.TextColor3 = Color3.fromRGB(255, 255, 255)
         Icon.Font = Enum.Font.GothamBold
-        Icon.TextSize = 32
+        Icon.TextSize = 42
+        Icon.TextStrokeTransparency = 0.3
         Icon.Parent = DisconnectPanel
         
-        -- Main message
         local Message = Instance.new("TextLabel")
-        Message.Size = UDim2.new(1, -40, 0, 60)
-        Message.Position = UDim2.new(0, 20, 0, 110)
+        Message.Size = UDim2.new(1, -40, 0, 80)
+        Message.Position = UDim2.new(0, 20, 0, 130)
         Message.BackgroundTransparency = 1
-        Message.Text = "You have been disconnected from the server"
+        Message.Text = "🔌 You have been disconnected from the server\n📡 WANER HUB Ultimate Auto Reconnect System Activated\n✨ All features will be restored automatically"
         Message.TextColor3 = Color3.fromRGB(255, 255, 255)
         Message.Font = Enum.Font.Gotham
-        Message.TextSize = 18
+        Message.TextSize = 20
         Message.TextWrapped = true
         Message.TextYAlignment = Enum.TextYAlignment.Top
         Message.Parent = DisconnectPanel
         
-        -- Auto reconnect info
         local AutoInfo = Instance.new("TextLabel")
-        AutoInfo.Size = UDim2.new(1, -40, 0, 40)
-        AutoInfo.Position = UDim2.new(0, 20, 0, 180)
+        AutoInfo.Size = UDim2.new(1, -40, 0, 50)
+        AutoInfo.Position = UDim2.new(0, 20, 0, 230)
         AutoInfo.BackgroundTransparency = 1
-        AutoInfo.Text = "🔄 Auto Reconnecting in 3 seconds..."
+        AutoInfo.Text = "🔄 Auto Reconnecting in 5 seconds..."
         AutoInfo.TextColor3 = Color3.fromRGB(100, 255, 100)
         AutoInfo.Font = Enum.Font.GothamBold
-        AutoInfo.TextSize = 16
+        AutoInfo.TextSize = 24
         AutoInfo.Parent = DisconnectPanel
         
-        -- Manual reconnect button
         local ReconnectBtn = Instance.new("TextButton")
-        ReconnectBtn.Size = UDim2.new(0, 200, 0, 40)
-        ReconnectBtn.Position = UDim2.new(0.5, -100, 0, 230)
-        ReconnectBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+        ReconnectBtn.Size = UDim2.new(0, 280, 0, 60)
+        ReconnectBtn.Position = UDim2.new(0.5, -140, 0, 300)
+        ReconnectBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
         ReconnectBtn.Text = "🔄 Reconnect Now"
         ReconnectBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         ReconnectBtn.Font = Enum.Font.GothamBold
-        ReconnectBtn.TextSize = 16
+        ReconnectBtn.TextSize = 22
         ReconnectBtn.Parent = DisconnectPanel
         
         local BtnCorner = Instance.new("UICorner")
-        BtnCorner.CornerRadius = UDim.new(0, 8)
+        BtnCorner.CornerRadius = UDim.new(0, 15)
         BtnCorner.Parent = ReconnectBtn
         
-        -- Auto reconnect countdown
-        local countdown = 3
+        -- Enhanced Animations
+        TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 30}):Play()
+        TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 0.4}):Play()
+        wait(0.8)
+        
+        local countdown = 5
         local countdownConnection
         countdownConnection = RunService.Heartbeat:Connect(function()
             countdown = countdown - (1/60)
@@ -133,63 +140,39 @@ local function setupAutoReconnect()
                 AutoInfo.Text = string.format("🔄 Auto Reconnecting in %.1f seconds...", countdown)
             else
                 countdownConnection:Disconnect()
-                -- Auto reconnect
                 pcall(function()
                     TeleportService:Teleport(game.PlaceId, player)
                 end)
             end
         end)
         
-        -- Manual reconnect
         ReconnectBtn.MouseButton1Click:Connect(function()
             if countdownConnection then countdownConnection:Disconnect() end
             pcall(function()
                 TeleportService:Teleport(game.PlaceId, player)
             end)
         end)
-        
-        return ScreenGui
     end
     
-    -- Monitor connection status
+    -- Monitor connection
     local lastHeartbeat = tick()
-    local heartbeatConnection
-    
-    heartbeatConnection = RunService.Heartbeat:Connect(function()
+    RunService.Heartbeat:Connect(function()
         lastHeartbeat = tick()
     end)
     
-    -- Check for disconnection
     task.spawn(function()
         while true do
             task.wait(1)
-            
-            -- Check if heartbeat stopped (sign of disconnect)
-            if tick() - lastHeartbeat > 5 and not disconnectDetected then
+            if tick() - lastHeartbeat > 8 and not disconnectDetected then
                 disconnectDetected = true
-                print("🔌 Disconnect detected!")
-                
-                -- Create disconnect GUI
                 createDisconnectGUI()
                 break
             end
         end
     end)
     
-    -- Handle game events that might indicate disconnect
-    game:GetService("CoreGui").ChildRemoved:Connect(function(child)
-        if child.Name == "RobloxPromptGui" or child.Name == "RobloxGui" then
-            if not disconnectDetected then
-                disconnectDetected = true
-                task.wait(1)
-                createDisconnectGUI()
-            end
-        end
-    end)
-    
-    -- Handle teleport/rejoin events
+    -- Handle teleport failures
     TeleportService.TeleportInitFailed:Connect(function(player, teleportResult, errorMessage)
-        print("❌ Teleport failed:", errorMessage)
         if not disconnectDetected then
             disconnectDetected = true
             createDisconnectGUI()
@@ -197,9 +180,11 @@ local function setupAutoReconnect()
     end)
 end
 
--- Loading Screen
+-- ============================================================================
+-- ENHANCED LOADING SCREEN WITH ADVANCED ANIMATIONS
+-- ============================================================================
+
 local function createLoadingScreen()
-    print("Step 2: Creating loading screen...")
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "WanerLoading"
     ScreenGui.ResetOnSpawn = false
@@ -207,114 +192,142 @@ local function createLoadingScreen()
     
     local Blur = Instance.new("BlurEffect")
     Blur.Size = 0
-    Blur.Parent = game.Lighting
+    Blur.Parent = Lighting
     
     local Background = Instance.new("Frame")
     Background.Size = UDim2.new(1, 0, 1, 0)
-    Background.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    Background.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
     Background.BackgroundTransparency = 1
     Background.Parent = ScreenGui
     
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 450, 0, 220)
-    Container.Position = UDim2.new(0.5, -225, 0.5, -110)
-    Container.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    Container.Size = UDim2.new(0, 600, 0, 350)
+    Container.Position = UDim2.new(0.5, -300, 0.5, -175)
+    Container.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 15)
+    Corner.CornerRadius = UDim.new(0, 25)
     Corner.Parent = Container
     
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(75, 0, 130))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = Container
+    
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 60)
-    Title.Position = UDim2.new(0, 0, 0, 30)
+    Title.Size = UDim2.new(1, 0, 0, 80)
+    Title.Position = UDim2.new(0, 0, 0, 40)
     Title.BackgroundTransparency = 1
-    Title.Text = "WENER HUB"
-    Title.TextColor3 = Color3.fromRGB(139, 0, 255)
+    Title.Text = "WENER HUB v4.0"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 42
+    Title.TextSize = 54
     Title.TextTransparency = 1
+    Title.TextStrokeTransparency = 0
     Title.Parent = Container
     
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Size = UDim2.new(1, 0, 0, 40)
+    Subtitle.Position = UDim2.new(0, 0, 0, 120)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Text = "ULTIMATE COMPLETE EDITION"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.TextSize = 24
+    Subtitle.TextTransparency = 1
+    Subtitle.Parent = Container
+    
     local Status = Instance.new("TextLabel")
-    Status.Size = UDim2.new(1, 0, 0, 30)
-    Status.Position = UDim2.new(0, 0, 0, 100)
+    Status.Size = UDim2.new(1, 0, 0, 40)
+    Status.Position = UDim2.new(0, 0, 0, 180)
     Status.BackgroundTransparency = 1
-    Status.Text = "Initializing Auto Execute System..."
-    Status.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Status.Text = "Initializing ultimate systems..."
+    Status.TextColor3 = Color3.fromRGB(100, 255, 100)
     Status.Font = Enum.Font.Gotham
-    Status.TextSize = 16
+    Status.TextSize = 18
     Status.TextTransparency = 1
     Status.Parent = Container
     
     local Progress = Instance.new("Frame")
-    Progress.Size = UDim2.new(0.8, 0, 0, 6)
-    Progress.Position = UDim2.new(0.1, 0, 0, 150)
+    Progress.Size = UDim2.new(0.85, 0, 0, 10)
+    Progress.Position = UDim2.new(0.075, 0, 0, 240)
     Progress.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
     Progress.BorderSizePixel = 0
+    Progress.BackgroundTransparency = 1
     Progress.Parent = Container
     
     local ProgressCorner = Instance.new("UICorner")
     ProgressCorner.CornerRadius = UDim.new(1, 0)
     ProgressCorner.Parent = Progress
     
-    -- Animation with fade effect
+    -- Loading animation
     task.spawn(function()
         -- Fade in
-        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 20}):Play()
-        TweenService:Create(Background, TweenInfo.new(0.5), {BackgroundTransparency = 0.3}):Play()
-        TweenService:Create(Container, TweenInfo.new(0.5), {BackgroundTransparency = 0.1}):Play()
-        wait(0.5)
-        TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-        TweenService:Create(Status, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-        wait(0.5)
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 35}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(Container, TweenInfo.new(1), {BackgroundTransparency = 0.1}):Play()
+        wait(1)
         
-        -- Loading stages with fade
+        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(0.4)
+        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(0.4)
+        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+        wait(0.8)
+        
+        -- Loading stages
         local stages = {
-            "Setting up Auto Execute...",
-            "Configuring Auto Reconnect...", 
-            "Loading Main Features...",
-            "Complete!"
+            {text = "🚀 Setting up Auto Execute System...", progress = 0.15},
+            {text = "🔄 Configuring Auto Reconnect...", progress = 0.3},
+            {text = "👁️ Loading Advanced ESP Systems...", progress = 0.45},
+            {text = "🛡️ Initializing God Mode & Bypass...", progress = 0.6},
+            {text = "🤖 Setting up Automation Features...", progress = 0.75},
+            {text = "⚡ Loading Movement Controls...", progress = 0.9},
+            {text = "✅ All Ultimate Systems Ready!", progress = 1.0}
         }
         
         for i, stage in ipairs(stages) do
-            -- Fade out current text
-            TweenService:Create(Status, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
-            wait(0.2)
-            
-            -- Change text and fade in
-            Status.Text = stage
-            TweenService:Create(Status, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
-            TweenService:Create(Progress, TweenInfo.new(0.8), {Size = UDim2.new(0.8 * (i/4), 0, 0, 6)}):Play()
-            wait(0.8)
+            TweenService:Create(Status, TweenInfo.new(0.4), {TextTransparency = 0.5}):Play()
+            wait(0.4)
+            Status.Text = stage.text
+            TweenService:Create(Status, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+            TweenService:Create(Progress, TweenInfo.new(1.2), {Size = UDim2.new(0.85 * stage.progress, 0, 0, 10)}):Play()
+            wait(1.5)
         end
         
-        wait(0.5)
+        wait(1.5)
         
-        -- Fade out everything
-        TweenService:Create(Title, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-        TweenService:Create(Status, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-        TweenService:Create(Container, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Background, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Blur, TweenInfo.new(0.5), {Size = 0}):Play()
-        wait(0.6)
+        -- Fade out
+        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+        wait(1.2)
         
         Blur:Destroy()
         ScreenGui:Destroy()
     end)
-    print("Step 2: Loading screen with fade created!")
 end
 
--- Setup systems first
+-- Initialize core systems
 setupAutoExecute()
 setupAutoReconnect()
-pcall(createLoadingScreen)
-wait(4)
+createLoadingScreen()
+wait(6)
 
-print("Step 3: Auto systems initialized!")
+-- ============================================================================
+-- ADVANCED KEY SYSTEM WITH ENHANCED DESIGN
+-- ============================================================================
 
--- Key System
 local KeySystemEnabled = true
 local CorrectKey = "Wene-you"
 
@@ -322,139 +335,220 @@ local function checkKey()
     local success, data = pcall(function()
         return game:GetService("HttpService"):JSONDecode(readfile("WanerHubKey.json"))
     end)
-    if success and data and data.key == CorrectKey then
-        return true
-    end
-    return false
+    return success and data and data.key == CorrectKey
 end
 
 local function saveKey()
-    writefile("WanerHubKey.json", game:GetService("HttpService"):JSONEncode({key = CorrectKey, time = os.time()}))
+    writefile("WanerHubKey.json", game:GetService("HttpService"):JSONEncode({
+        key = CorrectKey, 
+        time = os.time(),
+        user = player.Name,
+        version = "v4.0_Ultimate"
+    }))
 end
 
 local ownerUsername = "winnertupiq52"
 local isOwner = player.Name == ownerUsername
 
 if KeySystemEnabled and not checkKey() then
-    print("Key required...")
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "WanerKeySystem"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = Lighting
+    
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
+    
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 400, 0, 200)
-    MainFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    MainFrame.Size = UDim2.new(0, 500, 0, 320)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainFrame.BackgroundTransparency = 1
     MainFrame.Parent = ScreenGui
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.CornerRadius = UDim.new(0, 25)
     Corner.Parent = MainFrame
     
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(75, 0, 130))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = MainFrame
+    
+    -- Animate in
+    TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 30}):Play()
+    TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 0.3}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 0.1}):Play()
+    wait(0.8)
+    
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 50)
-    Title.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
-    Title.Text = "🔐 Waner Hub Key"
+    Title.Size = UDim2.new(1, 0, 0, 80)
+    Title.BackgroundTransparency = 1
+    Title.Text = "🔐 WENER HUB ULTIMATE ACCESS"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 20
+    Title.TextSize = 28
     Title.Parent = MainFrame
     
-    local TitleCorner = Instance.new("UICorner")
-    TitleCorner.CornerRadius = UDim.new(0, 12)
-    TitleCorner.Parent = Title
-    
     local KeyInput = Instance.new("TextBox")
-    KeyInput.Size = UDim2.new(1, -40, 0, 40)
-    KeyInput.Position = UDim2.new(0, 20, 0, 70)
-    KeyInput.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-    KeyInput.PlaceholderText = "Enter Key: Wene-***"
+    KeyInput.Size = UDim2.new(1, -40, 0, 55)
+    KeyInput.Position = UDim2.new(0, 20, 0, 100)
+    KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    KeyInput.PlaceholderText = "Enter Ultimate Access Key: Wene-***"
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.Font = Enum.Font.Gotham
-    KeyInput.TextSize = 16
+    KeyInput.TextSize = 20
     KeyInput.Parent = MainFrame
     
     local InputCorner = Instance.new("UICorner")
-    InputCorner.CornerRadius = UDim.new(0, 8)
+    InputCorner.CornerRadius = UDim.new(0, 15)
     InputCorner.Parent = KeyInput
     
     local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Size = UDim2.new(1, -40, 0, 40)
-    SubmitBtn.Position = UDim2.new(0, 20, 0, 120)
-    SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-    SubmitBtn.Text = "✓ Submit"
+    SubmitBtn.Size = UDim2.new(1, -40, 0, 55)
+    SubmitBtn.Position = UDim2.new(0, 20, 0, 180)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    SubmitBtn.Text = "✓ GRANT ULTIMATE ACCESS"
     SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitBtn.Font = Enum.Font.GothamBold
-    SubmitBtn.TextSize = 16
+    SubmitBtn.TextSize = 20
     SubmitBtn.Parent = MainFrame
     
     local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 8)
+    BtnCorner.CornerRadius = UDim.new(0, 15)
     BtnCorner.Parent = SubmitBtn
+    
+    local Info = Instance.new("TextLabel")
+    Info.Size = UDim2.new(1, -40, 0, 50)
+    Info.Position = UDim2.new(0, 20, 0, 250)
+    Info.BackgroundTransparency = 1
+    Info.Text = "Ultimate Complete Edition • 30+ Features • Advanced Systems"
+    Info.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Info.Font = Enum.Font.Gotham
+    Info.TextSize = 16
+    Info.Parent = MainFrame
     
     local submitted = false
     SubmitBtn.MouseButton1Click:Connect(function()
         if KeyInput.Text == CorrectKey then
             saveKey()
             submitted = true
-            -- Fade out key system
-            TweenService:Create(MainFrame, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-            TweenService:Create(Title, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-            TweenService:Create(KeyInput, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-            TweenService:Create(SubmitBtn, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-            wait(0.5)
+            
+            -- Success animation
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            SubmitBtn.Text = "✅ SUCCESS! Loading Ultimate Features..."
+            
+            TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(KeyInput, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(SubmitBtn, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(Info, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+            wait(1.2)
+            
+            Blur:Destroy()
             ScreenGui:Destroy()
+        else
+            -- Error animation
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            SubmitBtn.Text = "❌ INVALID ULTIMATE KEY"
+            wait(1.5)
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            SubmitBtn.Text = "✓ GRANT ULTIMATE ACCESS"
         end
     end)
     
     repeat wait(0.1) until submitted
 end
 
--- Permanent Logo with fade
+-- ============================================================================
+-- PERMANENT LOGO WITH ENHANCED ANIMATION & OWNER STATUS
+-- ============================================================================
+
 local function createPermanentLogo()
-    print("Creating permanent logo...")
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "WanerLogo"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 400, 0, 70)
-    Container.Position = UDim2.new(0.5, -200, 0.02, 0)
+    Container.Size = UDim2.new(0, 500, 0, 90)
+    Container.Position = UDim2.new(0.5, -250, 0.02, 0)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
     
     local WenerText = Instance.new("TextLabel")
-    WenerText.Size = UDim2.new(0, 150, 1, 0)
+    WenerText.Size = UDim2.new(0, 170, 1, 0)
     WenerText.Position = UDim2.new(0, 0, 0, 0)
     WenerText.BackgroundTransparency = 1
     WenerText.Text = "WENER"
     WenerText.TextColor3 = Color3.fromRGB(139, 0, 255)
     WenerText.Font = Enum.Font.GothamBold
-    WenerText.TextSize = 36
-    WenerText.TextStrokeTransparency = 0.5
+    WenerText.TextSize = 44
+    WenerText.TextStrokeTransparency = 0.3
     WenerText.TextXAlignment = Enum.TextXAlignment.Right
     WenerText.TextTransparency = 1
     WenerText.Parent = Container
     
     local HubText = Instance.new("TextLabel")
-    HubText.Size = UDim2.new(0, 100, 1, 0)
-    HubText.Position = UDim2.new(0, 160, 0, 0)
+    HubText.Size = UDim2.new(0, 110, 1, 0)
+    HubText.Position = UDim2.new(0, 180, 0, 0)
     HubText.BackgroundTransparency = 1
     HubText.Text = "HUB"
     HubText.TextColor3 = Color3.fromRGB(139, 0, 255)
     HubText.Font = Enum.Font.GothamBold
-    HubText.TextSize = 36
-    HubText.TextStrokeTransparency = 0.5
+    HubText.TextSize = 44
+    HubText.TextStrokeTransparency = 0.3
     HubText.TextXAlignment = Enum.TextXAlignment.Left
     HubText.TextTransparency = 1
     HubText.Parent = Container
     
+    local VersionText = Instance.new("TextLabel")
+    VersionText.Size = UDim2.new(0, 90, 0, 25)
+    VersionText.Position = UDim2.new(0, 300, 1, -25)
+    VersionText.BackgroundTransparency = 1
+    VersionText.Text = "v4.0 Ultimate"
+    VersionText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    VersionText.Font = Enum.Font.Gotham
+    VersionText.TextSize = 16
+    VersionText.TextTransparency = 1
+    VersionText.Parent = Container
+    
+    -- Owner status
+    if isOwner then
+        local OwnerText = Instance.new("TextLabel")
+        OwnerText.Size = UDim2.new(0, 120, 0, 25)
+        OwnerText.Position = UDim2.new(0, 300, 0, 0)
+        OwnerText.BackgroundTransparency = 1
+        OwnerText.Text = "👑 OWNER ACCESS"
+        OwnerText.TextColor3 = Color3.fromRGB(255, 215, 0)
+        OwnerText.Font = Enum.Font.GothamBold
+        OwnerText.TextSize = 14
+        OwnerText.TextTransparency = 1
+        OwnerText.Parent = Container
+        
+        task.spawn(function()
+            wait(3)
+            TweenService:Create(OwnerText, TweenInfo.new(1.5, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+        end)
+    end
+    
     local DecalFrame = Instance.new("Frame")
-    DecalFrame.Size = UDim2.new(0, 30, 0, 30)
-    DecalFrame.Position = UDim2.new(0, 270, 0.5, -15)
+    DecalFrame.Size = UDim2.new(0, 40, 0, 40)
+    DecalFrame.Position = UDim2.new(0, 420, 0.5, -20)
     DecalFrame.BackgroundTransparency = 1
     DecalFrame.Parent = Container
     
@@ -466,22 +560,27 @@ local function createPermanentLogo()
     Decal.ImageTransparency = 1
     Decal.Parent = DecalFrame
     
-    -- Fade in logo
+    -- Enhanced fade in animation
     task.spawn(function()
-        wait(1)
-        TweenService:Create(WenerText, TweenInfo.new(1), {TextTransparency = 0}):Play()
-        TweenService:Create(HubText, TweenInfo.new(1), {TextTransparency = 0}):Play()
-        TweenService:Create(Decal, TweenInfo.new(1), {ImageTransparency = 0}):Play()
+        wait(2.5)
+        TweenService:Create(WenerText, TweenInfo.new(1.5, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(HubText, TweenInfo.new(1.5, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(VersionText, TweenInfo.new(1.2, Enum.EasingStyle.Quart), {TextTransparency = 0}):Play()
+        TweenService:Create(Decal, TweenInfo.new(1.2, Enum.EasingStyle.Quart), {ImageTransparency = 0}):Play()
         
         -- Periodic glow effect
         task.spawn(function()
             while true do
-                wait(8)
-                TweenService:Create(WenerText, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
-                TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
-                wait(0.5)
-                TweenService:Create(WenerText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-                TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+                wait(12)
+                local glowTween1 = TweenService:Create(WenerText, TweenInfo.new(1), {TextTransparency = 0.4})
+                local glowTween2 = TweenService:Create(HubText, TweenInfo.new(1), {TextTransparency = 0.4})
+                glowTween1:Play()
+                glowTween2:Play()
+                wait(1)
+                TweenService:Create(WenerText, TweenInfo.new(1), {TextTransparency = 0}):Play()
+                TweenService:Create(HubText, TweenInfo.new(1), {TextTransparency = 0}):Play()
             end
         end)
     end)
@@ -489,42 +588,61 @@ end
 
 pcall(createPermanentLogo)
 
--- Load Rayfield UI
+-- ============================================================================
+-- LOAD ENHANCED RAYFIELD UI
+-- ============================================================================
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Wener Hub v3.5 - Auto System",
-    LoadingTitle = "Wener Hub",
-    LoadingSubtitle = "Auto Reconnect Ready",
+    Name = "Wener Hub v4.0 - Ultimate Complete Edition",
+    LoadingTitle = "Wener Hub Ultimate Complete",
+    LoadingSubtitle = "All Advanced Systems Operational",
     ConfigurationSaving = {Enabled = false},
     Discord = {Enabled = false},
     KeySystem = false
 })
 
--- Variables (same as before)
+-- ============================================================================
+-- VARIABLES FOR ALL SYSTEMS
+-- ============================================================================
+
 local espObjects = {}
-local godModeEnabled = false
-local bypassAntiCheat = false
-local noclipEnabled = false
-local autoCollectEnabled = false
+local keyEspObjects = {}
+local entityEspObjects = {}
+local playerEspObjects = {}
+local bookEspObjects = {}
+local itemEspObjects = {}
+local figureEspObjects = {}
+local doorEspObjects = {}
+
+-- States
+local doorEspEnabled = false
+local keyEspEnabled = false
+local entityEspEnabled = false
+local playerEspEnabled = false
+local figureEspEnabled = false
+local bookEspEnabled = false
+local itemEspEnabled = false
 local rushNotifEnabled = false
 local allEntityNotifications = false
+local infVitaminsEnabled = false
+local autoUnlockEnabled = false
+local autoCollectEnabled = false
+local noclipEnabled = false
+local godModeEnabled = false
+local bypassAntiCheat = false
 local currentSpeed = 1
 
--- God Mode System (same as before but with fade notifications)
+-- ============================================================================
+-- ADVANCED GOD MODE SYSTEM WITH MULTIPLE PROTECTION LAYERS
+-- ============================================================================
+
 local godModeConnections = {}
 local originalHealth = nil
 
 local function enableGodMode()
     godModeEnabled = true
-    
-    -- Fade notification
-    Rayfield:Notify({
-        Title = "🛡️ God Mode Activated",
-        Content = "You are now invincible!",
-        Duration = 3,
-        Image = 4483362458,
-    })
     
     for _, conn in pairs(godModeConnections) do
         pcall(function() conn:Disconnect() end)
@@ -541,9 +659,11 @@ local function enableGodMode()
             originalHealth = humanoid.MaxHealth
         end
         
+        -- Multiple protection layers
         humanoid.MaxHealth = math.huge
         humanoid.Health = math.huge
         
+        -- Block health changes
         local healthConn = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
             if godModeEnabled and humanoid.Health < math.huge then
                 humanoid.Health = math.huge
@@ -557,8 +677,16 @@ local function enableGodMode()
             end
         end)
         
+        -- Block damage events
+        local damageConn = humanoid.HealthChanged:Connect(function(health)
+            if godModeEnabled and health < humanoid.MaxHealth then
+                humanoid.Health = math.huge
+            end
+        end)
+        
         table.insert(godModeConnections, healthConn)
         table.insert(godModeConnections, maxHealthConn)
+        table.insert(godModeConnections, damageConn)
     end
     
     if player.Character then
@@ -573,17 +701,11 @@ local function enableGodMode()
     end)
     
     table.insert(godModeConnections, charConn)
+    print("🛡️ Advanced God Mode: ENABLED")
 end
 
 local function disableGodMode()
     godModeEnabled = false
-    
-    Rayfield:Notify({
-        Title = "🛡️ God Mode Deactivated",
-        Content = "You can now take damage",
-        Duration = 3,
-        Image = 4483362458,
-    })
     
     for _, conn in pairs(godModeConnections) do
         pcall(function() conn:Disconnect() end)
@@ -597,9 +719,102 @@ local function disableGodMode()
             humanoid.Health = originalHealth
         end
     end
+    
+    print("🛡️ Advanced God Mode: DISABLED")
 end
 
--- Speed System with fade (same logic but with notifications)
+-- ============================================================================
+-- ADVANCED BYPASS ANTI-CHEAT SYSTEM
+-- ============================================================================
+
+local bypassConnections = {}
+
+local function enableBypassAntiCheat()
+    bypassAntiCheat = true
+    
+    for _, conn in pairs(bypassConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    bypassConnections = {}
+    
+    local function setupBypass(character)
+        if not character then return end
+        
+        local humanoid = character:WaitForChild("Humanoid", 5)
+        if not humanoid then return end
+        
+        -- Block anti-cheat remotes
+        local function blockRemotes()
+            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+                    local name = remote.Name:lower()
+                    if name:find("anticheat") or name:find("speed") or name:find("hack") or name:find("exploit") then
+                        local oldFireServer = remote.FireServer
+                        if oldFireServer then
+                            remote.FireServer = function(...)
+                                if bypassAntiCheat then
+                                    return
+                                end
+                                return oldFireServer(...)
+                            end
+                        end
+                        
+                        local oldInvokeServer = remote.InvokeServer
+                        if oldInvokeServer then
+                            remote.InvokeServer = function(...)
+                                if bypassAntiCheat then
+                                    return
+                                end
+                                return oldInvokeServer(...)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        blockRemotes()
+        
+        local remoteConn = ReplicatedStorage.DescendantAdded:Connect(function(descendant)
+            if bypassAntiCheat then
+                task.wait(0.1)
+                blockRemotes()
+            end
+        end)
+        
+        table.insert(bypassConnections, remoteConn)
+    end
+    
+    if player.Character then
+        setupBypass(player.Character)
+    end
+    
+    local charConn = player.CharacterAdded:Connect(function(character)
+        if bypassAntiCheat then
+            task.wait(1)
+            setupBypass(character)
+        end
+    end)
+    
+    table.insert(bypassConnections, charConn)
+    print("🔓 Advanced Bypass Anti-Cheat: ENABLED")
+end
+
+local function disableBypassAntiCheat()
+    bypassAntiCheat = false
+    
+    for _, conn in pairs(bypassConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    bypassConnections = {}
+    
+    print("🔓 Advanced Bypass Anti-Cheat: DISABLED")
+end
+
+-- ============================================================================
+-- ADVANCED SPEED SYSTEM WITH SMOOTH TRANSITIONS
+-- ============================================================================
+
 local function setSpeed(multiplier)
     currentSpeed = multiplier
     
@@ -608,7 +823,8 @@ local function setSpeed(multiplier)
         local targetSpeed = 16 * multiplier
         
         if bypassAntiCheat then
-            local steps = math.max(1, math.abs(targetSpeed - humanoid.WalkSpeed) / 2)
+            -- Gradual speed change to avoid detection
+            local steps = math.max(1, math.abs(targetSpeed - humanoid.WalkSpeed) / 3)
             for i = 1, steps do
                 if not player.Character or not player.Character:FindFirstChild("Humanoid") then break end
                 
@@ -616,7 +832,7 @@ local function setSpeed(multiplier)
                 local newSpeed = humanoid.WalkSpeed + (targetSpeed - humanoid.WalkSpeed) * progress
                 
                 humanoid.WalkSpeed = newSpeed
-                task.wait(0.03)
+                task.wait(0.05)
             end
         else
             humanoid.WalkSpeed = targetSpeed
@@ -624,27 +840,749 @@ local function setSpeed(multiplier)
     end
 end
 
--- Entity Notifications
-local function setupEntityNotif()
+-- Apply speed on character spawn
+player.CharacterAdded:Connect(function(character)
+    task.wait(1)
+    if character:FindFirstChild("Humanoid") then
+        setSpeed(currentSpeed)
+    end
+end)
+
+-- ============================================================================
+-- ADVANCED NOCLIP SYSTEM
+-- ============================================================================
+
+local noclipConnection
+local noclipParts = {}
+
+local function enableNoclip()
+    noclipEnabled = true
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+    
+    local function applyNoclip()
+        if not player.Character then return end
+        
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") and part.CanCollide then
+                part.CanCollide = false
+                noclipParts[part] = true
+            end
+        end
+    end
+    
+    applyNoclip()
+    
+    noclipConnection = RunService.Stepped:Connect(function()
+        if noclipEnabled then
+            applyNoclip()
+        end
+    end)
+    
+    print("👻 Advanced Noclip: ENABLED")
+end
+
+local function disableNoclip()
+    noclipEnabled = false
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+    
+    for part, _ in pairs(noclipParts) do
+        if part and part.Parent then
+            part.CanCollide = true
+        end
+    end
+    noclipParts = {}
+    
+    print("👻 Advanced Noclip: DISABLED")
+end
+
+-- ============================================================================
+-- ADVANCED AUTO COLLECT SYSTEM WITH SMART DETECTION
+-- ============================================================================
+
+local autoCollectConnection
+local autoCollectSettings = {
+    Vitamins = true,
+    Lockpick = true,
+    FlashlightPickup = true,
+    Lighter = true,
+    Candle = true,
+    Crucifix = true,
+    Bandage = true,
+    SkeletonKey = true,
+    Shakelight = true,
+    Key = true,
+    Book = true,
+    Paper = true,
+    Scanner = true,
+    ElectricalKeyCard = true
+}
+
+local function autoCollectItems()
+    if not autoCollectEnabled then return end
+    
+    local collectedCount = 0
+    
+    local function collectFromContainer(container)
+        for _, item in pairs(container:GetDescendants()) do
+            if collectedCount >= 20 then break end
+            
+            for itemName, enabled in pairs(autoCollectSettings) do
+                if enabled and item:IsA("Model") and (item.Name == itemName or item.Name:find(itemName)) then
+                    local prompt = item:FindFirstChildOfClass("ProximityPrompt", true)
+                    if not prompt then
+                        for _, descendant in pairs(item:GetDescendants()) do
+                            if descendant:IsA("ProximityPrompt") and descendant.Enabled then
+                                prompt = descendant
+                                break
+                            end
+                        end
+                    end
+                    
+                    if prompt and prompt.Enabled then
+                        local itemPart = item:FindFirstChildWhichIsA("BasePart", true)
+                        if itemPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (player.Character.HumanoidRootPart.Position - itemPart.Position).Magnitude
+                            
+                            if distance <= (prompt.MaxActivationDistance or 15) then
+                                pcall(function()
+                                    fireproximityprompt(prompt)
+                                    collectedCount = collectedCount + 1
+                                end)
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    collectFromContainer(workspace)
+    
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        collectFromContainer(currentRooms)
+    end
+end
+
+local function enableAutoCollect()
+    autoCollectEnabled = true
+    
+    if autoCollectConnection then autoCollectConnection:Disconnect() end
+    
+    autoCollectConnection = RunService.Heartbeat:Connect(function()
+        if autoCollectEnabled then
+            autoCollectItems()
+        end
+    end)
+    
+    print("📦 Advanced Auto Collect: ENABLED")
+end
+
+local function disableAutoCollect()
+    autoCollectEnabled = false
+    
+    if autoCollectConnection then autoCollectConnection:Disconnect() end
+    
+    print("📦 Advanced Auto Collect: DISABLED")
+end
+
+-- ============================================================================
+-- ENHANCED ESP SYSTEM WITH ADVANCED FEATURES & LIGHT EFFECTS
+-- ============================================================================
+
+-- Create enhanced ESP with light effect and animations
+local function createAdvancedESP(obj, color, txt, espType)
+    if not obj or obj:FindFirstChild("WenerESP") then return nil end
+    
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "WenerESP"
+    billboard.Adornee = obj
+    billboard.Size = UDim2.new(0, 180, 0, 90)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = obj
+    
+    -- Background frame with gradient
+    local bgFrame = Instance.new("Frame")
+    bgFrame.Size = UDim2.new(1, 0, 1, 0)
+    bgFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    bgFrame.BackgroundTransparency = 0.2
+    bgFrame.BorderSizePixel = 0
+    bgFrame.Parent = billboard
+    
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 10)
+    bgCorner.Parent = bgFrame
+    
+    local bgGradient = Instance.new("UIGradient")
+    bgGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
+    })
+    bgGradient.Rotation = 90
+    bgGradient.Parent = bgFrame
+    
+    -- Main label with enhanced styling
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0.65, 0)
+    label.BackgroundTransparency = 1
+    label.Text = txt
+    label.TextColor3 = color
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.Parent = bgFrame
+    
+    -- Distance label with icon
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Size = UDim2.new(1, 0, 0.35, 0)
+    distanceLabel.Position = UDim2.new(0, 0, 0.65, 0)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Text = "📏 0m"
+    distanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    distanceLabel.TextStrokeTransparency = 0
+    distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    distanceLabel.TextScaled = true
+    distanceLabel.Font = Enum.Font.Gotham
+    distanceLabel.Parent = bgFrame
+    
+    -- Special effects based on ESP type
+    if espType == "book" then
+        -- Enhanced light effect for books
+        local lightEffect = Instance.new("PointLight")
+        lightEffect.Brightness = 2.5
+        lightEffect.Range = 20
+        lightEffect.Color = Color3.fromRGB(255, 255, 100)
+        lightEffect.Parent = obj
+        
+        -- Pulsing light animation
+        task.spawn(function()
+            while lightEffect and lightEffect.Parent do
+                TweenService:Create(lightEffect, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {Brightness = 0.8}):Play()
+                wait(1.2)
+                TweenService:Create(lightEffect, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {Brightness = 2.5}):Play()
+                wait(1.2)
+            end
+        end)
+        
+        -- Book glow effect
+        local selectionBox = Instance.new("SelectionBox")
+        selectionBox.Adornee = obj
+        selectionBox.Color3 = Color3.fromRGB(255, 255, 0)
+        selectionBox.LineThickness = 0.2
+        selectionBox.Transparency = 0.5
+        selectionBox.Parent = obj
+        
+    elseif espType == "figure" then
+        -- Warning effect for Figure
+        local warningLight = Instance.new("PointLight")
+        warningLight.Brightness = 3
+        warningLight.Range = 25
+        warningLight.Color = Color3.fromRGB(255, 0, 0)
+        warningLight.Parent = obj
+        
+        -- Flashing red light
+        task.spawn(function()
+            while warningLight and warningLight.Parent do
+                warningLight.Enabled = true
+                wait(0.3)
+                warningLight.Enabled = false
+                wait(0.3)
+            end
+        end)
+        
+    elseif espType == "door" then
+        -- Door outline effect
+        local selectionBox = Instance.new("SelectionBox")
+        selectionBox.Adornee = obj
+        selectionBox.Color3 = Color3.fromRGB(0, 255, 0)
+        selectionBox.LineThickness = 0.15
+        selectionBox.Transparency = 0.7
+        selectionBox.Parent = obj
+    end
+    
+    -- Fade in animation
+    bgFrame.BackgroundTransparency = 1
+    label.TextTransparency = 1
+    distanceLabel.TextTransparency = 1
+    
+    TweenService:Create(bgFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.2}):Play()
+    TweenService:Create(label, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    TweenService:Create(distanceLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    
+    -- Update distance
+    task.spawn(function()
+        while billboard and billboard.Parent do
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
+                distanceLabel.Text = "📏 " .. math.floor(distance) .. "m"
+            end
+            wait(0.5)
+        end
+    end)
+    
+    return billboard
+end
+
+-- ============================================================================
+-- ENHANCED DOOR ESP
+--============================================================================
+
+local doorConnection
+
+local function getDoorNumber(door)
+    -- Multiple methods to detect door number
+    local doorNumber = "?"
+    
+    -- Method 1: Check door name
+    if door.Name:match("%d+") then
+        doorNumber = door.Name:match("%d+")
+    end
+    
+    -- Method 2: Check parent room
+    local parent = door.Parent
+    if parent and parent.Name:match("%d+") then
+        doorNumber = parent.Name:match("%d+")
+    end
+    
+    -- Method 3: Check for NumberValue
+    local numberValue = door:FindFirstChild("RoomNumber") or door:FindFirstChildOfClass("NumberValue")
+    if numberValue and numberValue.Value then
+        doorNumber = tostring(numberValue.Value)
+    end
+    
+    -- Method 4: Check CurrentRooms structure
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        for _, room in pairs(currentRooms:GetChildren()) do
+            if room:FindFirstChild("Door") == door or door:IsDescendantOf(room) then
+                if room.Name:match("%d+") then
+                    doorNumber = room.Name:match("%d+")
+                    break
+                end
+            end
+        end
+    end
+    
+    return doorNumber
+end
+
+local function addDoorESP()
+    for _, door in pairs(workspace:GetDescendants()) do
+        if door:IsA("Model") and door.Name == "Door" and not door:FindFirstChild("WenerESP") then
+            local doorPart = door:FindFirstChild("Door") or door:FindFirstChildWhichIsA("BasePart")
+            if doorPart then
+                local doorNumber = getDoorNumber(door)
+                local doorText = "🚪 Door " .. doorNumber
+                local esp = createAdvancedESP(doorPart, Color3.fromRGB(0, 255, 0), doorText, "door")
+                if esp then table.insert(doorEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeDoorESP()
+    for _, esp in pairs(doorEspObjects) do 
+        pcall(function() 
+            -- Remove selection box
+            local selectionBox = esp.Adornee:FindFirstChild("SelectionBox")
+            if selectionBox then selectionBox:Destroy() end
+            esp:Destroy() 
+        end) 
+    end
+    doorEspObjects = {}
+end
+
+local function enableDoorESP()
+    doorEspEnabled = true
+    addDoorESP()
+    if doorConnection then doorConnection:Disconnect() end
+    doorConnection = workspace.DescendantAdded:Connect(function(v)
+        if doorEspEnabled and v:IsA("Model") and v.Name == "Door" then
+            task.wait(0.5)
+            addDoorESP()
+        end
+    end)
+end
+
+local function disableDoorESP()
+    doorEspEnabled = false
+    if doorConnection then doorConnection:Disconnect() end
+    removeDoorESP()
+end
+
+-- ============================================================================
+-- ENHANCED FIGURE ESP WITH WARNING SYSTEM
+-- ============================================================================
+
+local figureConnection
+
+local function addFigureESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and (v.Name == "FigureRagdoll" or v.Name == "Figure") and not v:FindFirstChild("WenerESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local esp = createAdvancedESP(part, Color3.fromRGB(255, 0, 0), "👹 FIGURE - DANGER!", "figure")
+                if esp then 
+                    table.insert(figureEspObjects, esp)
+                    
+                    -- Play warning sound
+                    local sound = Instance.new("Sound")
+                    sound.SoundId = "rbxassetid://131961136" -- Siren sound
+                    sound.Volume = 0.8
+                    sound.Looped = true
+                    sound.Parent = workspace
+                    sound:Play()
+                    
+                    -- Stop sound after 10 seconds
+                    task.spawn(function()
+                        wait(10)
+                        sound:Stop()
+                        sound:Destroy()
+                    end)
+                end
+            end
+        end
+    end
+end
+
+local function removeFigureESP()
+    for _, esp in pairs(figureEspObjects) do 
+        pcall(function() 
+            -- Remove warning light
+            local light = esp.Adornee:FindFirstChild("PointLight")
+            if light then light:Destroy() end
+            esp:Destroy() 
+        end) 
+    end
+    figureEspObjects = {}
+end
+
+local function enableFigureESP()
+    figureEspEnabled = true
+    addFigureESP()
+    if figureConnection then figureConnection:Disconnect() end
+    figureConnection = workspace.DescendantAdded:Connect(function(v)
+        if figureEspEnabled and v:IsA("Model") and (v.Name == "FigureRagdoll" or v.Name == "Figure") then
+            task.wait(0.5)
+            
+            addFigureESP()
+        end
+    end)
+end
+
+local function disableFigureESP()
+    figureEspEnabled = false
+    if figureConnection then figureConnection:Disconnect() end
+    removeFigureESP()
+end
+
+-- ============================================================================
+-- ENHANCED BOOK ESP WITH LIGHT EFFECTS
+-- ============================================================================
+
+local bookConnection
+
+local function addBookESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "Book") and not v:FindFirstChild("WenerESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local esp = createAdvancedESP(part, Color3.fromRGB(255, 255, 0), "📖 Book", "book")
+                if esp then table.insert(bookEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeBookESP()
+    for _, esp in pairs(bookEspObjects) do 
+        pcall(function() 
+            -- Remove light effect and selection box
+            local light = esp.Adornee:FindFirstChild("PointLight")
+            if light then light:Destroy() end
+            local selectionBox = esp.Adornee:FindFirstChild("SelectionBox")
+            if selectionBox then selectionBox:Destroy() end
+            esp:Destroy() 
+        end) 
+    end
+    bookEspObjects = {}
+end
+
+local function enableBookESP()
+    bookEspEnabled = true
+    addBookESP()
+    if bookConnection then bookConnection:Disconnect() end
+    bookConnection = workspace.DescendantAdded:Connect(function(v)
+        if bookEspEnabled and v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "Book") then
+            task.wait(0.5)
+            addBookESP()
+        end
+    end)
+end
+
+local function disableBookESP()
+    bookEspEnabled = false
+    if bookConnection then bookConnection:Disconnect() end
+    removeBookESP()
+end
+
+-- ============================================================================
+-- ENHANCED KEY ESP
+-- ============================================================================
+
+local keyConnection
+
+local function addKeyESP()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and (v.Name == "Key" or v.Name == "SkeletonKey") and not v:FindFirstChild("WenerESP") then
+            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+            if part then
+                local keyType = v.Name == "SkeletonKey" and "🗝️ Skeleton Key" or "🔑 Key"
+                local color = v.Name == "SkeletonKey" and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(255, 255, 0)
+                local esp = createAdvancedESP(part, color, keyType, "key")
+                if esp then table.insert(keyEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removeKeyESP()
+    for _, esp in pairs(keyEspObjects) do pcall(function() esp:Destroy() end) end
+    keyEspObjects = {}
+end
+
+local function enableKeyESP()
+    keyEspEnabled = true
+    addKeyESP()
+    if keyConnection then keyConnection:Disconnect() end
+    keyConnection = workspace.DescendantAdded:Connect(function(v)
+        if keyEspEnabled and v:IsA("Model") and (v.Name == "Key" or v.Name == "SkeletonKey") then
+            task.wait(0.5)
+            addKeyESP()
+        end
+    end)
+end
+
+local function disableKeyESP()
+    keyEspEnabled = false
+    if keyConnection then keyConnection:Disconnect() end
+    removeKeyESP()
+end
+
+-- ============================================================================
+-- ENHANCED ENTITY ESP
+-- ============================================================================
+
+local entityConnection
+local entityList = {
+    "RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", 
+    "Figure", "BackdoorLookman", "A60", "A90", "Timothy", "Snare",
+    "Dupe", "Hide", "Glitch", "Jack", "Shadow"
+}
+
+local function addEntityESP()
+    for _, entityName in pairs(entityList) do
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v.Name:find(entityName) and not v:FindFirstChild("WenerESP") then
+                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    local color = Color3.fromRGB(255, 0, 0)
+                    if entityName == "Eyes" then color = Color3.fromRGB(0, 255, 255) end
+                    if entityName == "Halt" then color = Color3.fromRGB(255, 255, 0) end
+                    if entityName == "Seek" then color = Color3.fromRGB(0, 0, 0) end
+                    
+                    local esp = createAdvancedESP(part, color, "👻 " .. entityName:gsub("Moving", ""), "entity")
+                    if esp then table.insert(entityEspObjects, esp) end
+                end
+            end
+        end
+    end
+end
+
+local function removeEntityESP()
+    for _, esp in pairs(entityEspObjects) do pcall(function() esp:Destroy() end) end
+    entityEspObjects = {}
+end
+
+local function enableEntityESP()
+    entityEspEnabled = true
+    addEntityESP()
+    if entityConnection then entityConnection:Disconnect() end
+    entityConnection = workspace.DescendantAdded:Connect(function(v)
+        if entityEspEnabled then
+            for _, entityName in pairs(entityList) do
+                if v:IsA("Model") and v.Name:find(entityName) then
+                    task.wait(0.5)
+                    addEntityESP()
+                    break
+                end
+            end
+        end
+    end)
+end
+
+local function disableEntityESP()
+    entityEspEnabled = false
+    if entityConnection then entityConnection:Disconnect() end
+    removeEntityESP()
+end
+
+-- ============================================================================
+-- ENHANCED PLAYER ESP
+-- ============================================================================
+
+local playerConnection
+
+local function addPlayerESP()
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local part = otherPlayer.Character.HumanoidRootPart
+            if not part:FindFirstChild("WenerESP") then
+                local esp = createAdvancedESP(part, Color3.fromRGB(0, 255, 255), "👤 " .. otherPlayer.Name, "player")
+                if esp then table.insert(playerEspObjects, esp) end
+            end
+        end
+    end
+end
+
+local function removePlayerESP()
+    for _, esp in pairs(playerEspObjects) do pcall(function() esp:Destroy() end) end
+    playerEspObjects = {}
+end
+
+local function enablePlayerESP()
+    playerEspEnabled = true
+    addPlayerESP()
+    if playerConnection then playerConnection:Disconnect() end
+    playerConnection = Players.PlayerAdded:Connect(function()
+        if playerEspEnabled then
+            task.wait(2)
+            addPlayerESP()
+        end
+    end)
+end
+
+local function disablePlayerESP()
+    playerEspEnabled = false
+    if playerConnection then playerConnection:Disconnect() end
+    removePlayerESP()
+end
+
+-- ============================================================================
+-- ENHANCED ITEM ESP
+-- ============================================================================
+
+local itemConnection
+local itemList = {
+    "Vitamins", "Lockpick", "FlashlightPickup", "Lighter", "Candle", 
+    "Crucifix", "Bandage", "Shakelight", "Scanner", "Paper"
+}
+
+local function addItemESP()
+    for _, itemName in pairs(itemList) do
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v.Name == itemName and not v:FindFirstChild("WenerESP") then
+                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+                if part then
+                    local color = Color3.fromRGB(0, 255, 0)
+                    if itemName == "Crucifix" then color = Color3.fromRGB(255, 215, 0) end
+                    if itemName == "Vitamins" then color = Color3.fromRGB(255, 0, 255) end
+                    
+                    local esp = createAdvancedESP(part, color, "📦 " .. itemName, "item")
+                    if esp then table.insert(itemEspObjects, esp) end
+                end
+            end
+        end
+    end
+end
+
+local function removeItemESP()
+    for _, esp in pairs(itemEspObjects) do pcall(function() esp:Destroy() end) end
+    itemEspObjects = {}
+end
+
+local function enableItemESP()
+    itemEspEnabled = true
+    addItemESP()
+    if itemConnection then itemConnection:Disconnect() end
+    itemConnection = workspace.DescendantAdded:Connect(function(v)
+        if itemEspEnabled then
+            for _, itemName in pairs(itemList) do
+                if v:IsA("Model") and v.Name == itemName then
+                    task.wait(0.5)
+                    addItemESP()
+                    break
+                end
+            end
+        end
+    end)
+end
+
+local function disableItemESP()
+    itemEspEnabled = false
+    if itemConnection then itemConnection:Disconnect() end
+    removeItemESP()
+end
+
+-- ============================================================================
+-- ENHANCED ENTITY NOTIFICATIONS WITH SOUND
+-- ============================================================================
+
+local function setupEntityNotifications()
     workspace.ChildAdded:Connect(function(child)
         if rushNotifEnabled and (child.Name == "RushMoving" or child.Name == "AmbushMoving") then
             local name = child.Name:gsub("Moving", ""):upper()
+            
+            -- Play warning sound
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://4590662766" -- Emergency sound
+            sound.Volume = 1
+            sound.Parent = workspace
+            sound:Play()
+            sound.Ended:Connect(function() sound:Destroy() end)
+            
             Rayfield:Notify({
                 Title = "⚠️ " .. name .. " SPAWNED!",
-                Content = "HIDE NOW! " .. name .. " is coming!",
-                Duration = 5,
+                Content = "🚨 HIDE IMMEDIATELY! " .. name .. " is approaching!\n💡 Find a closet or bed to hide!",
+                Duration = 8,
                 Image = 4483362458,
             })
+            
+            -- Screen flash effect
+            local flash = Instance.new("ScreenGui")
+            flash.Name = "WenerFlash"
+            flash.Parent = game.CoreGui
+            
+            local frame = Instance.new("Frame")
+            frame.Size = UDim2.new(1, 0, 1, 0)
+            frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            frame.BackgroundTransparency = 0.5
+            frame.Parent = flash
+            
+            TweenService:Create(frame, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+            task.wait(0.2)
+            flash:Destroy()
         end
         
         if allEntityNotifications then
-            local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90", "Timothy"}
-            for _, entityName in pairs(entities) do
+            for _, entityName in pairs(entityList) do
                 if child.Name:find(entityName) then
+                    local color = "👻"
+                    if entityName == "Eyes" then color = "👁️" end
+                    if entityName == "Screech" then color = "🦇" end
+                    if entityName == "Halt" then color = "✋" end
+                    if entityName == "Seek" then color = "🖤" end
+                    if entityName == "Figure" then color = "👹" end
+                    
                     Rayfield:Notify({
-                        Title = "👻 ENTITY DETECTED!",
-                        Content = "Entity: " .. child.Name .. "\nBe careful!",
-                        Duration = 4,
+                        Title = color .. " ENTITY DETECTED!",
+                        Content = "Entity: " .. entityName .. "\n🛡️ Stay alert and be careful!",
+                        Duration = 5,
                         Image = 4483362458,
                     })
                     break
@@ -654,103 +1592,231 @@ local function setupEntityNotif()
     end)
 end
 
--- Create Tabs
+-- ============================================================================
+-- ENHANCED INFINITE VITAMINS
+-- ============================================================================
+
+local infVitaminsConnection
+
+local function enableInfVitamins()
+    infVitaminsEnabled = true
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    infVitaminsConnection = RunService.Heartbeat:Connect(function()
+        if infVitaminsEnabled and player.Character then
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            if humanoid and humanoid.Health < humanoid.MaxHealth then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end
+    end)
+    
+    print("💊 Infinite Vitamins: ENABLED")
+end
+
+local function disableInfVitamins()
+    infVitaminsEnabled = false
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    print("💊 Infinite Vitamins: DISABLED")
+end
+
+-- ============================================================================
+-- ENHANCED AUTO UNLOCK DOORS
+-- ============================================================================
+
+local autoUnlockConnection
+
+local function enableAutoUnlock()
+    autoUnlockEnabled = true
+    
+    if autoUnlockConnection then autoUnlockConnection:Disconnect() end
+    
+    local function unlockDoors()
+        for _, door in pairs(workspace:GetDescendants()) do
+            if door:IsA("Model") and door.Name == "Door" then
+                local prompt = door:FindFirstChildOfClass("ProximityPrompt", true)
+                if prompt and prompt.Enabled and prompt.ActionText == "Open" then
+                    local doorPart = door:FindFirstChildWhichIsA("BasePart", true)
+                    if doorPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local distance = (player.Character.HumanoidRootPart.Position - doorPart.Position).Magnitude
+                        if distance <= 15 then
+                            pcall(function()
+                                fireproximityprompt(prompt)
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    autoUnlockConnection = RunService.Heartbeat:Connect(function()
+        if autoUnlockEnabled then
+            unlockDoors()
+        end
+    end)
+    
+    print("🔓 Auto Unlock: ENABLED")
+end
+
+local function disableAutoUnlock()
+    autoUnlockEnabled = false
+    if autoUnlockConnection then autoUnlockConnection:Disconnect() end
+    print("🔓 Auto Unlock: DISABLED")
+end
+
+-- ============================================================================
+-- CREATE ALL TABS
+-- ============================================================================
+
 local InfoTab = Window:CreateTab("📋 Info", 4483362458)
-local MainTab = Window:CreateTab("⚙️ Main", 4483362458)
-local AutoTab = Window:CreateTab("🔄 Auto System", 4483362458)
+local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
+local AutoTab = Window:CreateTab("🔄 Auto Systems", 4483362458)
+local ESPTab = Window:CreateTab("👁️ ESP Features", 4483362458)
+local MiscTab = Window:CreateTab("🛠️ Miscellaneous", 4483362458)
 
--- Info Tab
-InfoTab:CreateParagraph({
-    Title = "👤 Player Info", 
-    Content = "Name: " .. player.Name .. 
-              "\nDisplay: " .. player.DisplayName .. 
-              (isOwner and "\n\n👑 OWNER STATUS" or "") ..
-              "\n\n🔄 Auto Reconnect: ACTIVE" ..
-              "\n🚀 Auto Execute: READY"
-})
+-- ============================================================================
+-- INFO TAB
+-- ============================================================================
 
 InfoTab:CreateParagraph({
-    Title = "🔄 Auto System Features", 
-    Content = "• Auto Reconnect saat disconnect\n• Auto Execute script saat rejoin\n• Disconnect notification dengan countdown\n• Manual reconnect button\n• Fade animations untuk semua UI"
+    Title = "👤 Player Information", 
+    Content = "Username: " .. player.Name .. 
+              "\nDisplay Name: " .. player.DisplayName .. 
+              "\nUser ID: " .. player.UserId ..
+              (isOwner and "\n\n👑 OWNER ACCESS GRANTED" or "") ..
+              "\n\n🔄 Auto Reconnect: ✅ ACTIVE" ..
+              "\n🚀 Auto Execute: ✅ READY" ..
+              "\n✨ Advanced ESP: ✅ LOADED" ..
+              "\n🛡️ All Systems: ✅ OPERATIONAL"
 })
 
--- Auto System Tab  
-AutoTab:CreateSection("🔄 Connection System")
+InfoTab:CreateSection("📊 System Status")
+
+InfoTab:CreateParagraph({
+    Title = "🎮 Script Information", 
+    Content = "Script: WANER HUB v4.0 Ultimate Complete Edition" ..
+              "\nGame: Doors (Roblox)" ..
+              "\nFeatures: 30+ Advanced Features" ..
+              "\nESP Types: 7 Different ESP Systems" ..
+              "\nAuto Systems: 5 Automation Features" ..
+              "\nSecurity: Advanced Anti-Detection" ..
+              "\n\n🌟 This is the most complete version!"
+})
+
+InfoTab:CreateSection("📖 How to Use")
+
+InfoTab:CreateParagraph({
+    Title = "🔧 Quick Start Guide", 
+    Content = "1. 🛡️ Enable God Mode for protection" ..
+              "\n2. 🔓 Turn on Bypass Anti-Cheat" ..
+              "\n3. ⚡ Adjust Speed (recommended 2x)" ..
+              "\n4. 👁️ Enable ESP for items you need" ..
+              "\n5. 🔄 Turn on Auto Systems for convenience" ..
+              "\n\n⚠️ Use moderate settings to avoid detection!"
+})
+
+-- ============================================================================
+-- AUTO SYSTEMS TAB
+-- ============================================================================
+
+AutoTab:CreateSection("🔄 Connection Management")
 
 AutoTab:CreateParagraph({
-    Title = "🔌 Auto Reconnect Status", 
-    Content = "✅ ACTIVE - Script akan otomatis reconnect jika disconnect\n✅ Auto Execute Ready - Script akan otomatis jalan saat rejoin\n⏰ Countdown: 3 detik sebelum auto reconnect"
+    Title = "🔌 Auto Reconnect System", 
+    Content = "✅ STATUS: FULLY ACTIVE" ..
+              "\n🔄 Auto reconnects when disconnected" ..
+              "\n🚀 Auto executes script on rejoin" ..
+              "\n⏰ 5-second countdown before reconnect" ..
+              "\n🎮 Manual reconnect button available" ..
+              "\n✨ Smooth fade animations included"
 })
 
 AutoTab:CreateButton({
-    Name = "🔄 Test Reconnect System",
+    Name = "🔄 Test Auto Reconnect",
     Callback = function()
         Rayfield:Notify({
-            Title = "🔄 Testing Reconnect",
-            Content = "Simulating disconnect in 3 seconds...",
-            Duration = 3,
+            Title = "🔄 Testing Auto Reconnect",
+            Content = "Simulating disconnect in 3 seconds...\nAuto reconnect will trigger automatically!",
+            Duration = 4,
             Image = 4483362458,
         })
         
         task.wait(3)
-        
-        -- Simulate reconnect (just rejoin current server)
         TeleportService:Teleport(game.PlaceId, player)
     end
 })
 
 AutoTab:CreateButton({
-    Name = "📁 Open Auto Execute Folder", 
+    Name = "📁 Check Auto Execute Status",
     Callback = function()
+        local status = "❌ NOT CONFIGURED"
+        if isfile("WenerHub/AutoExecute.lua") then
+            status = "✅ READY TO AUTO EXECUTE"
+        end
+        
         Rayfield:Notify({
-            Title = "📁 Auto Execute Folder",
-            Content = "File location: WenerHub/AutoExecute.lua\nAuto execute sudah dikonfigurasi!",
-            Duration = 4,
+            Title = "🚀 Auto Execute Status",
+            Content = "Status: " .. status ..
+                      "\nLocation: WenerHub/AutoExecute.lua" ..
+                      "\nWill execute automatically on rejoin!",
+            Duration = 5,
             Image = 4483362458,
         })
     end
 })
 
--- Main Tab
+AutoTab:CreateSection("🤖 Automation Features")
+
+AutoTab:CreateToggle({
+    Name = "📦 Auto Collect Items",
+    CurrentValue = false,
+    Flag = "AutoCollectToggle",
+    Callback = function(v)
+        if v then enableAutoCollect() else disableAutoCollect() end
+    end
+})
+
+AutoTab:CreateToggle({
+    Name = "🔓 Auto Unlock Doors", 
+    CurrentValue = false,
+    Flag = "AutoUnlockToggle",
+    Callback = function(v)
+        if v then enableAutoUnlock() else disableAutoUnlock() end
+    end
+})
+
+AutoTab:CreateToggle({
+    Name = "💊 Infinite Vitamins",
+    CurrentValue = false,
+    Flag = "InfVitaminsToggle", 
+    Callback = function(v)
+        if v then enableInfVitamins() else disableInfVitamins() end
+    end
+})
+
+-- ============================================================================
+-- MAIN FEATURES TAB
+-- ============================================================================
+
+MainTab:CreateSection("⚡ Movement & Speed")
+
 MainTab:CreateSlider({
     Name = "⚡ Speed Multiplier",
-    Range = {1, 5},
+    Range = {1, 6},
     Increment = 0.1,
     Suffix = "x",
     CurrentValue = 1,
     Flag = "SpeedSlider",
     Callback = function(v) 
         setSpeed(v)
-        if v > 1.5 then
+        if v > 2 then
             Rayfield:Notify({
-                Title = "⚡ Speed Increased",
-                Content = "Current speed: " .. v .. "x\nBypass recommended!",
-                Duration = 2,
-                Image = 4483362458,
-            })
-        end
-    end
-})
-
-MainTab:CreateToggle({
-    Name = "🛡️ God Mode (Fixed)",
-    CurrentValue = false,
-    Flag = "GodModeToggle",
-    Callback = function(v)
-        if v then enableGodMode() else disableGodMode() end
-    end
-})
-
-MainTab:CreateToggle({
-    Name = "🔓 Bypass Anti-Cheat",
-    CurrentValue = false,
-    Flag = "BypassToggle",
-    Callback = function(v)
-        bypassAntiCheat = v
-        if v then
-            Rayfield:Notify({
-                Title = "🔓 Bypass Activated",
-                Content = "Anti-cheat protection enabled!",
+                Title = "⚡ High Speed Warning",
+                Content = "Speed: " .. v .. "x" ..
+                         "\n🔓 Enable Bypass Anti-Cheat!" ..
+                         "\n⚠️ Use with caution!",
                 Duration = 3,
                 Image = 4483362458,
             })
@@ -759,10 +1825,84 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "⚠️ Rush/Ambush Notifications",
+    Name = "👻 Noclip (Phase Through Walls)",
+    CurrentValue = false,
+    Flag = "NoclipToggle",
+    Callback = function(v)
+        if v then enableNoclip() else disableNoclip() end
+    end
+})
+
+MainTab:CreateSection("🛡️ Protection Systems")
+
+MainTab:CreateToggle({
+    Name = "🛡️ God Mode (Enhanced)",
+    CurrentValue = false,
+    Flag = "GodModeToggle",
+    Callback = function(v)
+        if v then 
+            enableGodMode()
+            Rayfield:Notify({
+                Title = "🛡️ God Mode Activated",
+                Content = "✅ You are now invincible!" ..
+                         "\n🔄 Multi-layer protection enabled" ..
+                         "\n⚡ Works with all damage sources",
+                Duration = 4,
+                Image = 4483362458,
+            })
+        else 
+            disableGodMode()
+            Rayfield:Notify({
+                Title = "🛡️ God Mode Deactivated",
+                Content = "⚠️ You can now take damage" ..
+                         "\n🩹 Be careful around entities!",
+                Duration = 3,
+                Image = 4483362458,
+            })
+        end
+    end
+})
+
+MainTab:CreateToggle({
+    Name = "🔓 Bypass Anti-Cheat (Advanced)",
+    CurrentValue = false,
+    Flag = "BypassToggle",
+    Callback = function(v)
+        if v then 
+            enableBypassAntiCheat()
+            Rayfield:Notify({
+                Title = "🔓 Bypass Activated",
+                Content = "✅ Anti-cheat protection enabled!" ..
+                         "\n🛡️ Speed detection blocked" ..
+                         "\n🔒 Remote event protection active",
+                Duration = 4,
+                Image = 4483362458,
+            })
+        else 
+            disableBypassAntiCheat()
+        end
+    end
+})
+
+MainTab:CreateSection("🔔 Notifications")
+
+MainTab:CreateToggle({
+    Name = "⚠️ Rush/Ambush Warnings (Enhanced)",
     CurrentValue = false,
     Flag = "RushNotifToggle",
-    Callback = function(v) rushNotifEnabled = v end
+    Callback = function(v) 
+        rushNotifEnabled = v
+        if v then
+            Rayfield:Notify({
+                Title = "⚠️ Rush Warnings Enabled",
+                Content = "🚨 You'll get alerts for Rush/Ambush" ..
+                         "\n🔊 Includes warning sounds" ..
+                         "\n📺 Screen flash effects",
+                Duration = 3,
+                Image = 4483362458,
+            })
+        end
+    end
 })
 
 MainTab:CreateToggle({
@@ -772,26 +1912,313 @@ MainTab:CreateToggle({
     Callback = function(v) allEntityNotifications = v end
 })
 
--- Setup
-setupEntityNotif()
+-- ============================================================================
+-- ESP FEATURES TAB
+-- ============================================================================
 
--- Welcome notification with fade effect
+ESPTab:CreateSection("🚪 Environment ESP")
+
+ESPTab:CreateToggle({
+    Name = "🚪 Door ESP (With Numbers)",
+    CurrentValue = false,
+    Flag = "DoorESPToggle",
+    Callback = function(v)
+        if v then 
+            enableDoorESP()
+            Rayfield:Notify({
+                Title = "🚪 Door ESP Enabled",
+                Content = "✅ All doors now visible" ..
+                         "\n🔢 Shows door numbers" ..
+                         "\n📏 Distance indicator included",
+                Duration = 3,
+                Image = 4483362458,
+            })
+        else 
+            disableDoorESP()
+        end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "📖 Book ESP (With Light Effects)",
+    CurrentValue = false, 
+    Flag = "BookESPToggle",
+    Callback = function(v)
+        if v then 
+            enableBookESP()
+            Rayfield:Notify({
+                Title = "📖 Book ESP Enabled",
+                Content = "✅ Books now visible with lighting" ..
+                         "\n💡 Pulsing light effects" ..
+                         "\n🔍 Easy to spot in dark rooms",
+                Duration = 3,
+                Image = 4483362458,
+            })
+        else 
+            disableBookESP()
+        end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "🔑 Key ESP (Enhanced)",
+    CurrentValue = false,
+    Flag = "KeyESPToggle", 
+    Callback = function(v)
+        if v then 
+            enableKeyESP()
+            Rayfield:Notify({
+                Title = "🔑 Key ESP Enabled",
+                Content = "✅ All keys now visible" ..
+                         "\n🗝️ Distinguishes skeleton keys" ..
+                         "\n🌟 Special highlighting",
+                Duration = 3,
+                Image = 4483362458,
+            })
+        else 
+            disableKeyESP()
+        end
+    end
+})
+
+ESPTab:CreateSection("👻 Entity ESP")
+
+ESPTab:CreateToggle({
+    Name = "👹 Figure ESP (With Warning)",
+    CurrentValue = false,
+    Flag = "FigureESPToggle",
+    Callback = function(v)
+        if v then 
+            enableFigureESP()
+            Rayfield:Notify({
+                Title = "👹 Figure ESP Enabled",
+                Content = "🚨 Figure detection active!" ..
+                         "\n🔊 Warning sounds included" ..
+                         "\n⚠️ Stay alert and quiet!",
+                Duration = 4,
+                Image = 4483362458,
+            })
+        else 
+            disableFigureESP()
+        end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "👻 All Entity ESP",
+    CurrentValue = false,
+    Flag = "EntityESPToggle",
+    Callback = function(v)
+        if v then enableEntityESP() else disableEntityESP() end
+    end
+})
+
+ESPTab:CreateSection("👥 Player & Items ESP")
+
+ESPTab:CreateToggle({
+    Name = "👤 Player ESP",
+    CurrentValue = false,
+    Flag = "PlayerESPToggle",
+    Callback = function(v)
+        if v then enablePlayerESP() else disablePlayerESP() end
+    end
+})
+
+ESPTab:CreateToggle({
+    Name = "📦 Item ESP (All Items)",
+    CurrentValue = false,
+    Flag = "ItemESPToggle",
+    Callback = function(v)
+        if v then enableItemESP() else disableItemESP() end
+    end
+})
+
+ESPTab:CreateSection("🎛️ ESP Controls")
+
+ESPTab:CreateButton({
+    Name = "✨ Enable All ESP",
+    Callback = function()
+        enableDoorESP()
+        enableBookESP()
+        enableKeyESP()
+        enableEntityESP()
+        enablePlayerESP()
+        enableItemESP()
+        
+        Rayfield:Notify({
+            Title = "✨ All ESP Enabled!",
+            Content = "🎯 All ESP systems activated!" ..
+                     "\n👁️ Complete visibility enabled" ..
+                     "\n🌟 Enhanced gaming experience",
+            Duration = 4,
+            Image = 4483362458,
+        })
+    end
+})
+
+ESPTab:CreateButton({
+    Name = "🚫 Disable All ESP", 
+    Callback = function()
+        disableDoorESP()
+        disableBookESP() 
+        disableKeyESP()
+        disableFigureESP()
+        disableEntityESP()
+        disablePlayerESP()
+        disableItemESP()
+        
+        Rayfield:Notify({
+            Title = "🚫 All ESP Disabled",
+            Content = "👁️ All ESP systems deactivated" ..
+                     "\n🎮 Back to normal view",
+            Duration = 3,
+            Image = 4483362458,
+        })
+    end
+})
+
+-- ============================================================================
+-- MISCELLANEOUS TAB
+-- ============================================================================
+
+MiscTab:CreateSection("🎮 Game Utilities")
+
+MiscTab:CreateButton({
+    Name = "🔄 Rejoin Server",
+    Callback = function()
+        Rayfield:Notify({
+            Title = "🔄 Rejoining Server",
+            Content = "🚀 Rejoining current server..." ..
+                     "\n⏰ Auto execute will trigger on join",
+            Duration = 2,
+            Image = 4483362458,
+        })
+        
+        task.wait(2)
+        TeleportService:Teleport(game.PlaceId, player)
+    end
+})
+
+MiscTab:CreateButton({
+    Name = "🎲 Join New Server", 
+    Callback = function()
+        Rayfield:Notify({
+            Title = "🎲 Finding New Server",
+            Content = "🔍 Searching for new server..." ..
+                     "\n🚀 Auto execute ready for new game",
+            Duration = 2,
+            Image = 4483362458,
+        })
+        
+        task.wait(2)
+        TeleportService:TeleportToPlaceInstance(game.PlaceId)
+    end
+})
+
+MiscTab:CreateSection("🛠️ System Controls")
+
+MiscTab:CreateButton({
+    Name = "🗑️ Clean Workspace",
+    Callback = function()
+        -- Remove all ESP objects
+        disableDoorESP()
+        disableBookESP()
+        disableKeyESP() 
+        disableFigureESP()
+        disableEntityESP()
+        disablePlayerESP()
+        disableItemESP()
+        
+        -- Clean up any leftover objects
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj.Name == "WenerESP" then
+                obj:Destroy()
+            end
+        end
+        
+        Rayfield:Notify({
+            Title = "🗑️ Workspace Cleaned",
+            Content = "✅ All ESP objects removed" ..
+                     "\n🧹 Workspace cleaned up",
+            Duration = 3,
+            Image = 4483362458,
+        })
+    end
+})
+
+MiscTab:CreateButton({
+    Name = "📊 Performance Check",
+    Callback = function()
+        local fps = math.floor(1 / RunService.Heartbeat:Wait())
+        local ping = math.floor(player:GetNetworkPing() * 1000)
+        
+        Rayfield:Notify({
+            Title = "📊 Performance Status",
+            Content = "🖥️ FPS: " .. fps ..
+                     "\n📡 Ping: " .. ping .. "ms" ..
+                     "\n🎮 Performance: " .. (fps > 45 and "✅ Good" or "⚠️ Poor") ..
+                     "\n🌐 Connection: " .. (ping < 100 and "✅ Stable" or "⚠️ Unstable"),
+            Duration = 5,
+            Image = 4483362458,
+        })
+    end
+})
+
+MiscTab:CreateSection("ℹ️ Information")
+
+MiscTab:CreateParagraph({
+    Title = "🎯 Feature Summary",
+    Content = "ESP Systems: 7 different types" ..
+              "\nAuto Systems: 5 automation features" ..
+              "\nProtection: God Mode + Anti-Cheat Bypass" ..
+              "\nMovement: Speed + Noclip" ..
+              "\nNotifications: Enhanced entity warnings" ..
+              "\nConnection: Auto reconnect + Auto execute" ..
+              "\n\n🌟 Total Features: 30+"
+})
+
+-- ============================================================================
+-- SETUP ALL SYSTEMS
+-- ============================================================================
+
+setupEntityNotifications()
+
+-- ============================================================================
+-- FINAL WELCOME NOTIFICATION
+-- ============================================================================
+
 task.spawn(function()
-    wait(1)
+    wait(2)
     Rayfield:Notify({
-        Title = "🚀 WENER HUB v3.5 - AUTO SYSTEM!",
-        Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. 
-                  "\n🔄 Auto Reconnect: READY" ..
-                  "\n🚀 Auto Execute: CONFIGURED" ..
-                  "\n✨ Fade Animations: ACTIVE" ..
-                  "\n🛡️ All Systems: OPERATIONAL",
-        Duration = 8,
+        Title = "🚀 WENER HUB v4.0 ULTIMATE COMPLETE!",
+        Content = (isOwner and "👑 Welcome back, Owner " or "✨ Welcome, ") .. player.DisplayName .. 
+                  "!\n\n🎮 ULTIMATE COMPLETE EDITION LOADED:" ..
+                  "\n✅ 30+ Advanced Features" ..
+                  "\n👁️ 7 ESP Systems with Light Effects" ..
+                  "\n🔄 Auto Reconnect + Execute System" ..
+                  "\n🛡️ Enhanced Protection Systems" ..
+                  "\n⚡ Advanced Movement Controls" ..
+                  "\n🤖 5 Automation Features" ..
+                  "\n🔔 Enhanced Entity Warning System" ..
+                  "\n\n🌟 ENJOY THE ULTIMATE DOORS EXPERIENCE!",
+        Duration = 15,
         Image = 4483362458,
     })
 end)
 
-print("✅ WENER HUB v3.5 AUTO SYSTEM LOADED!")
-print("🔄 Auto Reconnect: ACTIVE")
-print("🚀 Auto Execute: READY") 
-print("✨ Fade Effects: ENABLED")
-print("🛡️ All Features: OPERATIONAL")
+-- ============================================================================
+-- FINAL CONSOLE OUTPUT
+-- ============================================================================
+
+print("✅ WENER HUB v4.0 ULTIMATE COMPLETE EDITION LOADED!")
+print("🎮 Total Features: 30+ Advanced Features")
+print("👁️ ESP Systems: Door (w/Numbers), Book (w/Light), Key, Figure, Entity, Player, Item")
+print("🔄 Auto Systems: Reconnect, Execute, Collect, Unlock, Vitamins") 
+print("🛡️ Protection: Enhanced God Mode, Advanced Anti-Cheat Bypass, Noclip")
+print("⚡ Movement: Speed Control with Smooth Transitions & Bypass")
+print("🔔 Notifications: Enhanced Entity Warnings with Sound & Flash")
+print("✨ UI: Advanced Fade Animations, Enhanced Design, Permanent Logo")
+print("🌟 THIS IS THE ULTIMATE COMPLETE DOORS SCRIPT!")
+print("==========================================")
+print("🚀 All systems operational and ready to use!")
+print("💎 Enjoy the ultimate Doors gaming experience!")
