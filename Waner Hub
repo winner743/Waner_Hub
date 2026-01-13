@@ -1,4 +1,4 @@
--- WANER HUB v3.5 | Enhanced Version
+-- WANER HUB v3.5 | Enhanced Version with Rayfield
 print("=== WENER HUB STARTING ===")
 print("Step 1: Initializing...")
 
@@ -329,7 +329,6 @@ local function createAnimatedText()
     
     local letters = {}
     local finalText = "WENER HUB"
-    local scrambledPositions = {}
     
     for i = 1, #finalText do
         local char = finalText:sub(i, i)
@@ -395,7 +394,7 @@ end
 
 pcall(createAnimatedText)
 
--- Permanent Logo "WENER HUB" dengan Decal
+-- Permanent Logo "WENER HUB" dengan Decal di sebelah HUB
 local function createPermanentLogo()
     print("Step 9b: Creating permanent logo...")
     local ScreenGui = Instance.new("ScreenGui")
@@ -403,26 +402,45 @@ local function createPermanentLogo()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
+    -- Container utama
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 350, 0, 70)
-    Container.Position = UDim2.new(0.5, -175, 0.02, 0)
+    Container.Size = UDim2.new(0, 400, 0, 70)
+    Container.Position = UDim2.new(0.5, -200, 0.02, 0)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
     
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 1, 0)
-    Title.BackgroundTransparency = 1
-    Title.Text = "WENER HUB"
-    Title.TextColor3 = Color3.fromRGB(139, 0, 255)
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 36
-    Title.TextStrokeTransparency = 0.5
-    Title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    Title.Parent = Container
+    -- Text "WENER"
+    local WenerText = Instance.new("TextLabel")
+    WenerText.Size = UDim2.new(0, 150, 1, 0)
+    WenerText.Position = UDim2.new(0, 0, 0, 0)
+    WenerText.BackgroundTransparency = 1
+    WenerText.Text = "WENER"
+    WenerText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    WenerText.Font = Enum.Font.GothamBold
+    WenerText.TextSize = 36
+    WenerText.TextStrokeTransparency = 0.5
+    WenerText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    WenerText.TextXAlignment = Enum.TextXAlignment.Right
+    WenerText.Parent = Container
     
+    -- Text "HUB"
+    local HubText = Instance.new("TextLabel")
+    HubText.Size = UDim2.new(0, 100, 1, 0)
+    HubText.Position = UDim2.new(0, 160, 0, 0)
+    HubText.BackgroundTransparency = 1
+    HubText.Text = "HUB"
+    HubText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    HubText.Font = Enum.Font.GothamBold
+    HubText.TextSize = 36
+    HubText.TextStrokeTransparency = 0.5
+    HubText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    HubText.TextXAlignment = Enum.TextXAlignment.Left
+    HubText.Parent = Container
+    
+    -- Decal di sebelah HUB (posisi yang benar)
     local DecalFrame = Instance.new("Frame")
-    DecalFrame.Size = UDim2.new(0, 25, 0, 25)
-    DecalFrame.Position = UDim2.new(0.78, 0, 0.5, -12)
+    DecalFrame.Size = UDim2.new(0, 30, 0, 30)
+    DecalFrame.Position = UDim2.new(0, 270, 0.5, -15) -- Di sebelah kanan HUB
     DecalFrame.BackgroundTransparency = 1
     DecalFrame.Parent = Container
     
@@ -433,13 +451,16 @@ local function createPermanentLogo()
     Decal.ScaleType = Enum.ScaleType.Fit
     Decal.Parent = DecalFrame
     
+    -- Animasi hover untuk kedua text
     task.spawn(function()
         while true do
             wait(5)
             local TweenService = game:GetService("TweenService")
-            TweenService:Create(Title, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
+            TweenService:Create(WenerText, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
+            TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0.3}):Play()
             wait(0.5)
-            TweenService:Create(Title, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+            TweenService:Create(WenerText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+            TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
         end
     end)
     
@@ -448,14 +469,14 @@ end
 
 pcall(createPermanentLogo)
 
-print("Step 10: Loading Obsidian UI...")
+print("Step 10: Loading Rayfield UI...")
 
--- Load Obsidian UI
-local Obsidian = loadstring(game:HttpGet('https://raw.githubusercontent.com/1201for/V.G-Hub/main/im-retarded-3.lua'))()
-print("Step 11: Obsidian loaded!")
+-- Load Rayfield UI
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+print("Step 11: Rayfield loaded!")
 
-local Window = Obsidian:CreateWindow({
-    Name = "Wener Hub",
+local Window = Rayfield:CreateWindow({
+    Name = "Wener Hub v3.5",
     LoadingTitle = "Wener Hub",
     LoadingSubtitle = "by Waner",
     ConfigurationSaving = {
@@ -1168,9 +1189,35 @@ local function setupEntityNotif()
         if rushNotifEnabled then
             if child.Name == "RushMoving" or child.Name == "AmbushMoving" then
                 local name = child.Name:gsub("Moving", ""):upper()
-                Obsidian:Notify({Title = "⚠️ " .. name .. "!", Content = "HIDE NOW!", Duration = 5})
+                Rayfield:Notify({
+                    Title = "⚠️ " .. name .. "!",
+                    Content = "HIDE NOW!",
+                    Duration = 5,
+                    Image = 4483362458,
+                    Actions = {
+                        Ignore = {
+                            Name = "Okay!",
+                            Callback = function()
+                                print("The user tapped Okay!")
+                            end
+                        },
+                    },
+                })
             elseif child.Name == "Eyes" or child.Name == "Screech" or child.Name == "BackdoorLookman" or child.Name:find("Timothy") then
-                Obsidian:Notify({Title = "👁️ " .. child.Name:upper() .. "!", Content = "Look away!", Duration = 4})
+                Rayfield:Notify({
+                    Title = "👁️ " .. child.Name:upper() .. "!",
+                    Content = "Look away!",
+                    Duration = 4,
+                    Image = 4483362458,
+                    Actions = {
+                        Ignore = {
+                            Name = "Okay!",
+                            Callback = function()
+                                print("The user tapped Okay!")
+                            end
+                        },
+                    },
+                })
             end
         end
         
@@ -1179,10 +1226,19 @@ local function setupEntityNotif()
             local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "BackdoorLookman", "A60", "A90", "Timothy"}
             for _, entityName in pairs(entities) do
                 if child.Name:find(entityName) then
-                    Obsidian:Notify({
+                    Rayfield:Notify({
                         Title = "👻 ENTITY SPAWNED!",
                         Content = "Entity: " .. child.Name .. "\nWaspada!",
-                        Duration = 4
+                        Duration = 4,
+                        Image = 4483362458,
+                        Actions = {
+                            Ignore = {
+                                Name = "Okay!",
+                                Callback = function()
+                                    print("The user tapped Okay!")
+                                end
+                            },
+                        },
                     })
                     break
                 end
@@ -1194,10 +1250,10 @@ end
 print("Step 17: Entity notifications ready!")
 
 -- Create Tabs
-local InfoTab = Window:CreateTab("📋 Info")
-local MainTab = Window:CreateTab("⚙️ Main")
-local ESPTab = Window:CreateTab("👁️ ESP")
-local AutoTab = Window:CreateTab("🤖 Auto")
+local InfoTab = Window:CreateTab("📋 Info", 4483362458)
+local MainTab = Window:CreateTab("⚙️ Main", 4483362458)
+local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
 
 print("Step 18: Tabs created!")
 
@@ -1214,12 +1270,14 @@ MainTab:CreateSlider({
     Increment = 0.1,
     Suffix = "x",
     CurrentValue = 1,
+    Flag = "SpeedSlider",
     Callback = function(v) setSpeed(v) end
 })
 
 MainTab:CreateToggle({
     Name = "Noclip",
     CurrentValue = false,
+    Flag = "NoclipToggle",
     Callback = function(v)
         if v then enableNoclip() else disableNoclip() end
     end
@@ -1228,6 +1286,7 @@ MainTab:CreateToggle({
 MainTab:CreateToggle({
     Name = "God Mode (No Damage)",
     CurrentValue = false,
+    Flag = "GodModeToggle",
     Callback = function(v)
         if v then enableGodMode() else godModeEnabled = false end
     end
@@ -1236,6 +1295,7 @@ MainTab:CreateToggle({
 MainTab:CreateToggle({
     Name = "Bypass Anti-Cheat",
     CurrentValue = false,
+    Flag = "BypassToggle",
     Callback = function(v)
         if v then enableBypassAntiCheat() else bypassAntiCheat = false end
     end
@@ -1244,12 +1304,14 @@ MainTab:CreateToggle({
 MainTab:CreateToggle({
     Name = "Entity Notifications (Rush/Ambush)",
     CurrentValue = false,
+    Flag = "RushNotifToggle",
     Callback = function(v) rushNotifEnabled = v end
 })
 
 MainTab:CreateToggle({
     Name = "Notifikasi Semua Entity",
     CurrentValue = false,
+    Flag = "AllEntityNotifToggle",
     Callback = function(v) 
         allEntityNotifications = v 
     end
@@ -1263,6 +1325,7 @@ ESPTab:CreateParagraph({Title = "🚪 Door ESP Info", Content = "Door ESP automa
 ESPTab:CreateToggle({
     Name = "Door ESP (Auto-Refresh)",
     CurrentValue = false,
+    Flag = "DoorESPToggle",
     Callback = function(v)
         if v then enableDoorESP() else disableDoorESP() end
     end
@@ -1271,6 +1334,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "Key ESP (Auto-Refresh)",
     CurrentValue = false,
+    Flag = "KeyESPToggle",
     Callback = function(v)
         if v then enableKeyESP() else disableKeyESP() end
     end
@@ -1279,6 +1343,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "All Entity ESP (Auto-Refresh)",
     CurrentValue = false,
+    Flag = "EntityESPToggle",
     Callback = function(v)
         if v then enableEntityESP() else disableEntityESP() end
     end
@@ -1287,6 +1352,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "Player ESP",
     CurrentValue = false,
+    Flag = "PlayerESPToggle",
     Callback = function(v)
         if v then enablePlayerESP() else disablePlayerESP() end
     end
@@ -1295,6 +1361,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "Figure Book & Code ESP",
     CurrentValue = false,
+    Flag = "FigureESPToggle",
     Callback = function(v)
         if v then enableFigureESP() else disableFigureESP() end
     end
@@ -1303,6 +1370,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "Lever ESP",
     CurrentValue = false,
+    Flag = "LeverESPToggle",
     Callback = function(v)
         if v then enableLeverESP() else disableLeverESP() end
     end
@@ -1311,6 +1379,7 @@ ESPTab:CreateToggle({
 ESPTab:CreateToggle({
     Name = "Item ESP (All Items)",
     CurrentValue = false,
+    Flag = "ItemESPToggle",
     Callback = function(v)
         if v then enableItemESP() else disableItemESP() end
     end
@@ -1326,7 +1395,20 @@ ESPTab:CreateButton({
         if figureEspEnabled then removeFigureESP() addFigureESP() end
         if leverEspEnabled then removeLeverESP() addLeverESP() end
         if itemEspEnabled then removeItemESP() addItemESP() end
-        Obsidian:Notify({Title = "✓ Refreshed", Content = "All ESP updated", Duration = 2})
+        Rayfield:Notify({
+            Title = "✓ Refreshed",
+            Content = "All ESP updated",
+            Duration = 2,
+            Image = 4483362458,
+            Actions = {
+                Ignore = {
+                    Name = "Okay!",
+                    Callback = function()
+                        print("The user tapped Okay!")
+                    end
+                },
+            },
+        })
     end
 })
 
@@ -1338,6 +1420,7 @@ AutoTab:CreateParagraph({Title = "🔧 Figure Features", Content = "Auto collect
 AutoTab:CreateToggle({
     Name = "Auto Figure Code & Door",
     CurrentValue = false,
+    Flag = "AutoFigureToggle",
     Callback = function(v)
         if v then enableAutoFigure() else disableAutoFigure() end
     end
@@ -1346,6 +1429,7 @@ AutoTab:CreateToggle({
 AutoTab:CreateToggle({
     Name = "Auto Unlock Doors",
     CurrentValue = false,
+    Flag = "AutoUnlockToggle",
     Callback = function(v)
         autoUnlockEnabled = v
         if v then enableAutoUnlock() end
@@ -1355,6 +1439,7 @@ AutoTab:CreateToggle({
 AutoTab:CreateToggle({
     Name = "Auto Collect Items",
     CurrentValue = false,
+    Flag = "AutoCollectToggle",
     Callback = function(v)
         if v then enableAutoCollect() else disableAutoCollect() end
     end
@@ -1363,6 +1448,7 @@ AutoTab:CreateToggle({
 AutoTab:CreateToggle({
     Name = "Infinite Vitamins",
     CurrentValue = false,
+    Flag = "InfVitaminsToggle",
     Callback = function(v)
         if v then enableInfVitamins() else disableInfVitamins() end
     end
@@ -1376,6 +1462,7 @@ for itemName, _ in pairs(autoCollectSettings) do
     itemToggles[itemName] = AutoTab:CreateToggle({
         Name = "Auto Collect: " .. itemName,
         CurrentValue = true,
+        Flag = "AutoCollect" .. itemName,
         Callback = function(v)
             autoCollectSettings[itemName] = v
         end
@@ -1394,7 +1481,7 @@ AutoTab:CreateButton({
         for itemName, _ in pairs(autoCollectSettings) do
             autoCollectSettings[itemName] = not allOn
             if itemToggles[itemName] then
-                itemToggles[itemName]:Set(not allOn)
+                Rayfield:SetFlag(itemToggles[itemName].Flag, not allOn)
             end
         end
     end
@@ -1410,7 +1497,7 @@ print("Step 23: Entity notifications setup complete!")
 local hours = math.floor(timeLeft)
 local minutes = math.floor((timeLeft - hours) * 60)
 
-Obsidian:Notify({
+Rayfield:Notify({
     Title = "🚀 WENER HUB v3.5 Loaded!",
     Content = (isOwner and "👑 Owner " or "✨ ") .. player.Name .. 
               "\n✅ Fitur Lengkap Aktif!" ..
@@ -1418,7 +1505,16 @@ Obsidian:Notify({
               "\n• Noclip & God Mode" ..
               "\n• Bypass Anti-Cheat" ..
               (keyValid and string.format("\n⏰ Key: %dh %dm", hours, minutes) or ""),
-    Duration = 6
+    Duration = 6,
+    Image = 4483362458,
+    Actions = {
+        Ignore = {
+            Name = "Okay!",
+            Callback = function()
+                print("The user tapped Okay!")
+            end
+        },
+    },
 })
 
 print("Step 24: Notification sent!")
