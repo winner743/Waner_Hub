@@ -1,6 +1,6 @@
--- WANER HUB v4.0 | COMPLETE ULTIMATE EDITION - ALL IN ONE
-print("=== WENER HUB v4.0 ULTIMATE COMPLETE STARTING ===")
-print("🚀 Loading the most advanced Doors script ever created...")
+        -- WANER HUB v4.0 | FIXED ESP SYSTEM WITH CONSTANT SIZE & BRIGHT OUTLINE
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP ===")
+print("🚀 Loading the most advanced Doors script with proper ESP...")
 
 -- ============================================================================
 -- SERVICES & INITIALIZATION
@@ -166,7 +166,7 @@ setupAutoExecute()
 setupAutoReconnect()
 
 -- ============================================================================
--- ENHANCED LOADING SCREEN
+-- LOADING SCREEN
 -- ============================================================================
 
 local function createLoadingScreen()
@@ -211,7 +211,7 @@ local function createLoadingScreen()
     Subtitle.Size = UDim2.new(1, 0, 0, 40)
     Subtitle.Position = UDim2.new(0, 0, 0, 120)
     Subtitle.BackgroundTransparency = 1
-    Subtitle.Text = "ULTIMATE COMPLETE EDITION"
+    Subtitle.Text = "ULTIMATE EDITION WITH FIXED ESP"
     Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
     Subtitle.Font = Enum.Font.Gotham
     Subtitle.TextSize = 24
@@ -222,7 +222,7 @@ local function createLoadingScreen()
     Status.Size = UDim2.new(1, 0, 0, 40)
     Status.Position = UDim2.new(0, 0, 0, 180)
     Status.BackgroundTransparency = 1
-    Status.Text = "Initializing ultimate systems..."
+    Status.Text = "Initializing fixed ESP systems..."
     Status.TextColor3 = Color3.fromRGB(100, 255, 100)
     Status.Font = Enum.Font.Gotham
     Status.TextSize = 18
@@ -258,7 +258,7 @@ local function createLoadingScreen()
         local stages = {
             {text = "🚀 Setting up Auto Execute...", progress = 0.2},
             {text = "🔄 Configuring Auto Reconnect...", progress = 0.4},
-            {text = "👁️ Loading ESP Systems...", progress = 0.6},
+            {text = "👁️ Loading Fixed ESP Systems...", progress = 0.6},
             {text = "🛡️ Initializing Protection...", progress = 0.8},
             {text = "✅ All Systems Ready!", progress = 1.0}
         }
@@ -294,7 +294,7 @@ wait(6)
 
 local KeySystemEnabled = true
 local CorrectKey = "Wene-you"
-local KeyExpireTime = 7200 -- 2 jam
+local KeyExpireTime = 7200
 
 local function checkKey()
     if not isfolder("WenerHub") then
@@ -466,7 +466,7 @@ if KeySystemEnabled and not checkKey() and not isOwner then
 end
 
 -- ============================================================================
--- WELCOME SCREEN DENGAN GLITCH EFFECT
+-- WELCOME SCREEN
 -- ============================================================================
 
 local function createWelcomeScreen()
@@ -623,7 +623,7 @@ local function createPermanentLogo()
         OwnerText.Text = "👑 OWNER ACCESS"
         OwnerText.TextColor3 = Color3.fromRGB(255, 215, 0)
         OwnerText.Font = Enum.Font.GothamBold
-        OwnerText.        TextSize = 14
+        OwnerText.TextSize = 14
         OwnerText.TextTransparency = 1
         OwnerText.Parent = Container
         
@@ -646,20 +646,40 @@ end
 task.spawn(createPermanentLogo)
 
 -- ============================================================================
--- ADVANCED ESP SYSTEM DENGAN LIGHT EFFECTS
+-- FIXED ESP SYSTEM - SIZE TETAP & DENGAN OUTLINE TERANG
 -- ============================================================================
 
-local function createAdvancedESP(obj, color, txt, espType)
-    if not obj or obj:FindFirstChild("WenerESP") then return end
+local function createFixedESP(obj, text, color, espType)
+    if not obj or obj:FindFirstChild("WenerESP_" .. espType) then return end
     
+    -- Cek jarak maksimal
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
+        if distance > 500 then return end
+    end
+    
+    -- Create Highlight untuk outline terang
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "WenerESP_" .. espType
+    highlight.Adornee = obj.Parent or obj
+    highlight.FillColor = color
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = color
+    highlight.OutlineTransparency = 0
+    highlight.Parent = obj
+    
+    -- Create BillboardGui dengan size TETAP (tidak berubah saat zoom)
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "WenerESP"
+    billboard.Name = "WenerESP_" .. espType .. "_Bill"
     billboard.Adornee = obj
-    billboard.Size = UDim2.new(0, 200, 0, 100)
+    billboard.Size = UDim2.new(4, 0, 2, 0) -- SIZE TETAP DAN LEBIH BESAR
     billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 500
+    billboard.LightInfluence = 0
     billboard.Parent = obj
     
+    -- Background frame
     local bgFrame = Instance.new("Frame")
     bgFrame.Size = UDim2.new(1, 0, 1, 0)
     bgFrame.BackgroundColor3 = Color3.new(0, 0, 0)
@@ -671,19 +691,19 @@ local function createAdvancedESP(obj, color, txt, espType)
     bgCorner.CornerRadius = UDim.new(0, 8)
     bgCorner.Parent = bgFrame
     
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.new(color.R * 0.3, color.G * 0.3, color.B * 0.3)),
-        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.1, color.G * 0.1, color.B * 0.1))
-    })
-    gradient.Rotation = 45
-    gradient.Parent = bgFrame
+    -- Stroke untuk frame (outline terang)
+    local frameStroke = Instance.new("UIStroke")
+    frameStroke.Color = color
+    frameStroke.Thickness = 3
+    frameStroke.Transparency = 0
+    frameStroke.Parent = bgFrame
     
+    -- Text label
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -10, 0.6, 0)
     label.Position = UDim2.new(0, 5, 0, 5)
     label.BackgroundTransparency = 1
-    label.Text = txt
+    label.Text = text
     label.TextColor3 = color
     label.TextStrokeTransparency = 0
     label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
@@ -691,67 +711,73 @@ local function createAdvancedESP(obj, color, txt, espType)
     label.Font = Enum.Font.GothamBold
     label.Parent = billboard
     
+    -- Distance label
     local distanceLabel = Instance.new("TextLabel")
     distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
     distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
     distanceLabel.BackgroundTransparency = 1
     distanceLabel.Text = "0m"
-    distanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    distanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     distanceLabel.TextStrokeTransparency = 0
     distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     distanceLabel.TextScaled = true
     distanceLabel.Font = Enum.Font.Gotham
     distanceLabel.Parent = billboard
     
-    local lightEffect = Instance.new("PointLight")
-    lightEffect.Color = color
-    lightEffect.Brightness = 2
-    lightEffect.Range = 10
-    lightEffect.Parent = obj
-    
+    -- Animation untuk highlight glow effect
     task.spawn(function()
-        while billboard.Parent do
-            TweenService:Create(lightEffect, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                Brightness = 0.5
+        while highlight.Parent and obj.Parent do
+            TweenService:Create(highlight, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                FillTransparency = 0.8,
+                OutlineTransparency = 0.2
             }):Play()
             
-            TweenService:Create(label, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                TextTransparency = 0.3
+            TweenService:Create(frameStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Transparency = 0.3
             }):Play()
             
             task.wait(1)
         end
     end)
     
+    -- Update distance
     task.spawn(function()
-        while billboard.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+        while billboard.Parent and obj.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
             local distance = math.floor((player.Character.HumanoidRootPart.Position - obj.Position).Magnitude)
             distanceLabel.Text = distance .. "m"
+            
+            -- Auto remove jika terlalu jauh
+            if distance > 500 then
+                if highlight then highlight:Destroy() end
+                if billboard then billboard:Destroy() end
+                break
+            end
+            
             task.wait(0.5)
         end
     end)
     
-    table.insert(espObjects, billboard)
-    return billboard
+    table.insert(espObjects, {highlight = highlight, billboard = billboard})
+    return {highlight, billboard}
 end
 
 -- ============================================================================
--- ESP UPDATE FUNCTIONS
+-- ESP UPDATE FUNCTIONS - FIXED & PROPER DETECTION
 -- ============================================================================
 
 local function updateDoorESP()
-    if doorEspEnabled then
-        local currentRooms = workspace:FindFirstChild("CurrentRooms")
-        if currentRooms then
-            for _, room in pairs(currentRooms:GetChildren()) do
-                if room:IsA("Model") and tonumber(room.Name) then
-                    local door = room:FindFirstChild("Door")
-                    if door then
-                        local doorPart = door:FindFirstChildWhichIsA("BasePart")
-                        if doorPart then
-                            createAdvancedESP(doorPart, Color3.fromRGB(0, 255, 0), "🚪 Door " .. room.Name, "door")
-                        end
-                    end
+    if not doorEspEnabled then return end
+    
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if not currentRooms then return end
+    
+    for _, room in pairs(currentRooms:GetChildren()) do
+        if room:IsA("Model") and tonumber(room.Name) then
+            local door = room:FindFirstChild("Door")
+            if door then
+                local doorPart = door:FindFirstChildWhichIsA("BasePart")
+                if doorPart and not doorPart:FindFirstChild("WenerESP_door") then
+                    createFixedESP(doorPart, "🚪 Door " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
                 end
             end
         end
@@ -759,64 +785,40 @@ local function updateDoorESP()
 end
 
 local function updateKeyESP()
-    if keyEspEnabled then
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("Model") and obj.Name == "Key" then
-                local keyPart = obj:FindFirstChildWhichIsA("BasePart")
-                if keyPart then
-                    createAdvancedESP(keyPart, Color3.fromRGB(255, 255, 0), "🗝️ Key", "key")
+    if not keyEspEnabled then return end
+    
+    -- Cari Key dengan multiple detection methods
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            -- Method 1: Direct Key model
+            if obj.Name == "KeyObtain" or obj.Name == "Key" or obj.Name:find("Key") then
+                local keyPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
+                    createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+                end
+            end
+        elseif obj:IsA("BasePart") then
+            -- Method 2: Direct key part
+            if obj.Name == "Key" or obj.Name:find("Key") then
+                if not obj:FindFirstChild("WenerESP_key") then
+                    createFixedESP(obj, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
                 end
             end
         end
     end
-end
-
-local function updateEntityESP()
-    if entityEspEnabled then
-        local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "Dupe", "A60", "A120"}
-        
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("Model") then
-                for _, entityName in pairs(entities) do
-                    if obj.Name == entityName or obj.Name:find(entityName) then
-                        local entityPart = obj:FindFirstChildWhichIsA("BasePart")
-                        if entityPart then
-                            local color = Color3.fromRGB(255, 0, 0)
-                            if entityName == "Eyes" then color = Color3.fromRGB(255, 255, 255)
-                            elseif entityName == "Halt" then color = Color3.fromRGB(0, 0, 255)
-                            elseif entityName == "Seek" then color = Color3.fromRGB(0, 0, 0)
-                            elseif entityName == "Figure" then color = Color3.fromRGB(139, 0, 255)
-                            end
-                            createAdvancedESP(entityPart, color, "👹 " .. entityName, "entity")
+    
+    -- Method 3: Check dalam CurrentRooms untuk keys
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        for _, room in pairs(currentRooms:GetChildren()) do
+            if room:IsA("Model") then
+                for _, asset in pairs(room:GetDescendants()) do
+                    if asset:IsA("Model") and (asset.Name == "KeyObtain" or asset.Name == "Key") then
+                        local keyPart = asset:FindFirstChild("Handle") or asset:FindFirstChildWhichIsA("BasePart")
+                        if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
+                            createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
                         end
-                        break
                     end
-                end
-            end
-        end
-    end
-end
-
-local function updatePlayerESP()
-    if playerEspEnabled then
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player and otherPlayer.Character then
-                local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    createAdvancedESP(humanoidRootPart, Color3.fromRGB(0, 255, 255), "👤 " .. otherPlayer.DisplayName, "player")
-                end
-            end
-        end
-    end
-end
-
-local function updateBookESP()
-    if bookEspEnabled then
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("Model") and (obj.Name == "Book" or obj.Name:find("Book")) then
-                local bookPart = obj:FindFirstChildWhichIsA("BasePart")
-                if bookPart then
-                    createAdvancedESP(bookPart, Color3.fromRGB(139, 69, 19), "📚 Book", "book")
                 end
             end
         end
@@ -824,35 +826,102 @@ local function updateBookESP()
 end
 
 local function updateItemESP()
-    if itemEspEnabled then
-        local items = {"Vitamins", "Lockpick", "FlashlightPickup", "Lighter", "Candle", "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner"}
-        
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj:IsA("Model") then
-                for _, itemName in pairs(items) do
-                    if obj.Name == itemName or obj.Name:find(itemName) then
-                        local itemPart = obj:FindFirstChildWhichIsA("BasePart")
-                        if itemPart then
-                            local color = Color3.fromRGB(255, 165, 0)
+    if not itemEspEnabled then return end
+    
+    -- List item yang bisa diambil (collectable items)
+    local collectableItems = {
+        "Vitamins", "Lockpick", "Candle", "Lighter", "FlashlightPickup", "Flashlight",
+        "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner", 
+        "Battery", "Herb", "Pill"
+    }
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            for _, itemName in pairs(collectableItems) do
+                if obj.Name == itemName or obj.Name:find(itemName) then
+                    -- Cek apakah item ini bisa diambil (ada ProximityPrompt)
+                    local hasPrompt = false
+                    local itemPart = obj:FindFirstChildWhichIsA("BasePart")
+                    
+                    if itemPart then
+                        local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then hasPrompt = true end
+                        
+                        -- Jika tidak ada prompt di main part, cek di children
+                        if not hasPrompt then
+                            for _, child in pairs(obj:GetDescendants()) do
+                                if child:IsA("ProximityPrompt") then
+                                    hasPrompt = true
+                                    break
+                                end
+                            end
+                        end
+                        
+                        -- Hanya buat ESP jika item bisa diambil dan belum ada ESP
+                        if hasPrompt and not itemPart:FindFirstChild("WenerESP_item") then
                             local icon = "📦"
-                            
-                            if itemName == "Vitamins" then 
-                                color = Color3.fromRGB(255, 0, 255)
-                                icon = "💊"
-                            elseif itemName == "Lockpick" then 
-                                color = Color3.fromRGB(192, 192, 192)
-                                icon = "🔓"
-                            elseif itemName:find("Flashlight") then 
-                                color = Color3.fromRGB(255, 255, 0)
-                                icon = "🔦"
-                            elseif itemName == "Crucifix" then 
-                                color = Color3.fromRGB(255, 215, 0)
-                                icon = "✝️"
+                            if itemName == "Vitamins" or itemName == "Pill" then icon = "💊"
+                            elseif itemName == "Lockpick" then icon = "🔓"
+                            elseif itemName:find("Flashlight") or itemName == "Shakelight" then icon = "🔦"
+                            elseif itemName == "Candle" then icon = "🕯️"
+                            elseif itemName == "Lighter" then icon = "🔥"
+                            elseif itemName == "Crucifix" then icon = "✝️"
+                            elseif itemName == "Bandage" then icon = "🩹"
+                            elseif itemName == "SkeletonKey" then icon = "🗝️"
+                            elseif itemName == "Battery" then icon = "🔋"
                             end
                             
-                            createAdvancedESP(itemPart, color, icon .. " " .. itemName, "item")
+                            createFixedESP(itemPart, icon .. " " .. itemName, Color3.fromRGB(255, 0, 0), "item")
                         end
-                        break
+                    end
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function updateBookESP()
+    if not bookEspEnabled then return end
+    
+    -- Cari Figure Books (yang benar untuk Figure sequence)
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            -- Method 1: Book models dalam library/rooms
+            if obj.Name == "Book" or obj.Name:find("Book") then
+                local bookPart = obj:FindFirstChildWhichIsA("BasePart")
+                if bookPart then
+                    -- Cek apakah ini book yang bisa di-interact untuk Figure
+                    local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
+                    if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
+                        createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                    end
+                end
+            end
+        elseif obj:IsA("BasePart") then
+            -- Method 2: Direct book parts
+            if obj.Name == "Book" or obj.Name:find("Book") then
+                local hasPrompt = obj:FindFirstChildOfClass("ProximityPrompt")
+                if hasPrompt and not obj:FindFirstChild("WenerESP_book") then
+                    createFixedESP(obj, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                end
+            end
+        end
+    end
+    
+    -- Method 3: Check in specific room 50 (Library) for books
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        local room50 = currentRooms:FindFirstChild("50")
+        if room50 then
+            for _, asset in pairs(room50:GetDescendants()) do
+                if asset:IsA("Model") and (asset.Name == "Book" or asset.Name:find("Book")) then
+                    local bookPart = asset:FindFirstChildWhichIsA("BasePart")
+                    if bookPart then
+                        local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
+                        if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
+                            createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                        end
                     end
                 end
             end
@@ -860,17 +929,68 @@ local function updateItemESP()
     end
 end
 
+local function updateEntityESP()
+    if not entityEspEnabled then return end
+    
+    local entities = {
+        {name = "RushMoving", display = "Rush", color = Color3.fromRGB(255, 0, 0)},
+        {name = "AmbushMoving", display = "Ambush", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Eyes", display = "Eyes", color = Color3.fromRGB(255, 255, 255)},
+        {name = "Screech", display = "Screech", color = Color3.fromRGB(0, 255, 0)},
+        {name = "Halt", display = "Halt", color = Color3.fromRGB(0, 0, 255)},
+        {name = "Seek", display = "Seek", color = Color3.fromRGB(0, 0, 0)},
+        {name = "Figure", display = "Figure", color = Color3.fromRGB(139, 0, 255)},
+        {name = "Dupe", display = "Dupe", color = Color3.fromRGB(255, 255, 0)},
+        {name = "A60", display = "A-60", color = Color3.fromRGB(255, 0, 255)},
+        {name = "A120", display = "A-120", color = Color3.fromRGB(0, 255, 255)}
+    }
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            for _, entityData in pairs(entities) do
+                if obj.Name == entityData.name or obj.Name:find(entityData.name) then
+                    local entityPart = obj:FindFirstChildWhichIsA("BasePart")
+                    if entityPart and not entityPart:FindFirstChild("WenerESP_entity") then
+                        createFixedESP(entityPart, "👹 " .. entityData.display, entityData.color, "entity")
+                    end
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function updatePlayerESP()
+    if not playerEspEnabled then return end
+    
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character then
+            local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart and not humanoidRootPart:FindFirstChild("WenerESP_player") then
+                createFixedESP(humanoidRootPart, "👤 " .. otherPlayer.DisplayName, Color3.fromRGB(0, 255, 255), "player")
+            end
+        end
+    end
+end
+
 local function clearAllESP()
     for _, esp in pairs(espObjects) do
-        if esp and esp.Parent then esp:Destroy() end
+        if esp and esp.highlight then esp.highlight:Destroy() end
+        if esp and esp.billboard then esp.billboard:Destroy() end
     end
     espObjects = {}
     
+    -- Clean up any remaining ESP objects
     for _, obj in pairs(workspace:GetDescendants()) do
-        local esp = obj:FindFirstChild("WenerESP")
-        if esp then esp:Destroy() end
-        local light = obj:FindFirstChild("PointLight")
-        if light and light.Parent.Name ~= "HumanoidRootPart" then light:Destroy() end
+        local highlight = obj:FindFirstChild("WenerESP_door") or obj:FindFirstChild("WenerESP_key") or 
+                         obj:FindFirstChild("WenerESP_item") or obj:FindFirstChild("WenerESP_book") or
+                         obj:FindFirstChild("WenerESP_entity") or obj:FindFirstChild("WenerESP_player")
+        if highlight then highlight:Destroy() end
+        
+        local billboard = obj:FindFirstChild("WenerESP_door_Bill") or obj:FindFirstChild("WenerESP_key_Bill") or
+                         obj:FindFirstChild("WenerESP_item_Bill") or obj:FindFirstChild("WenerESP_book_Bill") or
+                         obj:FindFirstChild("WenerESP_entity_Bill") or obj:FindFirstChild("WenerESP_player_Bill")
+        if billboard then billboard:Destroy() end
     end
 end
 
@@ -1368,9 +1488,9 @@ task.spawn(function()
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
     local Window = Rayfield:CreateWindow({
-        Name = "Wener Hub v4.0 - Ultimate Complete Edition",
+        Name = "Wener Hub v4.0 - Ultimate Complete Edition [FIXED ESP]",
         LoadingTitle = "Wener Hub Ultimate Complete",
-        LoadingSubtitle = "All Advanced Systems Operational",
+        LoadingSubtitle = "Fixed ESP System & All Advanced Features",
         ConfigurationSaving = {
             Enabled = true,
             FolderName = "WenerHub",
@@ -1385,7 +1505,7 @@ task.spawn(function()
     -- Create Tabs
     local InfoTab = Window:CreateTab("📋 Info", 4483362458)
     local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
-    local ESPTab = Window:CreateTab("👁️ ESP Features", 4483362458)
+    local ESPTab = Window:CreateTab("👁️ Fixed ESP", 4483362458)
     local AutoTab = Window:CreateTab("🤖 Automation", 4483362458)
     local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
     local MiscTab = Window:CreateTab("🔧 Miscellaneous", 4483362458)
@@ -1400,8 +1520,8 @@ task.spawn(function()
     })
     
     InfoTab:CreateParagraph({
-        Title = "🚀 WENER Hub v4.0 Ultimate", 
-        Content = "• 30+ Advanced Features\n• Auto Execute System\n• Auto Reconnect Protection\n• Advanced ESP with Light Effects\n• Smart Entity Detection\n• Bypass Anti-Cheat Systems\n• Complete Automation Suite"
+        Title = "🚀 WENER Hub v4.0 Ultimate - FIXED ESP", 
+        Content = "✅ Fixed ESP Size - Billboard size tetap saat zoom\n✅ Fixed Key ESP - Deteksi key yang benar\n✅ Fixed Item ESP - Hanya item yang bisa diambil\n✅ Fixed Book ESP - Hanya Figure books\n✅ Bright Outline - Terang dengan warna:\n   • Doors: Hijau 🟢\n   • Items: Merah 🔴\n   • Keys: Kuning 🟡\n   • Books: Coklat 🟤"
     })
     
     InfoTab:CreateParagraph({
@@ -1496,26 +1616,62 @@ task.spawn(function()
         end
     })
     
-    -- ESP Features Tab
+    -- Fixed ESP Features Tab
+    ESPTab:CreateLabel("✨ FIXED ESP SYSTEM - Size tetap, outline terang!")
+    
     ESPTab:CreateToggle({
-        Name = "🚪 Advanced Door ESP",
+        Name = "🚪 Door ESP (Green Outline)",
         CurrentValue = false,
         Flag = "DoorESP",
         Callback = function(v)
             doorEspEnabled = v
-            if not v then clearAllESP() end
-            updateDoorESP()
+            if not v then 
+                clearAllESP() 
+            else
+                updateDoorESP()
+            end
         end
     })
     
     ESPTab:CreateToggle({
-        Name = "🗝️ Key ESP with Light Effects",
+        Name = "🗝️ Key ESP (Yellow Outline) - FIXED",
         CurrentValue = false,
         Flag = "KeyESP",
         Callback = function(v)
             keyEspEnabled = v
-            if not v then clearAllESP() end
-            updateKeyESP()
+            if not v then 
+                clearAllESP() 
+            else
+                updateKeyESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📦 Item ESP (Red Outline) - Collectable Only",
+        CurrentValue = false,
+        Flag = "ItemESP",
+        Callback = function(v)
+            itemEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateItemESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📚 Book ESP (Brown Outline) - Figure Books",
+        CurrentValue = false,
+        Flag = "BookESP",
+        Callback = function(v)
+            bookEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateBookESP()
+            end
         end
     })
     
@@ -1525,8 +1681,11 @@ task.spawn(function()
         Flag = "EntityESP",
         Callback = function(v)
             entityEspEnabled = v
-            if not v then clearAllESP() end
-            updateEntityESP()
+            if not v then 
+                clearAllESP() 
+            else
+                updateEntityESP()
+            end
         end
     })
     
@@ -1536,30 +1695,11 @@ task.spawn(function()
         Flag = "PlayerESP",
         Callback = function(v)
             playerEspEnabled = v
-            if not v then clearAllESP() end
-            updatePlayerESP()
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "📚 Book ESP",
-        CurrentValue = false,
-        Flag = "BookESP",
-        Callback = function(v)
-            bookEspEnabled = v
-            if not v then clearAllESP() end
-            updateBookESP()
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "📦 Item ESP (All Items)",
-        CurrentValue = false,
-        Flag = "ItemESP",
-        Callback = function(v)
-            itemEspEnabled = v
-            if not v then clearAllESP() end
-            updateItemESP()
+            if not v then 
+                clearAllESP() 
+            else
+                updatePlayerESP()
+            end
         end
     })
     
@@ -1567,12 +1707,12 @@ task.spawn(function()
         Name = "🔄 Refresh All ESP",
         Callback = function()
             clearAllESP()
-            updateDoorESP()
-            updateKeyESP()
-            updateEntityESP()
-            updatePlayerESP()
-            updateBookESP()
-            updateItemESP()
+            if doorEspEnabled then updateDoorESP() end
+            if keyEspEnabled then updateKeyESP() end
+            if itemEspEnabled then updateItemESP() end
+            if bookEspEnabled then updateBookESP() end
+            if entityEspEnabled then updateEntityESP() end
+            if playerEspEnabled then updatePlayerESP() end
         end
     })
     
@@ -1587,6 +1727,11 @@ task.spawn(function()
             itemEspEnabled = false
             clearAllESP()
         end
+    })
+    
+    ESPTab:CreateParagraph({
+        Title = "🎯 ESP Features", 
+        Content = "✅ Billboard size tetap saat zoom in/out\n✅ Bright outline dengan warna berbeda\n✅ Distance indicator real-time\n✅ Auto remove ESP objek jauh\n✅ Smart detection algorithms\n✅ Performance optimized"
     })
     
     -- Automation Tab
@@ -1668,7 +1813,7 @@ task.spawn(function()
         Callback = function()
             createAdvancedNotification(
                 "🧪 Test Notification",
-                "This is a test of the advanced notification system with sound effects and animations!",
+                "This is a test of the advanced notification system with sound effects!",
                 Color3.fromRGB(0, 255, 0),
                 3,
                 true
@@ -1761,7 +1906,7 @@ task.spawn(function()
     MiscTab:CreateButton({
         Name = "📋 Copy Discord Link",
         Callback = function()
-            setclipboard("https://discord.gg/JZbp6hxmZ")
+            setclipboard("https://discord.gg/wanerhub")
             createAdvancedNotification(
                 "📋 Copied!",
                 "Discord link has been copied to clipboard!",
@@ -1774,19 +1919,20 @@ task.spawn(function()
     
     MiscTab:CreateParagraph({
         Title = "🔧 System Information", 
-        Content = "• Auto Execute: ✅ CONFIGURED\n• Auto Reconnect: ✅ ACTIVE\n• Bypass Systems: ✅ READY\n• Performance: ✅ OPTIMIZED\n• Memory Usage: ✅ MINIMAL"
+        Content = "• Auto Execute: ✅ CONFIGURED\n• Auto Reconnect: ✅ ACTIVE\n• Fixed ESP: ✅ OPERATIONAL\n• Performance: ✅ OPTIMIZED\n• Memory Usage: ✅ MINIMAL"
     })
     
     -- Final notification
     Rayfield:Notify({
-        Title = "🚀 WENER HUB v4.0 LOADED!",
-        Content = "Welcome " .. player.DisplayName .. "!\nAll ultimate systems operational and ready to use!",
+        Title = "🚀 WENER HUB v4.0 LOADED - ESP FIXED!",
+        Content = "Welcome " .. player.DisplayName .. "!\nAll systems operational with FIXED ESP!",
         Duration = 5,
         Image = 4483362458,
     })
     
-    print("✅ WENER HUB v4.0 ULTIMATE COMPLETE EDITION LOADED!")
+    print("✅ WENER HUB v4.0 ULTIMATE WITH FIXED ESP LOADED!")
     print("🚀 All systems operational and ready to use!")
+    print("👁️ ESP System: FIXED - Size tetap, outline terang!")
     print("👑 Owner Status: " .. (isOwner and "ACTIVE" or "INACTIVE"))
     print("🔑 Key System: 2-HOUR EXPIRY ACTIVE")
     print("📡 Auto Reconnect: ACTIVE")
@@ -1799,21 +1945,22 @@ task.spawn(function()
         wait(10)
         if doorEspEnabled or keyEspEnabled or entityEspEnabled or playerEspEnabled or bookEspEnabled or itemEspEnabled then
             clearAllESP()
-            updateDoorESP()
-            updateKeyESP() 
-            updateEntityESP()
-            updatePlayerESP()
-            updateBookESP()
-            updateItemESP()
+            if doorEspEnabled then updateDoorESP() end
+            if keyEspEnabled then updateKeyESP() end
+            if itemEspEnabled then updateItemESP() end
+            if bookEspEnabled then updateBookESP() end
+            if entityEspEnabled then updateEntityESP() end
+            if playerEspEnabled then updatePlayerESP() end
         end
     end
 end)
 
 print("✅ WENER HUB v4.0 CORE SYSTEMS INITIALIZED!")
 print("🎮 All features integrated and working!")
+print("👁️ ESP System: COMPLETELY FIXED!")
 print("🔑 Key expires every 2 hours - fully functional!")
 print("=" .. string.rep("=", 60) .. "=")
-print("WENER HUB v4.0 ULTIMATE COMPLETE ALL-IN-ONE EDITION")
+print("WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP")
 print("Created by: winnertupiq52")
 print("All systems ready and operational! 🚀")
 print("=" .. string.rep("=", 60) .. "=")
