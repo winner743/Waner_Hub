@@ -475,6 +475,113 @@ if KeySystemEnabled and not checkKey() then
 end
 
 -- ============================================================================
+-- WELCOME SCREEN DENGAN GLITCH EFFECT
+-- ============================================================================
+
+local function createWelcomeScreen()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerWelcome"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = Lighting
+    
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
+    
+    -- Welcome message
+    local WelcomeText = Instance.new("TextLabel")
+    WelcomeText.Size = UDim2.new(0.8, 0, 0.2, 0)
+    WelcomeText.Position = UDim2.new(0.1, 0, 0.3, 0)
+    WelcomeText.BackgroundTransparency = 1
+    WelcomeText.Text = "Welcome " .. player.DisplayName .. " To WENER Hub"
+    WelcomeText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    WelcomeText.Font = Enum.Font.GothamBold
+    WelcomeText.TextSize = 48
+    WelcomeText.TextStrokeTransparency = 0
+    WelcomeText.TextTransparency = 1
+    WelcomeText.Parent = ScreenGui
+    
+    -- Glitched Hub text (akan berantakan dulu)
+    local HubText = Instance.new("TextLabel")
+    HubText.Size = UDim2.new(1, 0, 0.3, 0)
+    HubText.Position = UDim2.new(0, 0, 0.55, 0)
+    HubText.BackgroundTransparency = 1
+    HubText.Text = "W3n3r HuB" -- Berantakan dulu
+    HubText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    HubText.Font = Enum.Font.GothamBold
+    HubText.TextSize = 72
+    HubText.TextStrokeTransparency = 0
+    HubText.TextTransparency = 1
+    HubText.Parent = ScreenGui
+    
+    task.spawn(function()
+        -- Fade in effect
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 25}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.3}):Play()
+        wait(1)
+        
+        -- Show welcome message
+        TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
+        wait(2)
+        
+        -- Show glitched hub text
+        TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+        wait(0.5)
+        
+        -- Glitch animation untuk text Hub
+        local glitchTexts = {
+            "W3n3r HuB", "W€n€r H∪B", "W£n£r HμB", "W∈n∈r H∪ß",
+            "W∂n∂r Hub", "Wen€r Hub", "Wen3r Hub", "Wener Hub"
+        }
+        
+        -- Animasi glitch selama beberapa detik
+        for i = 1, 15 do
+            HubText.Text = glitchTexts[math.random(1, #glitchTexts)]
+            HubText.TextColor3 = Color3.fromRGB(
+                math.random(100, 255),
+                math.random(100, 255), 
+                math.random(100, 255)
+            )
+            HubText.Position = UDim2.new(
+                math.random(-5, 5) / 100,
+                0,
+                0.55 + math.random(-2, 2) / 100,
+                0
+            )
+            wait(0.1)
+        end
+        
+        -- Kembali normal dengan smooth animation
+        TweenService:Create(HubText, TweenInfo.new(1), {
+            TextColor3 = Color3.fromRGB(139, 0, 255),
+            Position = UDim2.new(0, 0, 0.55, 0)
+        }):Play()
+        HubText.Text = "Wener Hub"
+        
+        wait(3) -- Tahan selama 3 detik
+        
+        -- Fade out setelah 1 hari (24 jam) atau langsung untuk testing
+        -- Untuk testing langsung fade out setelah beberapa detik
+        wait(2) -- Ganti ke 86400 untuk 1 hari
+        
+        TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(1.5), {Size = 0}):Play()
+        
+        wait(1.5)
+        ScreenGui:Destroy()
+        Blur:Destroy()
+    end)
+end
+
+-- ============================================================================
 -- PERMANENT LOGO WITH ENHANCED ANIMATION & OWNER STATUS
 -- ============================================================================
 
@@ -586,22 +693,9 @@ local function createPermanentLogo()
     end)
 end
 
+-- Show welcome screen after loading
+createWelcomeScreen()
 pcall(createPermanentLogo)
-
--- ============================================================================
--- LOAD ENHANCED RAYFIELD UI
--- ============================================================================
-
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-    Name = "Wener Hub v4.0 - Ultimate Complete Edition",
-    LoadingTitle = "Wener Hub Ultimate Complete",
-    LoadingSubtitle = "All Advanced Systems Operational",
-    ConfigurationSaving = {Enabled = false},
-    Discord = {Enabled = false},
-    KeySystem = false
-})
 
 -- ============================================================================
 -- VARIABLES FOR ALL SYSTEMS
@@ -1014,20 +1108,21 @@ local function createAdvancedESP(obj, color, txt, espType)
     bgFrame.Parent = billboard
     
     local bgCorner = Instance.new("UICorner")
-    bgCorner.CornerRadius = UDim.new(0, 10)
+    bgCorner.    bgCorner.CornerRadius = UDim.new(0, 8)
     bgCorner.Parent = bgFrame
     
-    local bgGradient = Instance.new("UIGradient")
-    bgGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 25)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.new(color.R * 0.3, color.G * 0.3, color.B * 0.3)),
+        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.1, color.G * 0.1, color.B * 0.1))
     })
-    bgGradient.Rotation = 90
-    bgGradient.Parent = bgFrame
+    gradient.Rotation = 45
+    gradient.Parent = bgFrame
     
-    -- Main label with enhanced styling
+    -- Main text label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0.65, 0)
+    label.Size = UDim2.new(1, -10, 0.6, 0)
+    label.Position = UDim2.new(0, 5, 0, 5)
     label.BackgroundTransparency = 1
     label.Text = txt
     label.TextColor3 = color
@@ -1035,556 +1130,314 @@ local function createAdvancedESP(obj, color, txt, espType)
     label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     label.TextScaled = true
     label.Font = Enum.Font.GothamBold
-    label.Parent = bgFrame
+    label.Parent = billboard
     
-    -- Distance label with icon
+    -- Distance label
     local distanceLabel = Instance.new("TextLabel")
-    distanceLabel.Size = UDim2.new(1, 0, 0.35, 0)
-    distanceLabel.Position = UDim2.new(0, 0, 0.65, 0)
+    distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
+    distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
     distanceLabel.BackgroundTransparency = 1
-    distanceLabel.Text = "📏 0m"
+    distanceLabel.Text = "0m"
     distanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
     distanceLabel.TextStrokeTransparency = 0
     distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     distanceLabel.TextScaled = true
     distanceLabel.Font = Enum.Font.Gotham
-    distanceLabel.Parent = bgFrame
+    distanceLabel.Parent = billboard
     
-    -- Special effects based on ESP type
-    if espType == "book" then
-        -- Enhanced light effect for books
-        local lightEffect = Instance.new("PointLight")
-        lightEffect.Brightness = 2.5
-        lightEffect.Range = 20
-        lightEffect.Color = Color3.fromRGB(255, 255, 100)
-        lightEffect.Parent = obj
-        
-        -- Pulsing light animation
-        task.spawn(function()
-            while lightEffect and lightEffect.Parent do
-                TweenService:Create(lightEffect, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {Brightness = 0.8}):Play()
-                wait(1.2)
-                TweenService:Create(lightEffect, TweenInfo.new(1.2, Enum.EasingStyle.Sine), {Brightness = 2.5}):Play()
-                wait(1.2)
-            end
-        end)
-        
-        -- Book glow effect
-        local selectionBox = Instance.new("SelectionBox")
-        selectionBox.Adornee = obj
-        selectionBox.Color3 = Color3.fromRGB(255, 255, 0)
-        selectionBox.LineThickness = 0.2
-        selectionBox.Transparency = 0.5
-        selectionBox.Parent = obj
-        
-    elseif espType == "figure" then
-        -- Warning effect for Figure
-        local warningLight = Instance.new("PointLight")
-        warningLight.Brightness = 3
-        warningLight.Range = 25
-        warningLight.Color = Color3.fromRGB(255, 0, 0)
-        warningLight.Parent = obj
-        
-        -- Flashing red light
-        task.spawn(function()
-            while warningLight and warningLight.Parent do
-                warningLight.Enabled = true
-                wait(0.3)
-                warningLight.Enabled = false
-                wait(0.3)
-            end
-        end)
-        
-    elseif espType == "door" then
-        -- Door outline effect
-        local selectionBox = Instance.new("SelectionBox")
-        selectionBox.Adornee = obj
-        selectionBox.Color3 = Color3.fromRGB(0, 255, 0)
-        selectionBox.LineThickness = 0.15
-        selectionBox.Transparency = 0.7
-        selectionBox.Parent = obj
-    end
+    -- Light effect
+    local lightEffect = Instance.new("PointLight")
+    lightEffect.Color = color
+    lightEffect.Brightness = 2
+    lightEffect.Range = 10
+    lightEffect.Parent = obj
     
-    -- Fade in animation
-    bgFrame.BackgroundTransparency = 1
-    label.TextTransparency = 1
-    distanceLabel.TextTransparency = 1
-    
-    TweenService:Create(bgFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.2}):Play()
-    TweenService:Create(label, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-    TweenService:Create(distanceLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-    
-    -- Update distance
+    -- Pulsing animation
     task.spawn(function()
-        while billboard and billboard.Parent do
-            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
-                distanceLabel.Text = "📏 " .. math.floor(distance) .. "m"
-            end
-            wait(0.5)
+        while billboard.Parent do
+            TweenService:Create(lightEffect, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Brightness = 0.5
+            }):Play()
+            
+            TweenService:Create(label, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                TextTransparency = 0.3
+            }):Play()
+            
+            task.wait(1)
+        end
+    end)
+    
+    -- Distance updater
+    task.spawn(function()
+        while billboard.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+            local distance = math.floor((player.Character.HumanoidRootPart.Position - obj.Position).Magnitude)
+            distanceLabel.Text = distance .. "m"
+            task.wait(0.5)
         end
     end)
     
     return billboard
 end
 
--- ============================================================================
--- ENHANCED DOOR ESP
---============================================================================
-
-local doorConnection
-
-local function getDoorNumber(door)
-    -- Multiple methods to detect door number
-    local doorNumber = "?"
+-- Door ESP System
+local function updateDoorESP()
+    for _, esp in pairs(doorEspObjects) do
+        if esp then esp:Destroy() end
+    end
+    doorEspObjects = {}
     
-    -- Method 1: Check door name
-    if door.Name:match("%d+") then
-        doorNumber = door.Name:match("%d+")
+    if not doorEspEnabled then return end
+    
+    local function addDoorESP(door)
+        if door:FindFirstChild("WenerESP") then return end
+        
+        local doorNumber = door.Name
+        local esp = createAdvancedESP(door:FindFirstChildWhichIsA("BasePart"), Color3.fromRGB(0, 255, 0), "🚪 Door " .. doorNumber, "door")
+        if esp then
+            table.insert(doorEspObjects, esp)
+        end
     end
     
-    -- Method 2: Check parent room
-    local parent = door.Parent
-    if parent and parent.Name:match("%d+") then
-        doorNumber = parent.Name:match("%d+")
-    end
-    
-    -- Method 3: Check for NumberValue
-    local numberValue = door:FindFirstChild("RoomNumber") or door:FindFirstChildOfClass("NumberValue")
-    if numberValue and numberValue.Value then
-        doorNumber = tostring(numberValue.Value)
-    end
-    
-    -- Method 4: Check CurrentRooms structure
+    -- Current rooms doors
     local currentRooms = workspace:FindFirstChild("CurrentRooms")
     if currentRooms then
         for _, room in pairs(currentRooms:GetChildren()) do
-            if room:FindFirstChild("Door") == door or door:IsDescendantOf(room) then
-                if room.Name:match("%d+") then
-                    doorNumber = room.Name:match("%d+")
-                    break
+            if room:IsA("Model") and tonumber(room.Name) then
+                local door = room:FindFirstChild("Door")
+                if door then
+                    addDoorESP(door)
                 end
             end
         end
     end
     
-    return doorNumber
-end
-
-local function addDoorESP()
-    for _, door in pairs(workspace:GetDescendants()) do
-        if door:IsA("Model") and door.Name == "Door" and not door:FindFirstChild("WenerESP") then
-            local doorPart = door:FindFirstChild("Door") or door:FindFirstChildWhichIsA("BasePart")
-            if doorPart then
-                local doorNumber = getDoorNumber(door)
-                local doorText = "🚪 Door " .. doorNumber
-                local esp = createAdvancedESP(doorPart, Color3.fromRGB(0, 255, 0), doorText, "door")
-                if esp then table.insert(doorEspObjects, esp) end
-            end
-        end
-    end
-end
-
-local function removeDoorESP()
-    for _, esp in pairs(doorEspObjects) do 
-        pcall(function() 
-            -- Remove selection box
-            local selectionBox = esp.Adornee:FindFirstChild("SelectionBox")
-            if selectionBox then selectionBox:Destroy() end
-            esp:Destroy() 
-        end) 
-    end
-    doorEspObjects = {}
-end
-
-local function enableDoorESP()
-    doorEspEnabled = true
-    addDoorESP()
-    if doorConnection then doorConnection:Disconnect() end
-    doorConnection = workspace.DescendantAdded:Connect(function(v)
-        if doorEspEnabled and v:IsA("Model") and v.Name == "Door" then
-            task.wait(0.5)
-            addDoorESP()
-        end
-    end)
-end
-
-local function disableDoorESP()
-    doorEspEnabled = false
-    if doorConnection then doorConnection:Disconnect() end
-    removeDoorESP()
-end
-
--- ============================================================================
--- ENHANCED FIGURE ESP WITH WARNING SYSTEM
--- ============================================================================
-
-local figureConnection
-
-local function addFigureESP()
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and (v.Name == "FigureRagdoll" or v.Name == "Figure") and not v:FindFirstChild("WenerESP") then
-            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-            if part then
-                local esp = createAdvancedESP(part, Color3.fromRGB(255, 0, 0), "👹 FIGURE - DANGER!", "figure")
-                if esp then 
-                    table.insert(figureEspObjects, esp)
-                    
-                    -- Play warning sound
-                    local sound = Instance.new("Sound")
-                    sound.SoundId = "rbxassetid://131961136" -- Siren sound
-                    sound.Volume = 0.8
-                    sound.Looped = true
-                    sound.Parent = workspace
-                    sound:Play()
-                    
-                    -- Stop sound after 10 seconds
-                    task.spawn(function()
-                        wait(10)
-                        sound:Stop()
-                        sound:Destroy()
-                    end)
+    -- Monitor new doors
+    if currentRooms then
+        currentRooms.ChildAdded:Connect(function(room)
+            if doorEspEnabled and room:IsA("Model") and tonumber(room.Name) then
+                task.wait(1)
+                local door = room:FindFirstChild("Door")
+                if door then
+                    addDoorESP(door)
                 end
             end
-        end
+        end)
     end
 end
 
-local function removeFigureESP()
-    for _, esp in pairs(figureEspObjects) do 
-        pcall(function() 
-            -- Remove warning light
-            local light = esp.Adornee:FindFirstChild("PointLight")
-            if light then light:Destroy() end
-            esp:Destroy() 
-        end) 
+-- Key ESP System
+local function updateKeyESP()
+    for _, esp in pairs(keyEspObjects) do
+        if esp then esp:Destroy() end
     end
-    figureEspObjects = {}
-end
-
-local function enableFigureESP()
-    figureEspEnabled = true
-    addFigureESP()
-    if figureConnection then figureConnection:Disconnect() end
-    figureConnection = workspace.DescendantAdded:Connect(function(v)
-        if figureEspEnabled and v:IsA("Model") and (v.Name == "FigureRagdoll" or v.Name == "Figure") then
-            task.wait(0.5)
-            
-            addFigureESP()
-        end
-    end)
-end
-
-local function disableFigureESP()
-    figureEspEnabled = false
-    if figureConnection then figureConnection:Disconnect() end
-    removeFigureESP()
-end
-
--- ============================================================================
--- ENHANCED BOOK ESP WITH LIGHT EFFECTS
--- ============================================================================
-
-local bookConnection
-
-local function addBookESP()
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "Book") and not v:FindFirstChild("WenerESP") then
-            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-            if part then
-                local esp = createAdvancedESP(part, Color3.fromRGB(255, 255, 0), "📖 Book", "book")
-                if esp then table.insert(bookEspObjects, esp) end
-            end
-        end
-    end
-end
-
-local function removeBookESP()
-    for _, esp in pairs(bookEspObjects) do 
-        pcall(function() 
-            -- Remove light effect and selection box
-            local light = esp.Adornee:FindFirstChild("PointLight")
-            if light then light:Destroy() end
-            local selectionBox = esp.Adornee:FindFirstChild("SelectionBox")
-            if selectionBox then selectionBox:Destroy() end
-            esp:Destroy() 
-        end) 
-    end
-    bookEspObjects = {}
-end
-
-local function enableBookESP()
-    bookEspEnabled = true
-    addBookESP()
-    if bookConnection then bookConnection:Disconnect() end
-    bookConnection = workspace.DescendantAdded:Connect(function(v)
-        if bookEspEnabled and v:IsA("Model") and (v.Name == "LiveHintBook" or v.Name == "Book") then
-            task.wait(0.5)
-            addBookESP()
-        end
-    end)
-end
-
-local function disableBookESP()
-    bookEspEnabled = false
-    if bookConnection then bookConnection:Disconnect() end
-    removeBookESP()
-end
-
--- ============================================================================
--- ENHANCED KEY ESP
--- ============================================================================
-
-local keyConnection
-
-local function addKeyESP()
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and (v.Name == "Key" or v.Name == "SkeletonKey") and not v:FindFirstChild("WenerESP") then
-            local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-            if part then
-                local keyType = v.Name == "SkeletonKey" and "🗝️ Skeleton Key" or "🔑 Key"
-                local color = v.Name == "SkeletonKey" and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(255, 255, 0)
-                local esp = createAdvancedESP(part, color, keyType, "key")
-                if esp then table.insert(keyEspObjects, esp) end
-            end
-        end
-    end
-end
-
-local function removeKeyESP()
-    for _, esp in pairs(keyEspObjects) do pcall(function() esp:Destroy() end) end
     keyEspObjects = {}
-end
-
-local function enableKeyESP()
-    keyEspEnabled = true
-    addKeyESP()
-    if keyConnection then keyConnection:Disconnect() end
-    keyConnection = workspace.DescendantAdded:Connect(function(v)
-        if keyEspEnabled and v:IsA("Model") and (v.Name == "Key" or v.Name == "SkeletonKey") then
+    
+    if not keyEspEnabled then return end
+    
+    local function addKeyESP(key)
+        if key:FindFirstChild("WenerESP") then return end
+        
+        local esp = createAdvancedESP(key:FindFirstChildWhichIsA("BasePart"), Color3.fromRGB(255, 255, 0), "🗝️ Key", "key")
+        if esp then
+            table.insert(keyEspObjects, esp)
+        end
+    end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and obj.Name == "Key" then
+            addKeyESP(obj)
+        end
+    end
+    
+    workspace.DescendantAdded:Connect(function(obj)
+        if keyEspEnabled and obj:IsA("Model") and obj.Name == "Key" then
             task.wait(0.5)
-            addKeyESP()
+            addKeyESP(obj)
         end
     end)
 end
 
-local function disableKeyESP()
-    keyEspEnabled = false
-    if keyConnection then keyConnection:Disconnect() end
-    removeKeyESP()
-end
-
--- ============================================================================
--- ENHANCED ENTITY ESP
--- ============================================================================
-
-local entityConnection
-local entityList = {
-    "RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", 
-    "Figure", "BackdoorLookman", "A60", "A90", "Timothy", "Snare",
-    "Dupe", "Hide", "Glitch", "Jack", "Shadow"
-}
-
-local function addEntityESP()
-    for _, entityName in pairs(entityList) do
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("Model") and v.Name:find(entityName) and not v:FindFirstChild("WenerESP") then
-                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-                if part then
-                    local color = Color3.fromRGB(255, 0, 0)
-                    if entityName == "Eyes" then color = Color3.fromRGB(0, 255, 255) end
-                    if entityName == "Halt" then color = Color3.fromRGB(255, 255, 0) end
-                    if entityName == "Seek" then color = Color3.fromRGB(0, 0, 0) end
-                    
-                    local esp = createAdvancedESP(part, color, "👻 " .. entityName:gsub("Moving", ""), "entity")
-                    if esp then table.insert(entityEspObjects, esp) end
-                end
-            end
-        end
+-- Entity ESP System
+local function updateEntityESP()
+    for _, esp in pairs(entityEspObjects) do
+        if esp then esp:Destroy() end
     end
-end
-
-local function removeEntityESP()
-    for _, esp in pairs(entityEspObjects) do pcall(function() esp:Destroy() end) end
     entityEspObjects = {}
-end
-
-local function enableEntityESP()
-    entityEspEnabled = true
-    addEntityESP()
-    if entityConnection then entityConnection:Disconnect() end
-    entityConnection = workspace.DescendantAdded:Connect(function(v)
-        if entityEspEnabled then
-            for _, entityName in pairs(entityList) do
-                if v:IsA("Model") and v.Name:find(entityName) then
-                    task.wait(0.5)
-                    addEntityESP()
-                    break
-                end
-            end
-        end
-    end)
-end
-
-local function disableEntityESP()
-    entityEspEnabled = false
-    if entityConnection then entityConnection:Disconnect() end
-    removeEntityESP()
-end
-
--- ============================================================================
--- ENHANCED PLAYER ESP
--- ============================================================================
-
-local playerConnection
-
-local function addPlayerESP()
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local part = otherPlayer.Character.HumanoidRootPart
-            if not part:FindFirstChild("WenerESP") then
-                local esp = createAdvancedESP(part, Color3.fromRGB(0, 255, 255), "👤 " .. otherPlayer.Name, "player")
-                if esp then table.insert(playerEspObjects, esp) end
-            end
-        end
-    end
-end
-
-local function removePlayerESP()
-    for _, esp in pairs(playerEspObjects) do pcall(function() esp:Destroy() end) end
-    playerEspObjects = {}
-end
-
-local function enablePlayerESP()
-    playerEspEnabled = true
-    addPlayerESP()
-    if playerConnection then playerConnection:Disconnect() end
-    playerConnection = Players.PlayerAdded:Connect(function()
-        if playerEspEnabled then
-            task.wait(2)
-            addPlayerESP()
-        end
-    end)
-end
-
-local function disablePlayerESP()
-    playerEspEnabled = false
-    if playerConnection then playerConnection:Disconnect() end
-    removePlayerESP()
-end
-
--- ============================================================================
--- ENHANCED ITEM ESP
--- ============================================================================
-
-local itemConnection
-local itemList = {
-    "Vitamins", "Lockpick", "FlashlightPickup", "Lighter", "Candle", 
-    "Crucifix", "Bandage", "Shakelight", "Scanner", "Paper"
-}
-
-local function addItemESP()
-    for _, itemName in pairs(itemList) do
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("Model") and v.Name == itemName and not v:FindFirstChild("WenerESP") then
-                local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-                if part then
-                    local color = Color3.fromRGB(0, 255, 0)
-                    if itemName == "Crucifix" then color = Color3.fromRGB(255, 215, 0) end
-                    if itemName == "Vitamins" then color = Color3.fromRGB(255, 0, 255) end
-                    
-                    local esp = createAdvancedESP(part, color, "📦 " .. itemName, "item")
-                    if esp then table.insert(itemEspObjects, esp) end
-                end
-            end
-        end
-    end
-end
-
-local function removeItemESP()
-    for _, esp in pairs(itemEspObjects) do pcall(function() esp:Destroy() end) end
-    itemEspObjects = {}
-end
-
-local function enableItemESP()
-    itemEspEnabled = true
-    addItemESP()
-    if itemConnection then itemConnection:Disconnect() end
-    itemConnection = workspace.DescendantAdded:Connect(function(v)
-        if itemEspEnabled then
-            for _, itemName in pairs(itemList) do
-                if v:IsA("Model") and v.Name == itemName then
-                    task.wait(0.5)
-                    addItemESP()
-                    break
-                end
-            end
-        end
-    end)
-end
-
-local function disableItemESP()
-    itemEspEnabled = false
-    if itemConnection then itemConnection:Disconnect() end
-    removeItemESP()
-end
-
--- ============================================================================
--- ENHANCED ENTITY NOTIFICATIONS WITH SOUND
--- ============================================================================
-
-local function setupEntityNotifications()
-    workspace.ChildAdded:Connect(function(child)
-        if rushNotifEnabled and (child.Name == "RushMoving" or child.Name == "AmbushMoving") then
-            local name = child.Name:gsub("Moving", ""):upper()
-            
-            -- Play warning sound
-            local sound = Instance.new("Sound")
-            sound.SoundId = "rbxassetid://4590662766" -- Emergency sound
-            sound.Volume = 1
-            sound.Parent = workspace
-            sound:Play()
-            sound.Ended:Connect(function() sound:Destroy() end)
-            
-            Rayfield:Notify({
-                Title = "⚠️ " .. name .. " SPAWNED!",
-                Content = "🚨 HIDE IMMEDIATELY! " .. name .. " is approaching!\n💡 Find a closet or bed to hide!",
-                Duration = 8,
-                Image = 4483362458,
-            })
-            
-            -- Screen flash effect
-            local flash = Instance.new("ScreenGui")
-            flash.Name = "WenerFlash"
-            flash.Parent = game.CoreGui
-            
-            local frame = Instance.new("Frame")
-            frame.Size = UDim2.new(1, 0, 1, 0)
-            frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            frame.BackgroundTransparency = 0.5
-            frame.Parent = flash
-            
-            TweenService:Create(frame, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
-            task.wait(0.2)
-            flash:Destroy()
+    
+    if not entityEspEnabled then return end
+    
+    local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "Dupe", "A60", "A120"}
+    
+    local function addEntityESP(entity)
+        if entity:FindFirstChild("WenerESP") then return end
+        
+        local color = Color3.fromRGB(255, 0, 0)
+        local name = entity.Name
+        
+        if name == "Eyes" then color = Color3.fromRGB(255, 255, 255)
+        elseif name == "Halt" then color = Color3.fromRGB(0, 0, 255)
+        elseif name == "Seek" then color = Color3.fromRGB(0, 0, 0)
+        elseif name == "Figure" then color = Color3.fromRGB(139, 0, 255)
         end
         
-        if allEntityNotifications then
-            for _, entityName in pairs(entityList) do
-                if child.Name:find(entityName) then
-                    local color = "👻"
-                    if entityName == "Eyes" then color = "👁️" end
-                    if entityName == "Screech" then color = "🦇" end
-                    if entityName == "Halt" then color = "✋" end
-                    if entityName == "Seek" then color = "🖤" end
-                    if entityName == "Figure" then color = "👹" end
-                    
-                    Rayfield:Notify({
-                        Title = color .. " ENTITY DETECTED!",
-                        Content = "Entity: " .. entityName .. "\n🛡️ Stay alert and be careful!",
-                        Duration = 5,
-                        Image = 4483362458,
-                    })
+        local esp = createAdvancedESP(entity:FindFirstChildWhichIsA("BasePart"), color, "👹 " .. name, "entity")
+        if esp then
+            table.insert(entityEspObjects, esp)
+        end
+    end
+    
+    for _, entity in pairs(workspace:GetDescendants()) do
+        if entity:IsA("Model") then
+            for _, entityName in pairs(entities) do
+                if entity.Name == entityName or entity.Name:find(entityName) then
+                    addEntityESP(entity)
+                    break
+                end
+            end
+        end
+    end
+    
+    workspace.DescendantAdded:Connect(function(entity)
+        if entityEspEnabled and entity:IsA("Model") then
+            for _, entityName in pairs(entities) do
+                if entity.Name == entityName or entity.Name:find(entityName) then
+                    task.wait(0.5)
+                    addEntityESP(entity)
+                    break
+                end
+            end
+        end
+    end)
+end
+
+-- Player ESP System
+local function updatePlayerESP()
+    for _, esp in pairs(playerEspObjects) do
+        if esp then esp:Destroy() end
+    end
+    playerEspObjects = {}
+    
+    if not playerEspEnabled then return end
+    
+    local function addPlayerESP(otherPlayer)
+        if otherPlayer == player or not otherPlayer.Character then return end
+        
+        local character = otherPlayer.Character
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        
+        if humanoidRootPart and not humanoidRootPart:FindFirstChild("WenerESP") then
+            local esp = createAdvancedESP(humanoidRootPart, Color3.fromRGB(0, 255, 255), "👤 " .. otherPlayer.DisplayName, "player")
+            if esp then
+                table.insert(playerEspObjects, esp)
+            end
+        end
+    end
+    
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character then
+            addPlayerESP(otherPlayer)
+        end
+    end
+    
+    Players.PlayerAdded:Connect(function(otherPlayer)
+        if playerEspEnabled then
+            otherPlayer.CharacterAdded:Connect(function()
+                task.wait(1)
+                addPlayerESP(otherPlayer)
+            end)
+        end
+    end)
+end
+
+-- Book ESP System
+local function updateBookESP()
+    for _, esp in pairs(bookEspObjects) do
+        if esp then esp:Destroy() end
+    end
+    bookEspObjects = {}
+    
+    if not bookEspEnabled then return end
+    
+    local function addBookESP(book)
+        if book:FindFirstChild("WenerESP") then return end
+        
+        local esp = createAdvancedESP(book:FindFirstChildWhichIsA("BasePart"), Color3.fromRGB(139, 69, 19), "📚 Book", "book")
+        if esp then
+            table.insert(bookEspObjects, esp)
+        end
+    end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") and (obj.Name == "Book" or obj.Name:find("Book")) then
+            addBookESP(obj)
+        end
+    end
+    
+    workspace.DescendantAdded:Connect(function(obj)
+        if bookEspEnabled and obj:IsA("Model") and (obj.Name == "Book" or obj.Name:find("Book")) then
+            task.wait(0.5)
+            addBookESP(obj)
+        end
+    end)
+end
+
+-- Item ESP System
+local function updateItemESP()
+    for _, esp in pairs(itemEspObjects) do
+        if esp then esp:Destroy() end
+    end
+    itemEspObjects = {}
+    
+    if not itemEspEnabled then return end
+    
+    local items = {
+        "Vitamins", "Lockpick", "FlashlightPickup", "Lighter", "Candle", 
+        "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner"
+    }
+    
+    local function addItemESP(item)
+        if item:FindFirstChild("WenerESP") then return end
+        
+        local color = Color3.fromRGB(255, 165, 0)
+        local icon = "📦"
+        
+        if item.Name == "Vitamins" then 
+            color = Color3.fromRGB(255, 0, 255)
+            icon = "💊"
+        elseif item.Name == "Lockpick" then 
+            color = Color3.fromRGB(192, 192, 192)
+            icon = "🔓"
+        elseif item.Name:find("Flashlight") then 
+            color = Color3.fromRGB(255, 255, 0)
+            icon = "🔦"
+        elseif item.Name == "Crucifix" then 
+            color = Color3.fromRGB(255, 215, 0)
+            icon = "✝️"
+        end
+        
+        local esp = createAdvancedESP(item:FindFirstChildWhichIsA("BasePart"), color, icon .. " " .. item.Name, "item")
+        if esp then
+            table.insert(itemEspObjects, esp)
+        end
+    end
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            for _, itemName in pairs(items) do
+                if obj.Name == itemName or obj.Name:find(itemName) then
+                    addItemESP(obj)
+                    break
+                end
+            end
+        end
+    end
+    
+    workspace.DescendantAdded:Connect(function(obj)
+        if itemEspEnabled and obj:IsA("Model") then
+            for _, itemName in pairs(items) do
+                if obj.Name == itemName or obj.Name:find(itemName) then
+                    task.wait(0.5)
+                    addItemESP(obj)
                     break
                 end
             end
@@ -1593,36 +1446,168 @@ local function setupEntityNotifications()
 end
 
 -- ============================================================================
--- ENHANCED INFINITE VITAMINS
+-- ADVANCED NOTIFICATION SYSTEM WITH SOUND & VISUAL EFFECTS
 -- ============================================================================
 
-local infVitaminsConnection
+local function createAdvancedNotification(title, message, color, duration, sound)
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerNotification"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local NotificationFrame = Instance.new("Frame")
+    NotificationFrame.Size = UDim2.new(0, 400, 0, 120)
+    NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    NotificationFrame.BorderSizePixel = 0
+    NotificationFrame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 15)
+    Corner.Parent = NotificationFrame
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color),
+        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.5, color.G * 0.5, color.B * 0.5))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = NotificationFrame
+    
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, -20, 0, 40)
+    TitleLabel.Position = UDim2.new(0, 10, 0, 10)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 20
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = NotificationFrame
+    
+    local MessageLabel = Instance.new("TextLabel")
+    MessageLabel.Size = UDim2.new(1, -20, 0, 60)
+    MessageLabel.Position = UDim2.new(0, 10, 0, 50)
+    MessageLabel.BackgroundTransparency = 1
+    MessageLabel.Text = message
+    MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    MessageLabel.Font = Enum.Font.Gotham
+    MessageLabel.TextSize = 16
+    MessageLabel.TextWrapped = true
+    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+    MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
+    MessageLabel.Parent = NotificationFrame
+    
+    -- Sound effect
+    if sound then
+        local soundEffect = Instance.new("Sound")
+        soundEffect.SoundId = "rbxassetid://131961136"
+        soundEffect.Volume = 0.5
+        soundEffect.Parent = ScreenGui
+        soundEffect:Play()
+        
+        soundEffect.Ended:Connect(function()
+            soundEffect:Destroy()
+        end)
+    end
+    
+    -- Slide in animation
+    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
+        Position = UDim2.new(1, -420, 0, 100)
+    }):Play()
+    
+    -- Auto dismiss
+    task.spawn(function()
+        task.wait(duration or 5)
+        
+        TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+            Position = UDim2.new(1, 20, 0, 100),
+            BackgroundTransparency = 1
+        }):Play()
+        
+        TweenService:Create(TitleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        TweenService:Create(MessageLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        
+        task.wait(0.5)
+        ScreenGui:Destroy()
+    end)
+end
 
-local function enableInfVitamins()
-    infVitaminsEnabled = true
+-- ============================================================================
+-- ADVANCED ENTITY DETECTION & NOTIFICATION SYSTEM
+-- ============================================================================
+
+local entityConnections = {}
+local lastEntityNotification = {}
+
+local function setupEntityNotifications()
+    for _, conn in pairs(entityConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    entityConnections = {}
     
-    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    if not rushNotifEnabled and not allEntityNotifications then return end
     
-    infVitaminsConnection = RunService.Heartbeat:Connect(function()
-        if infVitaminsEnabled and player.Character then
-            local humanoid = player.Character:FindFirstChild("Humanoid")
-            if humanoid and humanoid.Health < humanoid.MaxHealth then
-                humanoid.Health = humanoid.MaxHealth
+    local entities = {
+        {name = "RushMoving", displayName = "Rush", color = Color3.fromRGB(255, 0, 0), message = "Rush is coming! Hide immediately!"},
+        {name = "AmbushMoving", displayName = "Ambush", color = Color3.fromRGB(255, 100, 0), message = "Ambush detected! Get ready to hide multiple times!"},
+        {name = "Eyes", displayName = "Eyes", color = Color3.fromRGB(255, 255, 255), message = "Eyes appeared! Don't look at them!"},
+        {name = "Screech", displayName = "Screech", color = Color3.fromRGB(0, 255, 0), message = "Screech is near! Turn around when you hear the sound!"},
+        {name = "Halt", displayName = "Halt", color = Color3.fromRGB(0, 0, 255), message = "Halt appeared! Stop moving when the screen turns blue!"},
+        {name = "Seek", displayName = "Seek", color = Color3.fromRGB(0, 0, 0), message = "Seek chase sequence! Run and avoid obstacles!"},
+        {name = "Figure", displayName = "Figure", color = Color3.fromRGB(139, 0, 255), message = "Figure is in the library! Move quietly and avoid making noise!"},
+        {name = "Dupe", displayName = "Dupe", color = Color3.fromRGB(255, 255, 0), message = "Dupe detected! Check door numbers carefully!"},
+        {name = "A60", displayName = "A-60", color = Color3.fromRGB(255, 0, 255), message = "A-60 is coming! Hide in a locker immediately!"},
+        {name = "A120", displayName = "A-120", color = Color3.fromRGB(0, 255, 255), message = "A-120 detected! Find a hiding spot quickly!"}
+    }
+    
+    local function onEntityAdded(entity)
+        for _, entityData in pairs(entities) do
+            if entity.Name == entityData.name or entity.Name:find(entityData.name) then
+                local currentTime = tick()
+                
+                -- Prevent spam notifications
+                if lastEntityNotification[entityData.name] and currentTime - lastEntityNotification[entityData.name] < 3 then
+                    return
+                end
+                lastEntityNotification[entityData.name] = currentTime
+                
+                -- Check if we should notify for this entity
+                local shouldNotify = false
+                if allEntityNotifications then
+                    shouldNotify = true
+                elseif rushNotifEnabled and (entityData.name == "RushMoving" or entityData.name == "AmbushMoving") then
+                    shouldNotify = true
+                end
+                
+                if shouldNotify then
+                    createAdvancedNotification(
+                        "⚠️ ENTITY DETECTED: " .. entityData.displayName,
+                        entityData.message,
+                        entityData.color,
+                        6,
+                        true
+                    )
+                    
+                    print("🚨 Entity Alert: " .. entityData.displayName .. " detected!")
+                end
+                break
             end
+        end
+    end
+    
+    local conn = workspace.DescendantAdded:Connect(function(descendant)
+        if descendant:IsA("Model") then
+            task.wait(0.1)
+            onEntityAdded(descendant)
         end
     end)
     
-    print("💊 Infinite Vitamins: ENABLED")
-end
-
-local function disableInfVitamins()
-    infVitaminsEnabled = false
-    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
-    print("💊 Infinite Vitamins: DISABLED")
+    table.insert(entityConnections, conn)
 end
 
 -- ============================================================================
--- ENHANCED AUTO UNLOCK DOORS
+-- ADVANCED AUTO UNLOCK SYSTEM
 -- ============================================================================
 
 local autoUnlockConnection
@@ -1633,17 +1618,25 @@ local function enableAutoUnlock()
     if autoUnlockConnection then autoUnlockConnection:Disconnect() end
     
     local function unlockDoors()
-        for _, door in pairs(workspace:GetDescendants()) do
-            if door:IsA("Model") and door.Name == "Door" then
-                local prompt = door:FindFirstChildOfClass("ProximityPrompt", true)
-                if prompt and prompt.Enabled and prompt.ActionText == "Open" then
-                    local doorPart = door:FindFirstChildWhichIsA("BasePart", true)
-                    if doorPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                        local distance = (player.Character.HumanoidRootPart.Position - doorPart.Position).Magnitude
-                        if distance <= 15 then
-                            pcall(function()
-                                fireproximityprompt(prompt)
-                            end)
+        if not autoUnlockEnabled then return end
+        
+        local currentRooms = workspace:FindFirstChild("CurrentRooms")
+        if not currentRooms then return end
+        
+        for _, room in pairs(currentRooms:GetChildren()) do
+            if room:IsA("Model") and tonumber(room.Name) then
+                local door = room:FindFirstChild("Door")
+                if door then
+                    local lockPart = door:FindFirstChild("Lock")
+                    if lockPart then
+                        local prompt = lockPart:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt and prompt.Enabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            local distance = (player.Character.HumanoidRootPart.Position - lockPart.Position).Magnitude
+                            if distance <= 15 then
+                                pcall(function()
+                                    fireproximityprompt(prompt)
+                                end)
+                            end
                         end
                     end
                 end
@@ -1652,573 +1645,542 @@ local function enableAutoUnlock()
     end
     
     autoUnlockConnection = RunService.Heartbeat:Connect(function()
-        if autoUnlockEnabled then
-            unlockDoors()
-        end
+        unlockDoors()
     end)
     
-    print("🔓 Auto Unlock: ENABLED")
+    print("🔓 Advanced Auto Unlock: ENABLED")
 end
 
 local function disableAutoUnlock()
     autoUnlockEnabled = false
+    
     if autoUnlockConnection then autoUnlockConnection:Disconnect() end
-    print("🔓 Auto Unlock: DISABLED")
+    
+    print("🔓 Advanced Auto Unlock: DISABLED")
 end
 
 -- ============================================================================
--- CREATE ALL TABS
+-- INFINITE VITAMINS SYSTEM
 -- ============================================================================
 
-local InfoTab = Window:CreateTab("📋 Info", 4483362458)
-local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
-local AutoTab = Window:CreateTab("🔄 Auto Systems", 4483362458)
-local ESPTab = Window:CreateTab("👁️ ESP Features", 4483362458)
-local MiscTab = Window:CreateTab("🛠️ Miscellaneous", 4483362458)
+local infVitaminsConnection
 
--- ============================================================================
--- INFO TAB
--- ============================================================================
-
-InfoTab:CreateParagraph({
-    Title = "👤 Player Information", 
-    Content = "Username: " .. player.Name .. 
-              "\nDisplay Name: " .. player.DisplayName .. 
-              "\nUser ID: " .. player.UserId ..
-              (isOwner and "\n\n👑 OWNER ACCESS GRANTED" or "") ..
-              "\n\n🔄 Auto Reconnect: ✅ ACTIVE" ..
-              "\n🚀 Auto Execute: ✅ READY" ..
-              "\n✨ Advanced ESP: ✅ LOADED" ..
-              "\n🛡️ All Systems: ✅ OPERATIONAL"
-})
-
-InfoTab:CreateSection("📊 System Status")
-
-InfoTab:CreateParagraph({
-    Title = "🎮 Script Information", 
-    Content = "Script: WANER HUB v4.0 Ultimate Complete Edition" ..
-              "\nGame: Doors (Roblox)" ..
-              "\nFeatures: 30+ Advanced Features" ..
-              "\nESP Types: 7 Different ESP Systems" ..
-              "\nAuto Systems: 5 Automation Features" ..
-              "\nSecurity: Advanced Anti-Detection" ..
-              "\n\n🌟 This is the most complete version!"
-})
-
-InfoTab:CreateSection("📖 How to Use")
-
-InfoTab:CreateParagraph({
-    Title = "🔧 Quick Start Guide", 
-    Content = "1. 🛡️ Enable God Mode for protection" ..
-              "\n2. 🔓 Turn on Bypass Anti-Cheat" ..
-              "\n3. ⚡ Adjust Speed (recommended 2x)" ..
-              "\n4. 👁️ Enable ESP for items you need" ..
-              "\n5. 🔄 Turn on Auto Systems for convenience" ..
-              "\n\n⚠️ Use moderate settings to avoid detection!"
-})
-
--- ============================================================================
--- AUTO SYSTEMS TAB
--- ============================================================================
-
-AutoTab:CreateSection("🔄 Connection Management")
-
-AutoTab:CreateParagraph({
-    Title = "🔌 Auto Reconnect System", 
-    Content = "✅ STATUS: FULLY ACTIVE" ..
-              "\n🔄 Auto reconnects when disconnected" ..
-              "\n🚀 Auto executes script on rejoin" ..
-              "\n⏰ 5-second countdown before reconnect" ..
-              "\n🎮 Manual reconnect button available" ..
-              "\n✨ Smooth fade animations included"
-})
-
-AutoTab:CreateButton({
-    Name = "🔄 Test Auto Reconnect",
-    Callback = function()
-        Rayfield:Notify({
-            Title = "🔄 Testing Auto Reconnect",
-            Content = "Simulating disconnect in 3 seconds...\nAuto reconnect will trigger automatically!",
-            Duration = 4,
-            Image = 4483362458,
-        })
+local function enableInfVitamins()
+    infVitaminsEnabled = true
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    local function maintainVitamins()
+        if not infVitaminsEnabled or not player.Character then return end
         
-        task.wait(3)
-        TeleportService:Teleport(game.PlaceId, player)
-    end
-})
-
-AutoTab:CreateButton({
-    Name = "📁 Check Auto Execute Status",
-    Callback = function()
-        local status = "❌ NOT CONFIGURED"
-        if isfile("WenerHub/AutoExecute.lua") then
-            status = "✅ READY TO AUTO EXECUTE"
-        end
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if not humanoid then return end
         
-        Rayfield:Notify({
-            Title = "🚀 Auto Execute Status",
-            Content = "Status: " .. status ..
-                      "\nLocation: WenerHub/AutoExecute.lua" ..
-                      "\nWill execute automatically on rejoin!",
-            Duration = 5,
-            Image = 4483362458,
-        })
-    end
-})
-
-AutoTab:CreateSection("🤖 Automation Features")
-
-AutoTab:CreateToggle({
-    Name = "📦 Auto Collect Items",
-    CurrentValue = false,
-    Flag = "AutoCollectToggle",
-    Callback = function(v)
-        if v then enableAutoCollect() else disableAutoCollect() end
-    end
-})
-
-AutoTab:CreateToggle({
-    Name = "🔓 Auto Unlock Doors", 
-    CurrentValue = false,
-    Flag = "AutoUnlockToggle",
-    Callback = function(v)
-        if v then enableAutoUnlock() else disableAutoUnlock() end
-    end
-})
-
-AutoTab:CreateToggle({
-    Name = "💊 Infinite Vitamins",
-    CurrentValue = false,
-    Flag = "InfVitaminsToggle", 
-    Callback = function(v)
-        if v then enableInfVitamins() else disableInfVitamins() end
-    end
-})
-
--- ============================================================================
--- MAIN FEATURES TAB
--- ============================================================================
-
-MainTab:CreateSection("⚡ Movement & Speed")
-
-MainTab:CreateSlider({
-    Name = "⚡ Speed Multiplier",
-    Range = {1, 6},
-    Increment = 0.1,
-    Suffix = "x",
-    CurrentValue = 1,
-    Flag = "SpeedSlider",
-    Callback = function(v) 
-        setSpeed(v)
-        if v > 2 then
-            Rayfield:Notify({
-                Title = "⚡ High Speed Warning",
-                Content = "Speed: " .. v .. "x" ..
-                         "\n🔓 Enable Bypass Anti-Cheat!" ..
-                         "\n⚠️ Use with caution!",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    end
-})
-
-MainTab:CreateToggle({
-    Name = "👻 Noclip (Phase Through Walls)",
-    CurrentValue = false,
-    Flag = "NoclipToggle",
-    Callback = function(v)
-        if v then enableNoclip() else disableNoclip() end
-    end
-})
-
-MainTab:CreateSection("🛡️ Protection Systems")
-
-MainTab:CreateToggle({
-    Name = "🛡️ God Mode (Enhanced)",
-    CurrentValue = false,
-    Flag = "GodModeToggle",
-    Callback = function(v)
-        if v then 
-            enableGodMode()
-            Rayfield:Notify({
-                Title = "🛡️ God Mode Activated",
-                Content = "✅ You are now invincible!" ..
-                         "\n🔄 Multi-layer protection enabled" ..
-                         "\n⚡ Works with all damage sources",
-                Duration = 4,
-                Image = 4483362458,
-            })
-        else 
-            disableGodMode()
-            Rayfield:Notify({
-                Title = "🛡️ God Mode Deactivated",
-                Content = "⚠️ You can now take damage" ..
-                         "\n🩹 Be careful around entities!",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    end
-})
-
-MainTab:CreateToggle({
-    Name = "🔓 Bypass Anti-Cheat (Advanced)",
-    CurrentValue = false,
-    Flag = "BypassToggle",
-    Callback = function(v)
-        if v then 
-            enableBypassAntiCheat()
-            Rayfield:Notify({
-                Title = "🔓 Bypass Activated",
-                Content = "✅ Anti-cheat protection enabled!" ..
-                         "\n🛡️ Speed detection blocked" ..
-                         "\n🔒 Remote event protection active",
-                Duration = 4,
-                Image = 4483362458,
-            })
-        else 
-            disableBypassAntiCheat()
-        end
-    end
-})
-
-MainTab:CreateSection("🔔 Notifications")
-
-MainTab:CreateToggle({
-    Name = "⚠️ Rush/Ambush Warnings (Enhanced)",
-    CurrentValue = false,
-    Flag = "RushNotifToggle",
-    Callback = function(v) 
-        rushNotifEnabled = v
-        if v then
-            Rayfield:Notify({
-                Title = "⚠️ Rush Warnings Enabled",
-                Content = "🚨 You'll get alerts for Rush/Ambush" ..
-                         "\n🔊 Includes warning sounds" ..
-                         "\n📺 Screen flash effects",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    end
-})
-
-MainTab:CreateToggle({
-    Name = "👻 All Entity Notifications",
-    CurrentValue = false,
-    Flag = "AllEntityNotifToggle",
-    Callback = function(v) allEntityNotifications = v end
-})
-
--- ============================================================================
--- ESP FEATURES TAB
--- ============================================================================
-
-ESPTab:CreateSection("🚪 Environment ESP")
-
-ESPTab:CreateToggle({
-    Name = "🚪 Door ESP (With Numbers)",
-    CurrentValue = false,
-    Flag = "DoorESPToggle",
-    Callback = function(v)
-        if v then 
-            enableDoorESP()
-            Rayfield:Notify({
-                Title = "🚪 Door ESP Enabled",
-                Content = "✅ All doors now visible" ..
-                         "\n🔢 Shows door numbers" ..
-                         "\n📏 Distance indicator included",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        else 
-            disableDoorESP()
-        end
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "📖 Book ESP (With Light Effects)",
-    CurrentValue = false, 
-    Flag = "BookESPToggle",
-    Callback = function(v)
-        if v then 
-            enableBookESP()
-            Rayfield:Notify({
-                Title = "📖 Book ESP Enabled",
-                Content = "✅ Books now visible with lighting" ..
-                         "\n💡 Pulsing light effects" ..
-                         "\n🔍 Easy to spot in dark rooms",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        else 
-            disableBookESP()
-        end
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "🔑 Key ESP (Enhanced)",
-    CurrentValue = false,
-    Flag = "KeyESPToggle", 
-    Callback = function(v)
-        if v then 
-            enableKeyESP()
-            Rayfield:Notify({
-                Title = "🔑 Key ESP Enabled",
-                Content = "✅ All keys now visible" ..
-                         "\n🗝️ Distinguishes skeleton keys" ..
-                         "\n🌟 Special highlighting",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        else 
-            disableKeyESP()
-        end
-    end
-})
-
-ESPTab:CreateSection("👻 Entity ESP")
-
-ESPTab:CreateToggle({
-    Name = "👹 Figure ESP (With Warning)",
-    CurrentValue = false,
-    Flag = "FigureESPToggle",
-    Callback = function(v)
-        if v then 
-            enableFigureESP()
-            Rayfield:Notify({
-                Title = "👹 Figure ESP Enabled",
-                Content = "🚨 Figure detection active!" ..
-                         "\n🔊 Warning sounds included" ..
-                         "\n⚠️ Stay alert and quiet!",
-                Duration = 4,
-                Image = 4483362458,
-            })
-        else 
-            disableFigureESP()
-        end
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "👻 All Entity ESP",
-    CurrentValue = false,
-    Flag = "EntityESPToggle",
-    Callback = function(v)
-        if v then enableEntityESP() else disableEntityESP() end
-    end
-})
-
-ESPTab:CreateSection("👥 Player & Items ESP")
-
-ESPTab:CreateToggle({
-    Name = "👤 Player ESP",
-    CurrentValue = false,
-    Flag = "PlayerESPToggle",
-    Callback = function(v)
-        if v then enablePlayerESP() else disablePlayerESP() end
-    end
-})
-
-ESPTab:CreateToggle({
-    Name = "📦 Item ESP (All Items)",
-    CurrentValue = false,
-    Flag = "ItemESPToggle",
-    Callback = function(v)
-        if v then enableItemESP() else disableItemESP() end
-    end
-})
-
-ESPTab:CreateSection("🎛️ ESP Controls")
-
-ESPTab:CreateButton({
-    Name = "✨ Enable All ESP",
-    Callback = function()
-        enableDoorESP()
-        enableBookESP()
-        enableKeyESP()
-        enableEntityESP()
-        enablePlayerESP()
-        enableItemESP()
-        
-        Rayfield:Notify({
-            Title = "✨ All ESP Enabled!",
-            Content = "🎯 All ESP systems activated!" ..
-                     "\n👁️ Complete visibility enabled" ..
-                     "\n🌟 Enhanced gaming experience",
-            Duration = 4,
-            Image = 4483362458,
-        })
-    end
-})
-
-ESPTab:CreateButton({
-    Name = "🚫 Disable All ESP", 
-    Callback = function()
-        disableDoorESP()
-        disableBookESP() 
-        disableKeyESP()
-        disableFigureESP()
-        disableEntityESP()
-        disablePlayerESP()
-        disableItemESP()
-        
-        Rayfield:Notify({
-            Title = "🚫 All ESP Disabled",
-            Content = "👁️ All ESP systems deactivated" ..
-                     "\n🎮 Back to normal view",
-            Duration = 3,
-            Image = 4483362458,
-        })
-    end
-})
-
--- ============================================================================
--- MISCELLANEOUS TAB
--- ============================================================================
-
-MiscTab:CreateSection("🎮 Game Utilities")
-
-MiscTab:CreateButton({
-    Name = "🔄 Rejoin Server",
-    Callback = function()
-        Rayfield:Notify({
-            Title = "🔄 Rejoining Server",
-            Content = "🚀 Rejoining current server..." ..
-                     "\n⏰ Auto execute will trigger on join",
-            Duration = 2,
-            Image = 4483362458,
-        })
-        
-        task.wait(2)
-        TeleportService:Teleport(game.PlaceId, player)
-    end
-})
-
-MiscTab:CreateButton({
-    Name = "🎲 Join New Server", 
-    Callback = function()
-        Rayfield:Notify({
-            Title = "🎲 Finding New Server",
-            Content = "🔍 Searching for new server..." ..
-                     "\n🚀 Auto execute ready for new game",
-            Duration = 2,
-            Image = 4483362458,
-        })
-        
-        task.wait(2)
-        TeleportService:TeleportToPlaceInstance(game.PlaceId)
-    end
-})
-
-MiscTab:CreateSection("🛠️ System Controls")
-
-MiscTab:CreateButton({
-    Name = "🗑️ Clean Workspace",
-    Callback = function()
-        -- Remove all ESP objects
-        disableDoorESP()
-        disableBookESP()
-        disableKeyESP() 
-        disableFigureESP()
-        disableEntityESP()
-        disablePlayerESP()
-        disableItemESP()
-        
-        -- Clean up any leftover objects
-        for _, obj in pairs(workspace:GetDescendants()) do
-            if obj.Name == "WenerESP" then
-                obj:Destroy()
+        -- Keep vitamins effect active
+        for _, effect in pairs(humanoid:GetChildren()) do
+            if effect:IsA("NumberValue") and effect.Name == "Vitamins" then
+                effect.Value = math.huge
             end
         end
         
-        Rayfield:Notify({
-            Title = "🗑️ Workspace Cleaned",
-            Content = "✅ All ESP objects removed" ..
-                     "\n🧹 Workspace cleaned up",
-            Duration = 3,
-            Image = 4483362458,
-        })
+        -- Auto-use vitamins when health is low
+        if humanoid.Health < humanoid.MaxHealth * 0.8 then
+            for _, item in pairs(player.Backpack:GetChildren()) do
+                if item.Name == "Vitamins" and item:IsA("Tool") then
+                    humanoid:EquipTool(item)
+                    task.wait(0.5)
+                    if item:FindFirstChild("Handle") then
+                        local prompt = item.Handle:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                            fireproximityprompt(prompt)
+                        end
+                    end
+                    break
+                end
+            end
+        end
     end
-})
+    
+    infVitaminsConnection = RunService.Heartbeat:Connect(function()
+        maintainVitamins()
+    end)
+    
+    print("💊 Infinite Vitamins: ENABLED")
+end
 
-MiscTab:CreateButton({
-    Name = "📊 Performance Check",
-    Callback = function()
-        local fps = math.floor(1 / RunService.Heartbeat:Wait())
-        local ping = math.floor(player:GetNetworkPing() * 1000)
-        
-        Rayfield:Notify({
-            Title = "📊 Performance Status",
-            Content = "🖥️ FPS: " .. fps ..
-                     "\n📡 Ping: " .. ping .. "ms" ..
-                     "\n🎮 Performance: " .. (fps > 45 and "✅ Good" or "⚠️ Poor") ..
-                     "\n🌐 Connection: " .. (ping < 100 and "✅ Stable" or "⚠️ Unstable"),
-            Duration = 5,
-            Image = 4483362458,
-        })
-    end
-})
-
-MiscTab:CreateSection("ℹ️ Information")
-
-MiscTab:CreateParagraph({
-    Title = "🎯 Feature Summary",
-    Content = "ESP Systems: 7 different types" ..
-              "\nAuto Systems: 5 automation features" ..
-              "\nProtection: God Mode + Anti-Cheat Bypass" ..
-              "\nMovement: Speed + Noclip" ..
-              "\nNotifications: Enhanced entity warnings" ..
-              "\nConnection: Auto reconnect + Auto execute" ..
-              "\n\n🌟 Total Features: 30+"
-})
+local function disableInfVitamins()
+    infVitaminsEnabled = false
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    print("💊 Infinite Vitamins: DISABLED")
+end
 
 -- ============================================================================
--- SETUP ALL SYSTEMS
+-- LOAD RAYFIELD UI SETELAH SEMUA SELESAI
 -- ============================================================================
 
-setupEntityNotifications()
-
--- ============================================================================
--- FINAL WELCOME NOTIFICATION
--- ============================================================================
-
+-- Wait untuk welcome screen selesai, lalu load Rayfield
 task.spawn(function()
-    wait(2)
+    wait(10) -- Tunggu welcome screen selesai
+    
+    local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+    
+    local Window = Rayfield:CreateWindow({
+        Name = "Wener Hub v4.0 - Ultimate Complete Edition",
+        LoadingTitle = "Wener Hub Ultimate Complete",
+        LoadingSubtitle = "All Advanced Systems Operational",
+        ConfigurationSaving = {Enabled = false},
+        Discord = {Enabled = false},
+        KeySystem = false
+    })
+    
+    -- ========================================================================
+    -- CREATE TABS
+    -- ========================================================================
+    
+    local InfoTab = Window:CreateTab("📋 Info", 4483362458)
+    local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
+    local ESPTab = Window:CreateTab("👁️ ESP Features", 4483362458)
+    local AutoTab = Window:CreateTab("🤖 Automation", 4483362458)
+    local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
+    local MiscTab = Window:CreateTab("🔧 Miscellaneous", 4483362458)
+    
+    -- ========================================================================
+    -- INFO TAB
+    -- ========================================================================
+    
+    InfoTab:CreateParagraph({
+        Title = "👤 Player Information", 
+        Content = "Username: " .. player.Name .. 
+                  "\nDisplay Name: " .. player.DisplayName .. 
+                  "\nUser ID: " .. player.UserId ..
+                  (isOwner and "\n\n👑 OWNER ACCESS GRANTED" or "")
+    })
+    
+    InfoTab:CreateParagraph({
+        Title = "🚀 WENER Hub v4.0 Ultimate", 
+        Content = "• 30+ Advanced Features\n• Auto Execute System\n• Auto Reconnect Protection\n• Advanced ESP with Light Effects\n• Smart Entity Detection\n• Bypass Anti-Cheat Systems\n• Complete Automation Suite"
+    })
+    
+    InfoTab:CreateParagraph({
+        Title = "⚡ Performance Status", 
+        Content = "All systems operational and optimized for maximum performance. Advanced bypass systems active to prevent detection."
+    })
+    
+    -- ========================================================================
+    -- MAIN FEATURES TAB
+    -- ========================================================================
+    
+    MainTab:CreateSlider({
+        Name = "⚡ Speed Multiplier",
+        Range = {1, 6},
+        Increment = 0.1,
+        Suffix = "x",
+        CurrentValue = 1,
+        Flag = "SpeedSlider",
+        Callback = function(v) 
+            setSpeed(v)
+        end
+    })
+    
+    MainTab:CreateToggle({
+        Name = "🛡️ Advanced God Mode",
+        CurrentValue = false,
+        Flag = "GodMode",
+        Callback = function(v)
+            if v then
+                enableGodMode()
+            else
+                disableGodMode()
+            end
+        end
+    })
+    
+    MainTab:CreateToggle({
+        Name = "🔓 Bypass Anti-Cheat",
+        CurrentValue = false,
+        Flag = "BypassAntiCheat",
+        Callback = function(v)
+            if v then
+                enableBypassAntiCheat()
+            else
+                disableBypassAntiCheat()
+            end
+        end
+    })
+    
+    MainTab:CreateToggle({
+        Name = "👻 Advanced Noclip",
+        CurrentValue = false,
+        Flag = "Noclip",
+        Callback = function(v)
+            if v then
+                enableNoclip()
+            else
+                disableNoclip()
+            end
+        end
+    })
+    
+    MainTab:CreateButton({
+        Name = "🔄 Respawn Character",
+        Callback = function()
+            if player.Character then
+                player.Character:BreakJoints()
+            end
+        end
+    })
+    
+    MainTab:CreateButton({
+        Name = "🚪 Teleport to Latest Room",
+        Callback = function()
+            local currentRooms = workspace:FindFirstChild("CurrentRooms")
+            if currentRooms and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local latestRoom = nil
+                local highestNumber = 0
+                
+                for _, room in pairs(currentRooms:GetChildren()) do
+                    local roomNumber = tonumber(room.Name)
+                    if roomNumber and roomNumber > highestNumber then
+                        highestNumber = roomNumber
+                        latestRoom = room
+                    end
+                end
+                
+                if latestRoom then
+                    local roomPos = latestRoom:FindFirstChildWhichIsA("BasePart")
+                    if roomPos then
+                        player.Character.HumanoidRootPart.CFrame = CFrame.new(roomPos.Position + Vector3.new(0, 5, 0))
+                    end
+                end
+            end
+        end
+    })
+    
+    -- ========================================================================
+    -- ESP FEATURES TAB
+    -- ========================================================================
+    
+    ESPTab:CreateToggle({
+        Name = "🚪 Advanced Door ESP",
+        CurrentValue = false,
+        Flag = "DoorESP",
+        Callback = function(v)
+            doorEspEnabled = v
+            updateDoorESP()
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "🗝️ Key ESP with Light Effects",
+        CurrentValue = false,
+        Flag = "KeyESP",
+        Callback = function(v)
+            keyEspEnabled = v
+            updateKeyESP()
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "👹 Entity ESP (All Monsters)",
+        CurrentValue = false,
+        Flag = "EntityESP",
+        Callback = function(v)
+            entityEspEnabled = v
+            updateEntityESP()
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "👤 Player ESP",
+        CurrentValue = false,
+        Flag = "PlayerESP",
+        Callback = function(v)
+            playerEspEnabled = v
+            updatePlayerESP()
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📚 Book ESP",
+        CurrentValue = false,
+        Flag = "BookESP",
+        Callback = function(v)
+            bookEspEnabled = v
+            updateBookESP()
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📦 Item ESP (All Items)",
+        CurrentValue = false,
+        Flag = "ItemESP",
+        Callback = function(v)
+            itemEspEnabled = v
+            updateItemESP()
+        end
+    })
+    
+    ESPTab:CreateButton({
+        Name = "🔄 Refresh All ESP",
+        Callback = function()
+            updateDoorESP()
+            updateKeyESP()
+            updateEntityESP()
+            updatePlayerESP()
+            updateBookESP()
+            updateItemESP()
+        end
+    })
+    
+    ESPTab:CreateButton({
+        Name = "🗑️ Clear All ESP",
+        Callback = function()
+            doorEspEnabled = false
+            keyEspEnabled = false
+            entityEspEnabled = false
+            playerEspEnabled = false
+            bookEspEnabled = false
+            itemEspEnabled = false
+            
+            for _, espList in pairs({doorEspObjects, keyEspObjects, entityEspObjects, playerEspObjects, bookEspObjects, itemEspObjects}) do
+                for _, esp in pairs(espList) do
+                    if esp then esp:Destroy() end
+                end
+            end
+            
+            doorEspObjects = {}
+            keyEspObjects = {}
+            entityEspObjects = {}
+            playerEspObjects = {}
+            bookEspObjects = {}
+            itemEspObjects = {}
+        end
+    })
+    
+    -- ========================================================================
+    -- AUTOMATION TAB
+    -- ========================================================================
+    
+    AutoTab:CreateToggle({
+        Name = "📦 Smart Auto Collect Items",
+        CurrentValue = false,
+        Flag = "AutoCollect",
+        Callback = function(v)
+            if v then
+                enableAutoCollect()
+            else
+                disableAutoCollect()
+            end
+        end
+    })
+    
+    AutoTab:CreateToggle({
+        Name = "🔓 Auto Unlock Doors",
+        CurrentValue = false,
+        Flag = "AutoUnlock",
+        Callback = function(v)
+            if v then
+                enableAutoUnlock()
+            else
+                disableAutoUnlock()
+            end
+        end
+    })
+    
+    AutoTab:CreateToggle({
+        Name = "💊 Infinite Vitamins Effect",
+        CurrentValue = false,
+        Flag = "InfVitamins",
+        Callback = function(v)
+            if v then
+                enableInfVitamins()
+            else
+                disableInfVitamins()
+            end
+        end
+    })
+    
+    AutoTab:CreateSection("Auto Collect Settings")
+    
+    for itemName, _ in pairs(autoCollectSettings) do
+        AutoTab:CreateToggle({
+            Name = "Collect " .. itemName,
+            CurrentValue = true,
+            Flag = "Collect" .. itemName,
+            Callback = function(v)
+                autoCollectSettings[itemName] = v
+            end
+        })
+    end
+    
+    -- ========================================================================
+    -- NOTIFICATIONS TAB
+    -- ========================================================================
+    
+    NotifTab:CreateToggle({
+        Name = "🚨 Rush/Ambush Notifications",
+        CurrentValue = false,
+        Flag = "RushNotif",
+        Callback = function(v)
+            rushNotifEnabled = v
+            setupEntityNotifications()
+        end
+    })
+    
+    NotifTab:CreateToggle({
+        Name = "👹 All Entity Notifications",
+        CurrentValue = false,
+        Flag = "AllEntityNotif",
+        Callback = function(v)
+            allEntityNotifications = v
+            setupEntityNotifications()
+        end
+    })
+    
+    NotifTab:CreateButton({
+        Name = "🧪 Test Notification System",
+        Callback = function()
+            createAdvancedNotification(
+                "🧪 Test Notification",
+                "This is a test of the advanced notification system with sound effects and animations!",
+                Color3.fromRGB(0, 255, 0),
+                3,
+                true
+            )
+        end
+    })
+    
+    NotifTab:CreateParagraph({
+        Title = "📋 Notification Features", 
+        Content = "• Advanced visual effects with gradients\n• Sound notifications for important events\n• Smart spam prevention\n• Customizable duration and colors\n• Slide-in animations"
+    })
+    
+    -- ========================================================================
+    -- MISCELLANEOUS TAB
+    -- ========================================================================
+    
+    MiscTab:CreateButton({
+        Name = "💾 Save Current Settings",
+        Callback = function()
+            local settings = {
+                speed = currentSpeed,
+                godMode = godModeEnabled,
+                noclip = noclipEnabled,
+                bypassAntiCheat = bypassAntiCheat,
+                doorESP = doorEspEnabled,
+                keyESP = keyEspEnabled,
+                entityESP = entityEspEnabled,
+                playerESP = playerEspEnabled,
+                autoCollect = autoCollectEnabled,
+                autoUnlock = autoUnlockEnabled,
+                infVitamins = infVitaminsEnabled,
+                rushNotif = rushNotifEnabled,
+                allEntityNotif = allEntityNotifications
+            }
+            
+            writefile("WenerHub/Settings.json", game:GetService("HttpService"):JSONEncode(settings))
+            
+            createAdvancedNotification(
+                "💾 Settings Saved",
+                "All current settings have been saved successfully!",
+                Color3.fromRGB(0, 255, 0),
+                3,
+                false
+            )
+        end
+    })
+    
+    MiscTab:CreateButton({
+        Name = "📂 Load Saved Settings",
+        Callback = function()
+            local success, settings = pcall(function()
+                return game:GetService("HttpService"):JSONDecode(readfile("WenerHub/Settings.json"))
+            end)
+            
+            if success and settings then
+                -- Apply loaded settings
+                if settings.speed then setSpeed(settings.speed) end
+                if settings.godMode then 
+                    if settings.godMode then enableGodMode() else disableGodMode() end
+                end
+                if settings.noclip then
+                    if settings.noclip then enableNoclip() else disableNoclip() end
+                end
+                -- Add more settings loading here...
+                
+                createAdvancedNotification(
+                    "📂 Settings Loaded",
+                    "Saved settings have been loaded and applied successfully!",
+                    Color3.fromRGB(0, 255, 0),
+                    3,
+                    false
+                )
+            else
+                createAdvancedNotification(
+                    "❌ Load Failed",
+                    "No saved settings found or file is corrupted.",
+                    Color3.fromRGB(255, 0, 0),
+                    3,
+                    false
+                )
+            end
+        end
+    })
+    
+    MiscTab:CreateButton({
+        Name = "🔄 Reconnect to Server",
+        Callback = function()
+            TeleportService:Teleport(game.PlaceId, player)
+        end
+    })
+    
+    MiscTab:CreateButton({
+        Name = "📋 Copy Discord Link",
+        Callback = function()
+            setclipboard("https://discord.gg/wanerhub")
+            createAdvancedNotification(
+                "📋 Copied!",
+                "Discord link has been copied to clipboard!",
+                Color3.fromRGB(0, 255, 255),
+                3,
+                false
+            )
+        end
+    })
+    
+    MiscTab:CreateParagraph({
+        Title = "🔧 System Information", 
+        Content = "• Auto Execute: Configured\n• Auto Reconnect: Active\n• Bypass Systems: Ready\n• Performance: Optimized\n• Memory Usage: Minimal"
+    })
+    
+    -- Final notification
     Rayfield:Notify({
-        Title = "🚀 WENER HUB v4.0 ULTIMATE COMPLETE!",
-        Content = (isOwner and "👑 Welcome back, Owner " or "✨ Welcome, ") .. player.DisplayName .. 
-                  "!\n\n🎮 ULTIMATE COMPLETE EDITION LOADED:" ..
-                  "\n✅ 30+ Advanced Features" ..
-                  "\n👁️ 7 ESP Systems with Light Effects" ..
-                  "\n🔄 Auto Reconnect + Execute System" ..
-                  "\n🛡️ Enhanced Protection Systems" ..
-                  "\n⚡ Advanced Movement Controls" ..
-                  "\n🤖 5 Automation Features" ..
-                  "\n🔔 Enhanced Entity Warning System" ..
-                  "\n\n🌟 ENJOY THE ULTIMATE DOORS EXPERIENCE!",
-        Duration = 15,
+        Title = "🚀 WENER HUB v4.0 LOADED!",
+        Content = "Welcome " .. player.DisplayName .. "!\nAll ultimate systems operational and ready to use!",
+        Duration = 5,
         Image = 4483362458,
     })
+    
+    print("✅ WENER HUB v4.0 ULTIMATE COMPLETE EDITION LOADED!")
+    print("🚀 All systems operational and ready to use!")
+    print("👑 Owner Status: " .. (isOwner and "ACTIVE" or "INACTIVE"))
+    print("🔐 Key System: " .. (KeySystemEnabled and "ENABLED" or "DISABLED"))
+    print("📡 Auto Reconnect: ACTIVE")
+    print("🚀 Auto Execute: CONFIGURED")
 end)
 
 -- ============================================================================
--- FINAL CONSOLE OUTPUT
+-- FINAL INITIALIZATION
 -- ============================================================================
 
-print("✅ WENER HUB v4.0 ULTIMATE COMPLETE EDITION LOADED!")
-print("🎮 Total Features: 30+ Advanced Features")
-print("👁️ ESP Systems: Door (w/Numbers), Book (w/Light), Key, Figure, Entity, Player, Item")
-print("🔄 Auto Systems: Reconnect, Execute, Collect, Unlock, Vitamins") 
-print("🛡️ Protection: Enhanced God Mode, Advanced Anti-Cheat Bypass, Noclip")
-print("⚡ Movement: Speed Control with Smooth Transitions & Bypass")
-print("🔔 Notifications: Enhanced Entity Warnings with Sound & Flash")
-print("✨ UI: Advanced Fade Animations, Enhanced Design, Permanent Logo")
-print("🌟 THIS IS THE ULTIMATE COMPLETE DOORS SCRIPT!")
-print("==========================================")
-print("🚀 All systems operational and ready to use!")
-print("💎 Enjoy the ultimate Doors gaming experience!")
+print("✅ Core systems initialized successfully!")
+print("🎮 Welcome screen will show after loading completes")
+print("📱 Rayfield UI will load after welcome sequence")
+print("🔧 All advanced features ready for activation")
+print("=" .. string.rep("=", 50) .. "=")
+print("WENER HUB v4.0 ULTIMATE COMPLETE EDITION")
+print("Created by: winnertupiq52")
+print("All systems ready! 🚀")
+print("=" .. string.rep("=", 50) .. "=")
