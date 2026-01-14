@@ -1,6 +1,6 @@
--- WENER HUB v4.0 | ULTIMATE COMPLETE - ALL FEATURES + AUTO PROXIMITY PROMPT
-print("=== WENER HUB v4.0 ULTIMATE COMPLETE - FULL FEATURES ===")
-print("🚀 Loading complete script with ALL features + Smart Auto Proximity...")
+-- WENER HUB v4.0 | ULTIMATE COMPLETE EDITION - MANUAL UI + ALL FEATURES
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE - MANUAL + RAYFIELD FALLBACK ===")
+print("🚀 Loading complete system with ALL features + Manual UI fallback...")
 
 -- ============================================================================
 -- SERVICES & INITIALIZATION
@@ -14,13 +14,15 @@ local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local CoreGui = game:GetService("CoreGui")
+local SoundService = game:GetService("SoundService")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 -- Wait for character properly
 repeat task.wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
 -- ============================================================================
--- VARIABLES FOR ALL FEATURES
+-- GLOBAL VARIABLES FOR ALL FEATURES
 -- ============================================================================
 
 local espObjects = {}
@@ -42,20 +44,7 @@ local bypassAntiCheat = false
 local fullBrightEnabled = false
 local noSeekEnabled = false
 local instantInteractEnabled = false
-
--- NEW: Auto Proximity Prompt Settings
 local autoProximityEnabled = false
-local autoProximityConnection = nil
-local proximityBlacklist = {
-    "Wardrobe",
-    "Closet", 
-    "Locker",
-    "BedDrawer",
-    "Dresser",
-    "Cabinet",
-    "Bed",
-    "Table"
-}
 
 local noclipConnection
 local autoCollectConnection
@@ -64,125 +53,428 @@ local infVitaminsConnection
 local entityConnections = {}
 local godModeConnections = {}
 local bypassConnections = {}
+local autoProximityConnection
 
 local MainWindow = nil
+local isManualUI = false
+
+-- Auto Proximity Settings
+local proximityBlacklist = {
+    "wardrobe", "closet", "locker", "bed", "drawer", "dresser", "cabinet", 
+    "table", "hide", "storage", "furniture", "container"
+}
+
+-- Auto Collect Settings
+local autoCollectSettings = {
+    ["Vitamins"] = true,
+    ["Lockpick"] = true,
+    ["Key"] = true,
+    ["Flashlight"] = true,
+    ["Lighter"] = true,
+    ["Candle"] = true,
+    ["Crucifix"] = true,
+    ["Bandage"] = true,
+    ["SkeletonKey"] = true,
+    ["Book"] = true
+}
 
 -- ============================================================================
--- RAYFIELD LOADING WITH MULTIPLE METHODS
+-- LOADING SCREEN SYSTEM
 -- ============================================================================
 
-local function forceLoadRayfield()
-    print("🔄 Attempting to load Rayfield...")
+local function createLoadingScreen()
+    local LoadingGui = Instance.new("ScreenGui")
+    LoadingGui.Name = "WenerUltimateLoading"
+    LoadingGui.ResetOnSpawn = false
+    LoadingGui.Parent = CoreGui
+    LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    local methods = {
-        {name = "Primary (Sirius)", url = "https://sirius.menu/rayfield"},
-        {name = "Backup 1 (GitHub Main)", url = "https://raw.githubusercontent.com/shlexware/Rayfield/main/source"},
-        {name = "Backup 2 (UI Libraries)", url = "https://raw.githubusercontent.com/RegularVynixu/UI-Libraries/main/Rayfield/source.lua"}
-    }
+    local LoadingFrame = Instance.new("Frame")
+    LoadingFrame.Size = UDim2.new(1, 0, 1, 0)
+    LoadingFrame.Position = UDim2.new(0, 0, 0, 0)
+    LoadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    LoadingFrame.BackgroundTransparency = 0.2
+    LoadingFrame.BorderSizePixel = 0
+    LoadingFrame.ZIndex = 99999
+    LoadingFrame.Parent = LoadingGui
     
-    for i, method in ipairs(methods) do
-        print("🔄 Trying " .. method.name .. "...")
-        local success, Rayfield = pcall(function()
-            return loadstring(game:HttpGet(method.url))()
-        end)
-        
-        if success and Rayfield then
-            print("✅ Rayfield loaded via " .. method.name .. "!")
-            return Rayfield
-        end
-        
-        if i < #methods then
-            print("❌ " .. method.name .. " failed, trying next method...")
-            task.wait(1)
-        end
-    end
-    
-    warn("❌ All Rayfield loading methods failed!")
-    
-    -- Create error notification
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Parent = CoreGui
-    
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 450, 0, 180)
-    Frame.Position = UDim2.new(0.5, -225, 0.5, -90)
-    Frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    Frame.Parent = ScreenGui
+    local MainLoadFrame = Instance.new("Frame")
+    MainLoadFrame.Size = UDim2.new(0, 600, 0, 400)
+    MainLoadFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    MainLoadFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainLoadFrame.BorderSizePixel = 0
+    MainLoadFrame.ZIndex = 100000
+    MainLoadFrame.Parent = LoadingFrame
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 15)
-    Corner.Parent = Frame
+    Corner.CornerRadius = UDim.new(0, 25)
+    Corner.Parent = MainLoadFrame
     
-    local Text = Instance.new("TextLabel")
-    Text.Size = UDim2.new(1, -20, 1, -20)
-    Text.Position = UDim2.new(0, 10, 0, 10)
-    Text.BackgroundTransparency = 1
-    Text.Text = "❌ RAYFIELD LOADING FAILED!\n\nPossible solutions:\n• Rejoin the game\n• Use a different executor\n• Check your internet connection\n• Try again in a few minutes"
-    Text.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Text.Font = Enum.Font.GothamBold
-    Text.TextSize = 16
-    Text.TextWrapped = true
-    Text.Parent = Frame
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(0.3, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(0.7, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 139))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = MainLoadFrame
     
-    return nil
+    local Logo = Instance.new("TextLabel")
+    Logo.Size = UDim2.new(1, -40, 0, 100)
+    Logo.Position = UDim2.new(0, 20, 0, 20)
+    Logo.BackgroundTransparency = 1
+    Logo.Text = "🎮 WENER HUB v4.0"
+    Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Logo.Font = Enum.Font.GothamBold
+    Logo.TextSize = 48
+    Logo.TextStrokeTransparency = 0
+    Logo.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    Logo.ZIndex = 100001
+    Logo.Parent = MainLoadFrame
+    
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Size = UDim2.new(1, -40, 0, 50)
+    Subtitle.Position = UDim2.new(0, 20, 0, 120)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Text = "ULTIMATE COMPLETE EDITION"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.TextSize = 24
+    Subtitle.ZIndex = 100001
+    Subtitle.Parent = MainLoadFrame
+    
+    local Features = Instance.new("TextLabel")
+    Features.Size = UDim2.new(1, -40, 0, 80)
+    Features.Position = UDim2.new(0, 20, 0, 180)
+    Features.BackgroundTransparency = 1
+    Features.Text = "✨ All Features + Manual UI Fallback\n🎯 Smart Auto Proximity + Complete ESP\n🤖 Advanced Automation + Entity Detection\n📱 Mobile & Desktop Compatible"
+    Features.TextColor3 = Color3.fromRGB(180, 180, 180)
+    Features.Font = Enum.Font.Gotham
+    Features.TextSize = 16
+    Features.TextWrapped = true
+    Features.ZIndex = 100001
+    Features.Parent = MainLoadFrame
+    
+    local LoadingText = Instance.new("TextLabel")
+    LoadingText.Size = UDim2.new(1, -40, 0, 30)
+    LoadingText.Position = UDim2.new(0, 20, 0, 280)
+    LoadingText.BackgroundTransparency = 1
+    LoadingText.Text = "🔄 Initializing ultimate systems..."
+    LoadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LoadingText.Font = Enum.Font.Gotham
+    LoadingText.TextSize = 18
+    LoadingText.ZIndex = 100001
+    LoadingText.Parent = MainLoadFrame
+    
+    local ProgressBar = Instance.new("Frame")
+    ProgressBar.Size = UDim2.new(0.85, 0, 0, 8)
+    ProgressBar.Position = UDim2.new(0.075, 0, 0, 330)
+    ProgressBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    ProgressBar.BorderSizePixel = 0
+    ProgressBar.ZIndex = 100001
+    ProgressBar.Parent = MainLoadFrame
+    
+    local ProgressCorner = Instance.new("UICorner")
+    ProgressCorner.CornerRadius = UDim.new(1, 0)
+    ProgressCorner.Parent = ProgressBar
+    
+    local ProgressFill = Instance.new("Frame")
+    ProgressFill.Size = UDim2.new(0, 0, 1, 0)
+    ProgressFill.Position = UDim2.new(0, 0, 0, 0)
+    ProgressFill.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    ProgressFill.BorderSizePixel = 0
+    ProgressFill.ZIndex = 100002
+    ProgressFill.Parent = ProgressBar
+    
+    local ProgressFillCorner = Instance.new("UICorner")
+    ProgressFillCorner.CornerRadius = UDim.new(1, 0)
+    ProgressFillCorner.Parent = ProgressFill
+    
+    local VersionInfo = Instance.new("TextLabel")
+    VersionInfo.Size = UDim2.new(1, -40, 0, 30)
+    VersionInfo.Position = UDim2.new(0, 20, 0, 360)
+    VersionInfo.BackgroundTransparency = 1
+    VersionInfo.Text = "Made by Wener Team | Complete System | Works on All Executors"
+    VersionInfo.TextColor3 = Color3.fromRGB(120, 120, 120)
+    VersionInfo.Font = Enum.Font.Gotham
+    VersionInfo.TextSize = 14
+    VersionInfo.ZIndex = 100001
+    VersionInfo.Parent = MainLoadFrame
+    
+    -- Loading animation with detailed steps
+    task.spawn(function()
+        local loadingSteps = {
+            {text = "🔄 Initializing core systems...", progress = 0.05},
+            {text = "🔧 Loading game services...", progress = 0.15},
+            {text = "🎯 Setting up Auto Proximity system...", progress = 0.25},
+            {text = "👁️ Preparing advanced ESP system...", progress = 0.35},
+            {text = "🤖 Loading automation features...", progress = 0.45},
+            {text = "👹 Setting up entity detection...", progress = 0.55},
+            {text = "🔔 Configuring notification system...", progress = 0.65},
+            {text = "🎨 Testing Rayfield compatibility...", progress = 0.75},
+            {text = "🛠️ Creating manual UI fallback...", progress = 0.85},
+            {text = "✅ Finalizing all systems...", progress = 0.95},
+            {text = "🎉 Ready to launch ultimate hub!", progress = 1.0}
+        }
+        
+        for _, step in ipairs(loadingSteps) do
+            LoadingText.Text = step.text
+            
+            TweenService:Create(ProgressFill, TweenInfo.new(0.8, Enum.EasingStyle.Quad), {
+                Size = UDim2.new(step.progress, 0, 1, 0)
+            }):Play()
+            
+            task.wait(1.2)
+        end
+        
+        task.wait(1)
+        
+        -- Fade out loading screen
+        TweenService:Create(LoadingFrame, TweenInfo.new(1, Enum.EasingStyle.Quad), {
+            BackgroundTransparency = 1
+        }):Play()
+        
+        TweenService:Create(MainLoadFrame, TweenInfo.new(1, Enum.EasingStyle.Back), {
+            Position = UDim2.new(0.5, -300, -1, -200),
+            BackgroundTransparency = 1
+        }):Play()
+        
+        task.wait(1)
+        LoadingGui:Destroy()
+    end)
+    
+    return LoadingGui
 end
 
 -- ============================================================================
--- SIMPLE CORNER LOGO
+-- ADVANCED NOTIFICATION SYSTEM
 -- ============================================================================
 
-local function createSimpleCornerLogo()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WenerCornerLogo"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = CoreGui
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local function createAdvancedNotification(title, message, color, duration, sound)
+    local NotifGui = Instance.new("ScreenGui")
+    NotifGui.Name = "WenerUltimateNotification"
+    NotifGui.ResetOnSpawn = false
+    NotifGui.Parent = CoreGui
+    NotifGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    local LogoFrame = Instance.new("Frame")
-    LogoFrame.Size = UDim2.new(0, 220, 0, 60)
-    LogoFrame.Position = UDim2.new(1, -230, 0, 10)
-    LogoFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    LogoFrame.BackgroundTransparency = 0.2
-    LogoFrame.BorderSizePixel = 0
-    LogoFrame.ZIndex = 99999
-    LogoFrame.Parent = ScreenGui
+    local NotificationFrame = Instance.new("Frame")
+    NotificationFrame.Size = UDim2.new(0, 450, 0, 140)
+    NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    NotificationFrame.BorderSizePixel = 0
+    NotificationFrame.ZIndex = 99999
+    NotificationFrame.Parent = NotifGui
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.CornerRadius = UDim.new(0, 18)
+    Corner.Parent = NotificationFrame
+    
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = color
+    Stroke.Thickness = 3
+    Stroke.Parent = NotificationFrame
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.3, color.G * 0.3, color.B * 0.3))
+    })
+    Gradient.Rotation = 90
+    Gradient.Parent = NotificationFrame
+    
+    local IconFrame = Instance.new("Frame")
+    IconFrame.Size = UDim2.new(0, 60, 0, 60)
+    IconFrame.Position = UDim2.new(0, 15, 0, 15)
+    IconFrame.BackgroundColor3 = color
+    IconFrame.BorderSizePixel = 0
+    IconFrame.ZIndex = 100000
+    IconFrame.Parent = NotificationFrame
+    
+    local IconCorner = Instance.new("UICorner")
+    IconCorner.CornerRadius = UDim.new(0, 15)
+    IconCorner.Parent = IconFrame
+    
+    local IconLabel = Instance.new("TextLabel")
+    IconLabel.Size = UDim2.new(1, 0, 1, 0)
+    IconLabel.BackgroundTransparency = 1
+    IconLabel.Text = title:sub(1, 2) -- First 2 characters as icon
+    IconLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    IconLabel.Font = Enum.Font.GothamBold
+    IconLabel.TextSize = 24
+    IconLabel.ZIndex = 100001
+    IconLabel.Parent = IconFrame
+    
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(0, 350, 0, 40)
+    TitleLabel.Position = UDim2.new(0, 90, 0, 15)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 20
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.TextStrokeTransparency = 0.5
+    TitleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    TitleLabel.ZIndex = 100000
+    TitleLabel.Parent = NotificationFrame
+    
+    local MessageLabel = Instance.new("TextLabel")
+    MessageLabel.Size = UDim2.new(0, 350, 0, 80)
+    MessageLabel.Position = UDim2.new(0, 90, 0, 55)
+    MessageLabel.BackgroundTransparency = 1
+    MessageLabel.Text = message
+    MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    MessageLabel.Font = Enum.Font.Gotham
+    MessageLabel.TextSize = 16
+    MessageLabel.TextWrapped = true
+    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+    MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
+    MessageLabel.ZIndex = 100000
+    MessageLabel.Parent = NotificationFrame
+    
+    local TimeLabel = Instance.new("TextLabel")
+    TimeLabel.Size = UDim2.new(0, 100, 0, 20)
+    TimeLabel.Position = UDim2.new(1, -110, 0, 10)
+    TimeLabel.BackgroundTransparency = 1
+    TimeLabel.Text = os.date("%H:%M:%S")
+    TimeLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+    TimeLabel.Font = Enum.Font.Gotham
+    TimeLabel.TextSize = 12
+    TimeLabel.ZIndex = 100000
+    TimeLabel.Parent = NotificationFrame
+    
+    -- Sound effect
+    if sound then
+        pcall(function()
+            local soundEffect = Instance.new("Sound")
+            soundEffect.SoundId = "rbxassetid://131961136"
+            soundEffect.Volume = 0.3
+            soundEffect.Parent = NotifGui
+            soundEffect:Play()
+            
+            soundEffect.Ended:Connect(function()
+                soundEffect:Destroy()
+            end)
+        end)
+    end
+    
+    -- Slide in animation
+    TweenService:Create(NotificationFrame, TweenInfo.new(0.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -470, 0, 100)
+    }):Play()
+    
+    -- Icon pulse animation
+    task.spawn(function()
+        while IconFrame.Parent do
+            TweenService:Create(IconFrame, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 65, 0, 65)
+            }):Play()
+            task.wait(1)
+        end
+    end)
+    
+    -- Auto remove
+    task.spawn(function()
+        task.wait(duration or 6)
+        
+        TweenService:Create(NotificationFrame, TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 20, 0, 100),
+            BackgroundTransparency = 1
+        }):Play()
+        
+        TweenService:Create(TitleLabel, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
+        TweenService:Create(MessageLabel, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
+        TweenService:Create(IconFrame, TweenInfo.new(0.7), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(IconLabel, TweenInfo.new(0.7), {TextTransparency = 1}):Play()
+        
+        task.wait(0.7)
+        NotifGui:Destroy()
+    end)
+    
+    return NotifGui
+end
+
+-- ============================================================================
+-- CORNER LOGO WITH STATUS
+-- ============================================================================
+
+local function createCornerLogo()
+    local LogoGui = Instance.new("ScreenGui")
+    LogoGui.Name = "WenerUltimateCornerLogo"
+    LogoGui.ResetOnSpawn = false
+    LogoGui.Parent = CoreGui
+    LogoGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    local LogoFrame = Instance.new("Frame")
+    LogoFrame.Size = UDim2.new(0, 280, 0, 80)
+    LogoFrame.Position = UDim2.new(1, -290, 0, 10)
+    LogoFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    LogoFrame.BackgroundTransparency = 0.1
+    LogoFrame.BorderSizePixel = 0
+    LogoFrame.ZIndex = 99999
+    LogoFrame.Parent = LogoGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 15)
     Corner.Parent = LogoFrame
     
     local Stroke = Instance.new("UIStroke")
     Stroke.Color = Color3.fromRGB(139, 0, 255)
-    Stroke.Thickness = 2
+    Stroke.Thickness = 3
     Stroke.Parent = LogoFrame
     
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 139))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = LogoFrame
+    
     local MainText = Instance.new("TextLabel")
-    MainText.Size = UDim2.new(1, -10, 0.5, 0)
-    MainText.Position = UDim2.new(0, 5, 0.1, 0)
+    MainText.Size = UDim2.new(1, -15, 0, 35)
+    MainText.Position = UDim2.new(0, 10, 0, 5)
     MainText.BackgroundTransparency = 1
-    MainText.Text = "🎮 WENER HUB v4.0"
+    MainText.Text = "🎮 WENER HUB v4.0 ULTIMATE"
     MainText.TextColor3 = Color3.fromRGB(255, 255, 255)
     MainText.Font = Enum.Font.GothamBold
     MainText.TextSize = 16
     MainText.TextXAlignment = Enum.TextXAlignment.Left
+    MainText.TextStrokeTransparency = 0.5
+    MainText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     MainText.ZIndex = 100000
     MainText.Parent = LogoFrame
     
     local SubText = Instance.new("TextLabel")
-    SubText.Size = UDim2.new(1, -10, 0.35, 0)
-    SubText.Position = UDim2.new(0, 5, 0.6, 0)
+    SubText.Size = UDim2.new(1, -15, 0, 20)
+    SubText.Position = UDim2.new(0, 10, 0, 35)
     SubText.BackgroundTransparency = 1
-    SubText.Text = "Ultimate Complete Edition"
+    SubText.Text = "Complete Edition - All Features Active"
     SubText.TextColor3 = Color3.fromRGB(200, 200, 200)
     SubText.Font = Enum.Font.Gotham
-    SubText.TextSize = 11
+    SubText.TextSize = 12
     SubText.TextXAlignment = Enum.TextXAlignment.Left
     SubText.ZIndex = 100000
     SubText.Parent = LogoFrame
     
+    local StatusText = Instance.new("TextLabel")
+    StatusText.Size = UDim2.new(0.7, 0, 0, 20)
+    StatusText.Position = UDim2.new(0, 10, 0, 55)
+    StatusText.BackgroundTransparency = 1
+    StatusText.Text = "Status: All Systems Operational"
+    StatusText.TextColor3 = Color3.fromRGB(0, 255, 0)
+    StatusText.Font = Enum.Font.Gotham
+    StatusText.TextSize = 11
+    StatusText.TextXAlignment = Enum.TextXAlignment.Left
+    StatusText.ZIndex = 100000
+    StatusText.Parent = LogoFrame
+    
     local StatusDot = Instance.new("Frame")
-    StatusDot.Size = UDim2.new(0, 12, 0, 12)
-    StatusDot.Position = UDim2.new(1, -17, 0, 5)
+    StatusDot.Size = UDim2.new(0, 15, 0, 15)
+    StatusDot.Position = UDim2.new(1, -25, 0, 58)
     StatusDot.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     StatusDot.BorderSizePixel = 0
     StatusDot.ZIndex = 100000
@@ -194,15 +486,33 @@ local function createSimpleCornerLogo()
     
     -- Pulsing animation
     task.spawn(function()
-        while ScreenGui.Parent do
-            TweenService:Create(StatusDot, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        while LogoGui.Parent do
+            TweenService:Create(StatusDot, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                BackgroundColor3 = Color3.fromRGB(0, 200, 0),
+                Size = UDim2.new(0, 18, 0, 18)
             }):Play()
-            task.wait(1)
+            task.wait(1.5)
         end
     end)
     
-    print("✅ Corner logo created!")
+    -- Update status based on active features
+    task.spawn(function()
+        while LogoGui.Parent do
+            local activeFeatures = 0
+            if godModeEnabled then activeFeatures = activeFeatures + 1 end
+            if noclipEnabled then activeFeatures = activeFeatures + 1 end
+            if autoProximityEnabled then activeFeatures = activeFeatures + 1 end
+            if autoCollectEnabled then activeFeatures = activeFeatures + 1 end
+            if fullBrightEnabled then activeFeatures = activeFeatures + 1 end
+            
+            StatusText.Text = "Active Features: " .. activeFeatures .. "/15+"
+            
+            task.wait(2)
+        end
+    end)
+    
+    print("✅ Ultimate corner logo created!")
+    return LogoGui
 end
 
 -- ============================================================================
@@ -210,48 +520,72 @@ end
 -- ============================================================================
 
 local function createAdvancedESP(part, text, color, espType)
-    if not part or part:FindFirstChild("WenerESP_" .. espType) then return end
+    if not part or part:FindFirstChild("WenerUltimateESP_" .. espType) then return end
     
     local highlight = Instance.new("Highlight")
-    highlight.Name = "WenerESP_" .. espType
+    highlight.Name = "WenerUltimateESP_" .. espType
     highlight.Adornee = part
     highlight.FillColor = color
-    highlight.FillTransparency = 0.7
+    highlight.FillTransparency = 0.6
     highlight.OutlineColor = color
     highlight.OutlineTransparency = 0
     highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Parent = part
     
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "WenerESP_" .. espType .. "_Bill"
+    billboard.Name = "WenerUltimateESP_" .. espType .. "_Bill"
     billboard.Adornee = part
-    billboard.Size = UDim2.new(0, 200, 0, 100)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.Size = UDim2.new(0, 250, 0, 120)
+    billboard.StudsOffset = Vector3.new(0, 4, 0)
     billboard.AlwaysOnTop = true
     billboard.Parent = part
     
+    local backFrame = Instance.new("Frame")
+    backFrame.Size = UDim2.new(1, 0, 0.7, 0)
+    backFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    backFrame.BackgroundTransparency = 0.3
+    backFrame.BorderSizePixel = 0
+    backFrame.Parent = billboard
+    
+    local backCorner = Instance.new("UICorner")
+    backCorner.CornerRadius = UDim.new(0, 8)
+    backCorner.Parent = backFrame
+    
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 0.6, 0)
+    textLabel.Size = UDim2.new(1, -10, 0.6, 0)
+    textLabel.Position = UDim2.new(0, 5, 0, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Text = text
     textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     textLabel.Font = Enum.Font.GothamBold
-    textLabel.TextSize = 18
+    textLabel.TextSize = 20
     textLabel.TextStrokeTransparency = 0
     textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    textLabel.Parent = billboard
+    textLabel.Parent = backFrame
     
     local distanceLabel = Instance.new("TextLabel")
-    distanceLabel.Size = UDim2.new(1, 0, 0.4, 0)
-    distanceLabel.Position = UDim2.new(0, 0, 0.6, 0)
+    distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
+    distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
     distanceLabel.BackgroundTransparency = 1
     distanceLabel.Text = "0 studs"
     distanceLabel.TextColor3 = color
     distanceLabel.Font = Enum.Font.Gotham
-    distanceLabel.TextSize = 14
+    distanceLabel.TextSize = 16
     distanceLabel.TextStrokeTransparency = 0
     distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    distanceLabel.Parent = billboard
+    distanceLabel.Parent = backFrame
+    
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(1, 0, 0.3, 0)
+    statusLabel.Position = UDim2.new(0, 0, 0.7, 0)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = "• Available"
+    statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    statusLabel.Font = Enum.Font.Gotham
+    statusLabel.TextSize = 14
+    statusLabel.TextStrokeTransparency = 0
+    statusLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    statusLabel.Parent = billboard
     
     local espData = {
         part = part,
@@ -259,6 +593,7 @@ local function createAdvancedESP(part, text, color, espType)
         billboard = billboard,
         textLabel = textLabel,
         distanceLabel = distanceLabel,
+        statusLabel = statusLabel,
         espType = espType
     }
     
@@ -269,13 +604,25 @@ local function createAdvancedESP(part, text, color, espType)
             local distance = (player.Character.HumanoidRootPart.Position - part.Position).Magnitude
             distanceLabel.Text = math.floor(distance) .. " studs"
             
-            if distance > 1000 then
+            -- Update status based on distance
+            if distance <= 10 then
+                statusLabel.Text = "• In Range"
+                statusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+            elseif distance <= 50 then
+                statusLabel.Text = "• Nearby"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+            else
+                statusLabel.Text = "• Far"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+            
+            if distance > 2000 then
                 highlight:Destroy()
                 billboard:Destroy()
                 break
             end
             
-            task.wait(0.5)
+            task.wait(0.3)
         end
         
         for i, data in pairs(espObjects) do
@@ -296,7 +643,7 @@ local function updateAllESP()
                     local door = room:FindFirstChild("Door")
                     if door then
                         local doorPart = door:FindFirstChild("Door") or door:FindFirstChildWhichIsA("BasePart")
-                        if doorPart and not doorPart:FindFirstChild("WenerESP_door") then
+                        if doorPart and not doorPart:FindFirstChild("WenerUltimateESP_door") then
                             createAdvancedESP(doorPart, "🚪 Room " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
                         end
                     end
@@ -311,8 +658,8 @@ local function updateAllESP()
                 local keyPart = obj:FindFirstChildWhichIsA("BasePart")
                 if keyPart then
                     local prompt = keyPart:FindFirstChildOfClass("ProximityPrompt")
-                    if prompt and not keyPart:FindFirstChild("WenerESP_key") then
-                        createAdvancedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+                    if prompt and not keyPart:FindFirstChild("WenerUltimateESP_key") then
+                        createAdvancedESP(keyPart, "🗝️ " .. obj.Name, Color3.fromRGB(255, 255, 0), "key")
                     end
                 end
             end
@@ -328,8 +675,8 @@ local function updateAllESP()
                         local itemPart = obj:FindFirstChildWhichIsA("BasePart")
                         if itemPart then
                             local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
-                            if prompt and not itemPart:FindFirstChild("WenerESP_item") then
-                                createAdvancedESP(itemPart, "📦 " .. itemName, Color3.fromRGB(255, 0, 0), "item")
+                            if prompt and not itemPart:FindFirstChild("WenerUltimateESP_item") then
+                                createAdvancedESP(itemPart, "📦 " .. itemName, Color3.fromRGB(255, 100, 0), "item")
                             end
                         end
                         break
@@ -345,7 +692,7 @@ local function updateAllESP()
                 local bookPart = obj:FindFirstChild("Book") or obj:FindFirstChildWhichIsA("BasePart")
                 if bookPart then
                     local prompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
-                    if prompt and not bookPart:FindFirstChild("WenerESP_book") then
+                    if prompt and not bookPart:FindFirstChild("WenerUltimateESP_book") then
                         createAdvancedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
                     end
                 end
@@ -354,13 +701,13 @@ local function updateAllESP()
     end
     
     if entityEspEnabled then
-        local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "Dupe"}
+        local entities = {"RushMoving", "AmbushMoving", "Eyes", "Screech", "Halt", "Seek", "Figure", "Dupe", "Jack", "Timothy"}
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("Model") then
                 for _, entityName in pairs(entities) do
                     if obj.Name == entityName or obj.Name:find(entityName) then
-                        local entityPart = obj:FindFirstChild("Base") or obj:FindFirstChildWhichIsA("BasePart")
-                        if entityPart and not entityPart:FindFirstChild("WenerESP_entity") then
+                        local entityPart = obj:FindFirstChild("Base") or obj:FindFirstChild("HumanoidRootPart") or obj:FindFirstChildWhichIsA("BasePart")
+                        if entityPart and not entityPart:FindFirstChild("WenerUltimateESP_entity") then
                             createAdvancedESP(entityPart, "👹 " .. entityName, Color3.fromRGB(255, 0, 255), "entity")
                         end
                         break
@@ -374,7 +721,7 @@ local function updateAllESP()
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local humanoidRootPart = otherPlayer.Character.HumanoidRootPart
-                if not humanoidRootPart:FindFirstChild("WenerESP_player") then
+                if not humanoidRootPart:FindFirstChild("WenerUltimateESP_player") then
                     createAdvancedESP(humanoidRootPart, "👤 " .. otherPlayer.DisplayName, Color3.fromRGB(0, 255, 255), "player")
                 end
             end
@@ -395,8 +742,8 @@ local function clearAllESP()
     
     for _, obj in pairs(workspace:GetDescendants()) do
         for _, espType in pairs({"door", "key", "entity", "player", "book", "item"}) do
-            local highlight = obj:FindFirstChild("WenerESP_" .. espType)
-            local billboard = obj:FindFirstChild("WenerESP_" .. espType .. "_Bill")
+            local highlight = obj:FindFirstChild("WenerUltimateESP_" .. espType)
+            local billboard = obj:FindFirstChild("WenerUltimateESP_" .. espType .. "_Bill")
             if highlight then highlight:Destroy() end
             if billboard then billboard:Destroy() end
         end
@@ -404,94 +751,7 @@ local function clearAllESP()
 end
 
 -- ============================================================================
--- ADVANCED NOTIFICATION SYSTEM
--- ============================================================================
-
-local function createAdvancedNotification(title, message, color, duration, sound)
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WenerNotification"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = CoreGui
-    
-    local NotificationFrame = Instance.new("Frame")
-    NotificationFrame.Size = UDim2.new(0, 400, 0, 120)
-    NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
-    NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    NotificationFrame.BorderSizePixel = 0
-    NotificationFrame.Parent = ScreenGui
-    
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 15)
-    Corner.Parent = NotificationFrame
-    
-    local Gradient = Instance.new("UIGradient")
-    Gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, color),
-        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.5, color.G * 0.5, color.B * 0.5))
-    })
-    Gradient.Rotation = 45
-    Gradient.Parent = NotificationFrame
-    
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -20, 0, 35)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 10)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = title
-    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextSize = 18
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.Parent = NotificationFrame
-    
-    local MessageLabel = Instance.new("TextLabel")
-    MessageLabel.Size = UDim2.new(1, -20, 0, 65)
-    MessageLabel.Position = UDim2.new(0, 10, 0, 45)
-    MessageLabel.BackgroundTransparency = 1
-    MessageLabel.Text = message
-    MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    MessageLabel.Font = Enum.Font.Gotham
-    MessageLabel.TextSize = 14
-    MessageLabel.TextWrapped = true
-    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
-    MessageLabel.Parent = NotificationFrame
-    
-    if sound then
-        pcall(function()
-            local soundEffect = Instance.new("Sound")
-            soundEffect.SoundId = "rbxassetid://131961136"
-            soundEffect.Volume = 0.5
-            soundEffect.Parent = ScreenGui
-            soundEffect:Play()
-            
-            soundEffect.Ended:Connect(function()
-                soundEffect:Destroy()
-            end)
-        end)
-    end
-    
-    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-        Position = UDim2.new(1, -420, 0, 100)
-    }):Play()
-    
-    task.spawn(function()
-        task.wait(duration or 5)
-        
-        TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
-            Position = UDim2.new(1, 20, 0, 100),
-            BackgroundTransparency = 1
-        }):Play()
-        
-        TweenService:Create(TitleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-        TweenService:Create(MessageLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-        
-        task.wait(0.5)
-        ScreenGui:Destroy()
-    end)
-end
-
--- ============================================================================
--- NEW: SMART AUTO PROXIMITY PROMPT SYSTEM (NO WARDROBES/LOCKERS)
+-- SMART AUTO PROXIMITY SYSTEM
 -- ============================================================================
 
 local function isBlacklistedPrompt(prompt)
@@ -502,7 +762,7 @@ local function isBlacklistedPrompt(prompt)
     
     -- Check direct parent name
     for _, blacklisted in pairs(proximityBlacklist) do
-        if parentName:find(blacklisted:lower()) then
+        if parentName:find(blacklisted) then
             return true
         end
     end
@@ -511,15 +771,10 @@ local function isBlacklistedPrompt(prompt)
     if parentParent then
         local parentParentName = parentParent.Name:lower()
         for _, blacklisted in pairs(proximityBlacklist) do
-            if parentParentName:find(blacklisted:lower()) then
+            if parentParentName:find(blacklisted) then
                 return true
             end
         end
-    end
-    
-    -- Additional check for wardrobe/locker by looking for specific patterns
-    if parentName:find("hide") or parentName:find("storage") or parentName:find("furniture") then
-        return true
     end
     
     return false
@@ -531,34 +786,30 @@ local function enableAutoProximity()
     if autoProximityConnection then autoProximityConnection:Disconnect() end
     
     local lastActivated = {}
+    local activationCount = 0
     
     local function checkAndActivatePrompts()
         if not autoProximityEnabled or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
         
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("ProximityPrompt") and obj.Enabled then
-                -- Skip if blacklisted (wardrobe, locker, etc)
-                if isBlacklistedPrompt(obj) then
-                    continue
-                end
-                
-                -- Check if prompt is in range
-                if obj.Parent and obj.Parent:IsA("BasePart") then
-                    local distance = (player.Character.HumanoidRootPart.Position - obj.Parent.Position).Magnitude
-                    
-                    if distance <= obj.MaxActivationDistance then
-                        local currentTime = tick()
+                if not isBlacklistedPrompt(obj) then
+                    if obj.Parent and obj.Parent:IsA("BasePart") then
+                        local distance = (player.Character.HumanoidRootPart.Position - obj.Parent.Position).Magnitude
                         
-                        -- Prevent spam (cooldown of 0.5 seconds per prompt)
-                        if not lastActivated[obj] or (currentTime - lastActivated[obj]) > 0.5 then
-                            pcall(function()
-                                fireproximityprompt(obj)
-                                lastActivated[obj] = currentTime
-                                
-                                -- Visual feedback
-                                local promptName = obj.ObjectText or obj.ActionText or "Unknown"
-                                print("🎯 Auto activated: " .. promptName)
-                            end)
+                        if distance <= obj.MaxActivationDistance then
+                            local currentTime = tick()
+                            
+                            if not lastActivated[obj] or (currentTime - lastActivated[obj]) > 0.5 then
+                                pcall(function()
+                                    fireproximityprompt(obj)
+                                    lastActivated[obj] = currentTime
+                                    activationCount = activationCount + 1
+                                    
+                                    local promptName = obj.ObjectText or obj.ActionText or "Unknown"
+                                    print("🎯 Auto activated: " .. promptName .. " (Total: " .. activationCount .. ")")
+                                end)
+                            end
                         end
                     end
                 end
@@ -570,12 +821,12 @@ local function enableAutoProximity()
         checkAndActivatePrompts()
     end)
     
-    print("🎯 Auto Proximity: ENABLED (Wardrobes/Lockers excluded)")
+    print("🎯 Smart Auto Proximity: ENABLED")
     createAdvancedNotification(
-        "🎯 AUTO PROXIMITY ENABLED",
-        "Will auto-interact with ALL prompts EXCEPT wardrobes/lockers/hiding spots!",
+        "🎯 SMART AUTO PROXIMITY ENABLED",
+        "Will auto-interact with ALL prompts EXCEPT wardrobes/lockers/hiding spots! Perfect for speed runs and item collection!",
         Color3.fromRGB(0, 255, 0),
-        5,
+        6,
         true
     )
 end
@@ -588,7 +839,14 @@ local function disableAutoProximity()
         autoProximityConnection = nil
     end
     
-    print("🎯 Auto Proximity: DISABLED")
+    print("🎯 Smart Auto Proximity: DISABLED")
+    createAdvancedNotification(
+        "🎯 AUTO PROXIMITY DISABLED",
+        "Auto-interaction stopped.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
 end
 
 -- ============================================================================
@@ -623,7 +881,23 @@ local function enableGodMode()
     local conn1 = RunService.Heartbeat:Connect(maintainGodMode)
     table.insert(godModeConnections, conn1)
     
-    print("🛡️ God Mode: ENABLED")
+    -- Additional protection
+    local conn2 = player.Character.ChildAdded:Connect(function(child)
+        if child:IsA("Humanoid") then
+            child.MaxHealth = math.huge
+            child.Health = math.huge
+        end
+    end)
+    table.insert(godModeConnections, conn2)
+    
+    print("🛡️ Ultimate God Mode: ENABLED")
+    createAdvancedNotification(
+        "🛡️ GOD MODE ACTIVATED",
+        "You are now completely invincible! Health set to infinite.",
+        Color3.fromRGB(0, 255, 0),
+        4,
+        true
+    )
 end
 
 local function disableGodMode()
@@ -643,6 +917,13 @@ local function disableGodMode()
     end
     
     print("🛡️ God Mode: DISABLED")
+    createAdvancedNotification(
+        "🛡️ GOD MODE DEACTIVATED",
+        "You are now mortal again. Health restored to normal.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
 end
 
 local function enableNoclip()
@@ -660,7 +941,14 @@ local function enableNoclip()
         end
     end)
     
-    print("👻 Noclip: ENABLED")
+    print("👻 Advanced Noclip: ENABLED")
+    createAdvancedNotification(
+        "👻 NOCLIP ACTIVATED",
+        "You can now walk through all walls and obstacles!",
+        Color3.fromRGB(100, 255, 255),
+        4,
+        true
+    )
 end
 
 local function disableNoclip()
@@ -677,18 +965,40 @@ local function disableNoclip()
     end
     
     print("👻 Noclip: DISABLED")
+    createAdvancedNotification(
+        "👻 NOCLIP DEACTIVATED",
+        "Collision detection restored to normal.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
 end
 
 local function enableFullBright()
     fullBrightEnabled = true
     
-    Lighting.Brightness = 2
+    Lighting.Brightness = 3
     Lighting.ClockTime = 14
     Lighting.FogEnd = 100000
     Lighting.GlobalShadows = false
-    Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+    Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 150)
+    Lighting.Ambient = Color3.fromRGB(150, 150, 150)
     
-    print("💡 Full Bright: ENABLED")
+    -- Additional lighting boost
+    for _, obj in pairs(Lighting:GetChildren()) do
+        if obj:IsA("BloomEffect") or obj:IsA("SunRaysEffect") or obj:IsA("ColorCorrectionEffect") then
+            obj.Enabled = false
+        end
+    end
+    
+    print("💡 Ultimate Full Bright: ENABLED")
+    createAdvancedNotification(
+        "💡 FULL BRIGHT ACTIVATED",
+        "Maximum visibility! All areas are now fully illuminated.",
+        Color3.fromRGB(255, 255, 0),
+        4,
+        true
+    )
 end
 
 local function disableFullBright()
@@ -699,31 +1009,34 @@ local function disableFullBright()
     Lighting.FogEnd = 100
     Lighting.GlobalShadows = true
     Lighting.OutdoorAmbient = Color3.fromRGB(70, 70, 70)
+    Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+    
+    for _, obj in pairs(Lighting:GetChildren()) do
+        if obj:IsA("BloomEffect") or obj:IsA("SunRaysEffect") or obj:IsA("ColorCorrectionEffect") then
+            obj.Enabled = true
+        end
+    end
     
     print("💡 Full Bright: DISABLED")
+    createAdvancedNotification(
+        "💡 FULL BRIGHT DEACTIVATED",
+        "Lighting restored to normal game settings.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
 end
 
 -- ============================================================================
 -- AUTOMATION FEATURES
 -- ============================================================================
 
-local autoCollectSettings = {
-    ["Vitamins"] = true,
-    ["Lockpick"] = true,
-    ["Key"] = true,
-    ["Flashlight"] = true,
-    ["Lighter"] = true,
-    ["Candle"] = true,
-    ["Crucifix"] = true,
-    ["Bandage"] = true,
-    ["SkeletonKey"] = true,
-    ["Book"] = true
-}
-
 local function enableAutoCollect()
     autoCollectEnabled = true
     
     if autoCollectConnection then autoCollectConnection:Disconnect() end
+    
+    local itemsCollected = 0
     
     local function collectItems()
         if not autoCollectEnabled or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
@@ -731,10 +1044,12 @@ local function enableAutoCollect()
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("Model") then
                 local shouldCollect = false
+                local itemType = ""
                 
                 for itemName, enabled in pairs(autoCollectSettings) do
                     if enabled and (obj.Name == itemName or obj.Name:find(itemName)) then
                         shouldCollect = true
+                        itemType = itemName
                         break
                     end
                 end
@@ -743,11 +1058,13 @@ local function enableAutoCollect()
                     local itemPart = obj:FindFirstChildWhichIsA("BasePart")
                     if itemPart then
                         local distance = (player.Character.HumanoidRootPart.Position - itemPart.Position).Magnitude
-                        if distance <= 15 then
+                        if distance <= 20 then
                             local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
                             if prompt and prompt.Enabled then
                                 pcall(function()
                                     fireproximityprompt(prompt)
+                                    itemsCollected = itemsCollected + 1
+                                    print("📦 Auto collected: " .. itemType .. " (Total: " .. itemsCollected .. ")")
                                 end)
                             end
                         end
@@ -761,7 +1078,14 @@ local function enableAutoCollect()
         collectItems()
     end)
     
-    print("📦 Auto Collect: ENABLED")
+    print("📦 Smart Auto Collect: ENABLED")
+    createAdvancedNotification(
+        "📦 AUTO COLLECT ACTIVATED",
+        "Automatically collecting all valuable items within range! Items collected: " .. itemsCollected,
+        Color3.fromRGB(255, 165, 0),
+        5,
+        true
+    )
 end
 
 local function disableAutoCollect()
@@ -770,6 +1094,13 @@ local function disableAutoCollect()
     if autoCollectConnection then autoCollectConnection:Disconnect() end
     
     print("📦 Auto Collect: DISABLED")
+    createAdvancedNotification(
+        "📦 AUTO COLLECT DEACTIVATED",
+        "Automatic item collection stopped.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
 end
 
 -- ============================================================================
@@ -785,652 +1116,1032 @@ local function setupEntityNotifications()
     if not rushNotifEnabled and not allEntityNotifications then return end
     
     local entities = {
-        {name = "RushMoving", displayName = "Rush", color = Color3.fromRGB(255, 0, 0), message = "Rush is coming! Hide immediately!"},
-        {name = "AmbushMoving", displayName = "Ambush", color = Color3.fromRGB(255, 100, 0), message = "Ambush detected! Get ready to hide multiple times!"},
-        {name = "Eyes", displayName = "Eyes", color = Color3.fromRGB(255, 255, 255), message = "Eyes appeared! Don't look at them!"},
-        {name = "Screech", displayName = "Screech", color = Color3.fromRGB(0, 255, 0), message = "Screech is near! Turn around when you hear the sound!"},
-        {name = "Halt", displayName = "Halt", color = Color3.fromRGB(0, 0, 255), message = "Halt appeared! Stop moving when the screen turns blue!"},
-        {name = "Seek", displayName = "Seek", color = Color3.fromRGB(0, 0, 0), message = "Seek chase sequence! Run and avoid obstacles!"}
+        {name = "RushMoving", displayName = "Rush", color = Color3.fromRGB(255, 0, 0), message = "🚨 RUSH IS COMING! Find a hiding spot NOW!"},
+        {name = "AmbushMoving", displayName = "Ambush", color = Color3.fromRGB(255, 100, 0), message = "⚠️ AMBUSH DETECTED! Hide and wait for multiple passes!"},
+        {name = "Eyes", displayName = "Eyes", color = Color3.fromRGB(0, 255, 255), message = "👁️ EYES SPAWNED! Look away immediately!"},
+        {name = "Screech", displayName = "Screech", color = Color3.fromRGB(139, 0, 139), message = "😱 SCREECH IS NEAR! Listen for audio cue!"},
+        {name = "Halt", displayName = "Halt", color = Color3.fromRGB(0, 100, 255), message = "🛑 HALT ENCOUNTERED! Walk when it says HALT!"},
+        {name = "Seek", displayName = "Seek", color = Color3.fromRGB(0, 0, 0), message = "🏃 SEEK CHASE! Run and avoid obstacles!"},
+        {name = "Figure", displayName = "Figure", color = Color3.fromRGB(50, 50, 50), message = "👹 FIGURE DETECTED! Stay quiet and crouch!"},
+        {name = "Dupe", displayName = "Dupe", color = Color3.fromRGB(255, 255, 0), message = "🚪 DUPE ROOM! Check the number carefully!"},
+        {name = "Jack", displayName = "Jack", color = Color3.fromRGB(255, 0, 255), message = "🤡 JACK APPEARED! He's just a jumpscare!"},
+        {name = "Timothy", displayName = "Timothy", color = Color3.fromRGB(100, 50, 0), message = "🕷️ TIMOTHY (Spider)! Just a small jumpscare!"}
     }
     
-    local lastEntityNotification = {}
+    local notifiedEntities = {}
     
-    local function onEntityAdded(entity)
-        for _, entityData in pairs(entities) do
-            if entity.Name == entityData.name or entity.Name:find(entityData.name) then
-                local currentTime = tick()
-                
-                if lastEntityNotification[entityData.name] and currentTime - lastEntityNotification[entityData.name] < 5 then
-                    return
-                end
-                lastEntityNotification[entityData.name] = currentTime
-                
-                local shouldNotify = false
-                if allEntityNotifications then
-                    shouldNotify = true
-                elseif rushNotifEnabled and (entityData.name == "RushMoving" or entityData.name == "AmbushMoving") then
-                    shouldNotify = true
-                end
-                
-                if shouldNotify then
-                    createAdvancedNotification(
-                        "⚠️ ENTITY: " .. entityData.displayName,
-                        entityData.message,
-                        entityData.color,
-                        6,
-                        true
-                    )
+    local function checkForEntity(entityData)
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Model") and (obj.Name == entityData.name or obj.Name:find(entityData.name)) then
+                if not notifiedEntities[obj] then
+                    notifiedEntities[obj] = true
                     
-                    print("🚨 Entity Alert: " .. entityData.displayName)
+                    -- Check if should notify
+                    local shouldNotify = false
+                    if allEntityNotifications then
+                        shouldNotify = true
+                    elseif rushNotifEnabled and (entityData.name == "RushMoving" or entityData.name == "AmbushMoving") then
+                        shouldNotify = true
+                    end
+                    
+                    if shouldNotify then
+                        createAdvancedNotification(
+                            "👹 " .. entityData.displayName:upper() .. " DETECTED!",
+                            entityData.message,
+                            entityData.color,
+                            8,
+                            true
+                        )
+                        
+                        print("👹 Entity detected: " .. entityData.displayName)
+                    end
+                    
+                    -- Clean up notification tracking when entity is destroyed
+                    obj.Destroying:Connect(function()
+                        notifiedEntities[obj] = nil
+                    end)
                 end
-                break
             end
         end
     end
     
+    -- Monitor existing entities
+    for _, entityData in pairs(entities) do
+        checkForEntity(entityData)
+    end
+    
+    -- Monitor new entities
     local conn = workspace.DescendantAdded:Connect(function(descendant)
         if descendant:IsA("Model") then
-            task.wait(0.1)
-            onEntityAdded(descendant)
+            for _, entityData in pairs(entities) do
+                if descendant.Name == entityData.name or descendant.Name:find(entityData.name) then
+                    task.wait(0.1)
+                    checkForEntity(entityData)
+                    break
+                end
+            end
         end
     end)
     
     table.insert(entityConnections, conn)
+    
+    print("🔔 Entity notification system active!")
 end
 
-player.CharacterAdded:Connect(function(character)
-    task.wait(1)
-    if character:FindFirstChild("Humanoid") then
-        character.Humanoid.WalkSpeed = currentSpeed
-        if godModeEnabled then
-            enableGodMode()
-        end
-        if noclipEnabled then
-            enableNoclip()
-        end
-    end
-end)
-
 -- ============================================================================
--- MAIN INITIALIZATION
+-- TELEPORT SYSTEM
 -- ============================================================================
 
-local function initializeWenerHub()
-    print("🚀 Starting WENER HUB v4.0 ULTIMATE...")
-    
-    createSimpleCornerLogo()
-    
-    createAdvancedNotification(
-        "🔄 WENER HUB LOADING",
-        "Ultimate Edition initializing... Please wait...",
-        Color3.fromRGB(139, 0, 255),
-        5,
-        false
-    )
-    
-    task.wait(2)
-    
-    local Rayfield = forceLoadRayfield()
-    
-    if not Rayfield then
+local function teleportToLatestRoom()
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if not currentRooms then 
         createAdvancedNotification(
-            "❌ LOADING FAILED",
-            "Rayfield could not load. Please rejoin or use different executor.",
+            "❌ TELEPORT FAILED",
+            "CurrentRooms not found in workspace!",
             Color3.fromRGB(255, 0, 0),
-            10,
-            true
+            4,
+            false
         )
-        return
+        return 
     end
     
-    local success, window = pcall(function()
-        return Rayfield:CreateWindow({
-            Name = "🎮 Wener Hub v4.0 - Ultimate Complete",
-            LoadingTitle = "Ultimate Complete System",
-            LoadingSubtitle = "All features + Smart Auto Proximity",
-            ConfigurationSaving = {
-                Enabled = true,
-                FolderName = "WenerHubUltimate",
-                FileName = "UltimateConfig"
-            },
-            Discord = {
-                Enabled = false
-            },
-            KeySystem = false
-        })
-    end)
-    
-    if not success or not window then
-        warn("❌ Failed to create Rayfield window!")
-        return
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then 
+        createAdvancedNotification(
+            "❌ TELEPORT FAILED",
+            "Character not found or not loaded!",
+            Color3.fromRGB(255, 0, 0),
+            4,
+            false
+        )
+        return 
     end
     
-    MainWindow = window
-    print("✅ Rayfield window created!")
+    local latestRoom = nil
+    local highestNumber = 0
     
-    task.wait(1)
-    local rayfield = CoreGui:FindFirstChild("Rayfield")
-    if rayfield then
-        rayfield.Enabled = true
+    for _, room in pairs(currentRooms:GetChildren()) do
+        local roomNumber = tonumber(room.Name)
+        if roomNumber and roomNumber > highestNumber then
+            highestNumber = roomNumber
+            latestRoom = room
+        end
     end
     
-    createAllTabs(Rayfield)
-    
-    task.spawn(function()
-        while true do
-            task.wait(3)
-            if doorEspEnabled or keyEspEnabled or itemEspEnabled or bookEspEnabled or entityEspEnabled or playerEspEnabled then
-                updateAllESP()
-            end
-        end
-    end)
-    
-    task.wait(2)
-    Rayfield:Notify({
-        Title = "✅ WENER HUB ULTIMATE LOADED!",
-        Content = "All features + Smart Auto Proximity active!",
-        Duration = 8,
-        Image = 4483362458,
-    })
-    
-    createAdvancedNotification(
-        "🎉 WENER HUB ULTIMATE READY!",
-        "All features loaded! NEW: Smart Auto Proximity (excludes wardrobes/lockers)!",
-        Color3.fromRGB(0, 255, 0),
-        10,
-        true
-    )
-    
-    print("✅ WENER HUB v4.0 ULTIMATE FULLY LOADED!")
-end
-
--- ============================================================================
--- CREATE ALL TABS
--- ============================================================================
-
-local function createAllTabs(Rayfield)
-    print("🔧 Creating all tabs...")
-    
-    -- ========== MAIN TAB ==========
-    local MainTab = MainWindow:CreateTab("⚙️ Main", 4483362458)
-    
-    MainTab:CreateSlider({
-        Name = "⚡ Speed Multiplier",
-        Range = {1, 10},
-        Increment = 0.1,
-        Suffix = "x",
-        CurrentValue = 1,
-        Flag = "SpeedSlider",
-        Callback = function(v) 
-            setSpeed(16 * v)
-        end
-    })
-    
-    MainTab:CreateToggle({
-        Name = "🛡️ God Mode",
-        CurrentValue = false,
-        Flag = "GodMode",
-        Callback = function(v)
-            if v then
-                enableGodMode()
-            else
-                disableGodMode()
-            end
-        end
-    })
-    
-    MainTab:CreateToggle({
-        Name = "👻 Noclip",
-        CurrentValue = false,
-        Flag = "Noclip",
-        Callback = function(v)
-            if v then
-                enableNoclip()
-            else
-                disableNoclip()
-            end
-        end
-    })
-    
-    MainTab:CreateToggle({
-        Name = "💡 Full Bright",
-        CurrentValue = false,
-        Flag = "FullBright",
-        Callback = function(v)
-            if v then
-                enableFullBright()
-            else
-                disableFullBright()
-            end
-        end
-    })
-    
-    MainTab:CreateButton({
-        Name = "🔄 Respawn",
-        Callback = function()
-            if player.Character then
-                player.Character:BreakJoints()
-            end
-        end
-    })
-    
-    MainTab:CreateButton({
-        Name = "🚪 Teleport to Latest Room",
-        Callback = function()
-            local currentRooms = workspace:FindFirstChild("CurrentRooms")
-            if currentRooms and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local latestRoom = nil
-                local highestNumber = 0
-                
-                for _, room in pairs(currentRooms:GetChildren()) do
-                    local roomNumber = tonumber(room.Name)
-                    if roomNumber and roomNumber > highestNumber then
-                        highestNumber = roomNumber
-                        latestRoom = room
-                    end
-                end
-                
-                if latestRoom then
-                    local roomPos = latestRoom:FindFirstChildWhichIsA("BasePart")
-                    if roomPos then
-                        player.Character.HumanoidRootPart.CFrame = CFrame.new(roomPos.Position + Vector3.new(0, 5, 0))
-                        createAdvancedNotification("🚪 Teleported!", "Moved to room " .. latestRoom.Name, Color3.fromRGB(0, 255, 0), 3, false)
-                    end
-                end
-            end
-        end
-    })
-    
-    -- ========== NEW: AUTO PROXIMITY TAB ==========
-    local ProximityTab = MainWindow:CreateTab("🎯 Auto Proximity", 4483362458)
-    
-    ProximityTab:CreateLabel("🎯 SMART AUTO PROXIMITY PROMPT SYSTEM")
-    
-    ProximityTab:CreateParagraph({
-        Title = "📋 How It Works",
-        Content = "✅ Automatically activates ALL proximity prompts in range\n❌ EXCLUDES wardrobes, lockers, hiding spots\n🎯 Perfect for collecting items, opening doors, grabbing keys\n⚡ Instant activation when in range\n🛡️ Smart blacklist system"
-    })
-    
-    ProximityTab:CreateToggle({
-        Name = "🎯 Enable Auto Proximity (Smart)",
-        CurrentValue = false,
-        Flag = "AutoProximity",
-        Callback = function(v)
-            if v then
-                enableAutoProximity()
-            else
-                disableAutoProximity()
-            end
-        end
-    })
-    
-    ProximityTab:CreateSection("🚫 Blacklist Settings (Auto-Excluded)")
-    
-    ProximityTab:CreateParagraph({
-        Title = "Currently Excluded:",
-        Content = "• Wardrobes (all hiding spots)\n• Closets\n• Lockers\n• Bed Drawers\n• Dressers\n• Cabinets\n• Storage Furniture\n\nThese will NEVER be auto-activated!"
-    })
-    
-    ProximityTab:CreateButton({
-        Name = "🧪 Test Auto Proximity",
-        Callback = function()
-            if autoProximityEnabled then
-                createAdvancedNotification(
-                    "🎯 AUTO PROXIMITY ACTIVE",
-                    "Walk near any item/door/key to see auto-activation! (Wardrobes excluded)",
-                    Color3.fromRGB(0, 255, 0),
-                    5,
-                    true
-                )
-            else
-                createAdvancedNotification(
-                    "❌ AUTO PROXIMITY DISABLED",
-                    "Enable the toggle above to activate!",
-                    Color3.fromRGB(255, 0, 0),
-                    5,
-                    false
-                )
-            end
-        end
-    })
-    
-    ProximityTab:CreateSection("ℹ️ Important Notes")
-    
-    ProximityTab:CreateParagraph({
-        Title = "⚠️ Safety Features",
-        Content = "✅ 0.5 second cooldown per prompt\n✅ Smart blacklist prevents wardrobe spam\n✅ Distance-based activation\n✅ No false triggers\n✅ Works with ALL executors"
-    })
-    
-    -- ========== ESP TAB ==========
-    local ESPTab = MainWindow:CreateTab("👁️ ESP", 4483362458)
-    
-    ESPTab:CreateToggle({
-        Name = "🚪 Door ESP",
-        CurrentValue = false,
-        Flag = "DoorESP",
-        Callback = function(v)
-            doorEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "🗝️ Key ESP",
-        CurrentValue = false,
-        Flag = "KeyESP",
-        Callback = function(v)
-            keyEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "📦 Item ESP",
-        CurrentValue = false,
-        Flag = "ItemESP",
-        Callback = function(v)
-            itemEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "📚 Book ESP",
-        CurrentValue = false,
-        Flag = "BookESP",
-        Callback = function(v)
-            bookEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "👹 Entity ESP",
-        CurrentValue = false,
-        Flag = "EntityESP",
-        Callback = function(v)
-            entityEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateToggle({
-        Name = "👤 Player ESP",
-        CurrentValue = false,
-        Flag = "PlayerESP",
-        Callback = function(v)
-            playerEspEnabled = v
-            if not v then clearAllESP() else updateAllESP() end
-        end
-    })
-    
-    ESPTab:CreateButton({
-        Name = "🔄 Refresh ESP",
-        Callback = function()
-            clearAllESP()
-            updateAllESP()
-        end
-    })
-    
-    ESPTab:CreateButton({
-        Name = "🗑️ Clear All ESP",
-        Callback = function()
-            doorEspEnabled = false
-            keyEspEnabled = false
-            entityEspEnabled = false
-            playerEspEnabled = false
-            bookEspEnabled = false
-            itemEspEnabled = false
-            clearAllESP()
-        end
-    })
-    
-    -- ========== AUTOMATION TAB ==========
-    local AutoTab = MainWindow:CreateTab("🤖 Auto", 4483362458)
-    
-    AutoTab:CreateToggle({
-        Name = "📦 Auto Collect",
-        CurrentValue = false,
-        Flag = "AutoCollect",
-        Callback = function(v)
-            if v then
-                enableAutoCollect()
-            else
-                disableAutoCollect()
-            end
-        end
-    })
-    
-    AutoTab:CreateSection("📦 Collect Settings")
-    
-    local collectableItems = {"Vitamins", "Lockpick", "Key", "Flashlight", "Lighter", "Candle", "Crucifix", "Bandage"}
-    
-    for _, itemName in pairs(collectableItems) do
-        AutoTab:CreateToggle({
-            Name = "Collect " .. itemName,
-            CurrentValue = true,
-            Flag = "Collect" .. itemName,
-            Callback = function(v)
-                autoCollectSettings[itemName] = v
-            end
-        })
-    end
-    
-    AutoTab:CreateToggle({
-        Name = "💊 Infinite Vitamins",
-        CurrentValue = false,
-        Flag = "InfVitamins",
-        Callback = function(v)
-            infVitaminsEnabled = v
-        end
-    })
-    
-    -- ========== NOTIFICATIONS TAB ==========
-    local NotifTab = MainWindow:CreateTab("🔔 Notif", 4483362458)
-    
-    NotifTab:CreateToggle({
-        Name = "⚡ Rush/Ambush Alerts",
-        CurrentValue = false,
-        Flag = "RushNotif",
-        Callback = function(v)
-            rushNotifEnabled = v
-            setupEntityNotifications()
-        end
-    })
-    
-    NotifTab:CreateToggle({
-        Name = "👹 All Entity Alerts",
-        CurrentValue = false,
-        Flag = "AllEntityNotif",
-        Callback = function(v)
-            allEntityNotifications = v
-            setupEntityNotifications()
-        end
-    })
-    
-    NotifTab:CreateButton({
-        Name = "🧪 Test Notification",
-        Callback = function()
+    if latestRoom then
+        local roomPos = latestRoom:FindFirstChildWhichIsA("BasePart")
+        if roomPos then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(roomPos.Position + Vector3.new(0, 5, 0))
+            
             createAdvancedNotification(
-                "🧪 TEST",
-                "Notification system working!",
+                "🚪 TELEPORT SUCCESS",
+                "Teleported to Room " .. latestRoom.Name .. "!",
                 Color3.fromRGB(0, 255, 0),
-                3,
+                4,
                 true
             )
+            
+            print("🚪 Teleported to room: " .. latestRoom.Name)
+        else
+            createAdvancedNotification(
+                "❌ TELEPORT FAILED",
+                "Room " .. latestRoom.Name .. " has no valid position!",
+                Color3.fromRGB(255, 0, 0),
+                4,
+                false
+            )
         end
-    })
-    
-    -- ========== INFO TAB ==========
-    local InfoTab = MainWindow:CreateTab("📋 Info", 4483362458)
-    
-    InfoTab:CreateParagraph({
-        Title = "🎮 WENER HUB v4.0 ULTIMATE", 
-        Content = "✨ Ultimate Complete Edition\n🎯 NEW: Smart Auto Proximity\n✅ All features work instantly\n📱 Mobile & Desktop compatible"
-    })
-    
-    InfoTab:CreateParagraph({
-        Title = "🆕 New Features", 
-        Content = "🎯 Auto Proximity Prompt (Smart)\n   • Auto-activates ALL prompts\n   • Excludes wardrobes/lockers\n   • Perfect for collecting items\n   • No spam, smart cooldown"
-    })
-    
-    InfoTab:CreateParagraph({
-        Title = "👤 Player Info", 
-        Content = "Username: " .. player.Name .. 
-                  "\nDisplay: " .. player.DisplayName .. 
-                  "\nID: " .. player.UserId
-    })
-    
-    InfoTab:CreateButton({
-        Name = "📋 Copy Script",
-        Callback = function()
-            if setclipboard then
-                setclipboard('loadstring(game:HttpGet("https://raw.githubusercontent.com/WenerScripts/WenerHub/main/doors-ultimate.lua"))()')
-                Rayfield:Notify({
-                    Title = "📋 Copied!",
-                    Content = "Ultimate script copied to clipboard",
-                    Duration = 3,
-                    Image = 4483362458,
-                })
-            end
-        end
-    })
-    
-    InfoTab:CreateButton({
-        Name = "🔄 Rejoin Server",
-        Callback = function()
-            TeleportService:Teleport(game.PlaceId, player)
-        end
-    })
-    
-    print("✅ All tabs created successfully!")
+    else
+        createAdvancedNotification(
+            "❌ TELEPORT FAILED",
+            "No rooms found to teleport to!",
+            Color3.fromRGB(255, 0, 0),
+            4,
+            false
+        )
+    end
 end
 
 -- ============================================================================
--- START EVERYTHING
+-- INFINITE VITAMINS
 -- ============================================================================
 
-print("🚀 === STARTING WENER HUB v4.0 ULTIMATE COMPLETE ===")
-print("✨ Full Features Edition")
-print("🎯 NEW: Smart Auto Proximity (No Wardrobes)")
-print("🔓 GUI Always Visible")
-print("📊 All Systems Active")
-
-initializeWenerHub()
-
-print("✅ === WENER HUB v4.0 ULTIMATE INITIALIZATION COMPLETE ===")
-print("")
-print("=" .. string.rep("=", 80) .. "=")
-print("🎮 WENER HUB v4.0 ULTIMATE COMPLETE - FULL FEATURE LIST:")
-print("=" .. string.rep("=", 80) .. "=")
-print("")
-print("🎯 AUTO PROXIMITY PROMPT (NEW!):")
-print("   ✅ Auto-activates ALL proximity prompts in range")
-print("   ❌ Smart blacklist: Excludes wardrobes, lockers, hiding spots")
-print("   ⚡ Instant activation for items, doors, keys")
-print("   🛡️ 0.5 second cooldown per prompt (no spam)")
-print("   🎯 Perfect for speed runs and item collection")
-print("")
-print("⚙️ MAIN FEATURES:")
-print("   • Speed Multiplier (1x - 10x)")
-print("   • God Mode (Infinite Health)")
-print("   • Noclip (Walk through walls)")
-print("   • Full Bright (Maximum visibility)")
-print("   • Instant Respawn")
-print("   • Teleport to Latest Room")
-print("")
-print("👁️ ESP SYSTEM:")
-print("   • Door ESP (Green) - All room doors")
-print("   • Key ESP (Yellow) - All keys")
-print("   • Item ESP (Red) - Collectables")
-print("   • Book ESP (Brown) - Figure books")
-print("   • Entity ESP (Purple) - All monsters")
-print("   • Player ESP (Cyan) - Other players")
-print("   • Fixed size at all distances")
-print("   • Distance display on all ESP")
-print("")
-print("🤖 AUTOMATION:")
-print("   • Auto Collect (Smart item collection)")
-print("   • Customizable per-item settings")
-print("   • Infinite Vitamins")
-print("   • Auto-detect new items")
-print("")
-print("🔔 NOTIFICATIONS:")
-print("   • Rush/Ambush specific alerts")
-print("   • All entity detection option")
-print("   • Sound effects on alerts")
-print("   • Smooth animations")
-print("   • Non-intrusive design")
-print("")
-print("🛡️ SAFETY FEATURES:")
-print("   • Anti-cheat bypass ready")
-print("   • Character respawn handling")
-print("   • Error recovery systems")
-print("   • Smart cooldown systems")
-print("")
-print("💡 QUALITY OF LIFE:")
-print("   • Clean UI design")
-print("   • Mobile compatible")
-print("   • Configuration saving")
-print("   • Always visible GUI")
-print("   • Corner logo with status")
-print("")
-print("🎯 HOW TO USE AUTO PROXIMITY:")
-print("   1. Go to '🎯 Auto Proximity' tab")
-print("   2. Enable 'Auto Proximity (Smart)' toggle")
-print("   3. Walk near ANY item, door, or key")
-print("   4. Watch it auto-activate instantly!")
-print("   5. Wardrobes/Lockers are auto-excluded for safety")
-print("")
-print("⚠️ AUTO PROXIMITY BLACKLIST (Always Excluded):")
-print("   • Wardrobes (all types)")
-print("   • Closets")
-print("   • Lockers")
-print("   • Bed Drawers")
-print("   • Dressers")
-print("   • Cabinets")
-print("   • Any hiding/storage furniture")
-print("")
-print("💡 TIP: Enable Auto Proximity + Auto Collect for maximum efficiency!")
-print("💡 TIP: Use God Mode + Noclip + Speed for easy exploration!")
-print("💡 TIP: Enable Rush/Ambush Alerts for safety warnings!")
-print("")
-print("=" .. string.rep("=", 80) .. "=")
-print("✨ WENER HUB v4.0 ULTIMATE - THE MOST COMPLETE DOORS SCRIPT")
-print("🎯 Smart Auto Proximity + All Features + Fixed Systems")
-print("Made by Wener Team | Full Compatibility | Mobile & Desktop")
-print("=" .. string.rep("=", 80) .. "=")
-print("")
-print("🎉 READY TO USE! Check the GUI for all features!")
-print("🎯 NEW FEATURE: Auto Proximity in dedicated tab!")
-print("📱 All features accessible from clean tab interface!")
-print("")
-
--- ============================================================================
--- ADDITIONAL HELPER FUNCTIONS
--- ============================================================================
-
--- Create mobile-friendly quick access panel
-task.spawn(function()
-    task.wait(5) -- Wait for full initialization
+local function enableInfiniteVitamins()
+    infVitaminsEnabled = true
     
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    infVitaminsConnection = RunService.Heartbeat:Connect(function()
+        if not infVitaminsEnabled then return end
+        
+        pcall(function()
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                local vitaminsEffect = player.Character.Humanoid:FindFirstChild("VitaminsEffect")
+                if vitaminsEffect and vitaminsEffect.Value then
+                    vitaminsEffect.Value = true
+                end
+            end
+        end)
+    end)
+    
+    print("💊 Infinite Vitamins: ENABLED")
+    createAdvancedNotification(
+        "💊 INFINITE VITAMINS ACTIVATED",
+        "Vitamins effect will never run out!",
+        Color3.fromRGB(0, 255, 0),
+        4,
+        true
+    )
+end
+
+local function disableInfiniteVitamins()
+    infVitaminsEnabled = false
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    print("💊 Infinite Vitamins: DISABLED")
+    createAdvancedNotification(
+        "💊 INFINITE VITAMINS DEACTIVATED",
+        "Vitamins effect will work normally.",
+        Color3.fromRGB(255, 0, 0),
+        3,
+        false
+    )
+end
+
+-- ============================================================================
+-- INSTANT INTERACT
+-- ============================================================================
+
+local function enableInstantInteract()
+    instantInteractEnabled = true
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("ProximityPrompt") then
+            obj.HoldDuration = 0
+        end
+    end
+    
+    workspace.DescendantAdded:Connect(function(descendant)
+        if instantInteractEnabled and descendant:IsA("ProximityPrompt") then
+            descendant.HoldDuration = 0
+        end
+    end)
+    
+    print("⚡ Instant Interact: ENABLED")
+    createAdvancedNotification(
+        "⚡ INSTANT INTERACT ACTIVATED",
+        "All proximity prompts now have zero hold time!",
+        Color3.fromRGB(255, 255, 0),
+        4,
+        true
+    )
+end
+
+local function disableInstantInteract()
+    instantInteractEnabled = false
+    print("⚡ Instant Interact: DISABLED")
+end
+
+-- ============================================================================
+-- INSTANT RESPAWN
+-- ============================================================================
+
+local function instantRespawn()
+    if player.Character then
+        player.Character:BreakJoints()
+        createAdvancedNotification(
+            "🔄 RESPAWNING",
+            "Your character is respawning...",
+            Color3.fromRGB(0, 255, 255),
+            3,
+            true
+        )
+        print("🔄 Character respawning...")
+    end
+end
+
+-- ============================================================================
+-- MANUAL UI CREATION SYSTEM
+-- ============================================================================
+
+local function createManualUI()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerUltimateManualHub"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    -- Main Frame
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 500, 0, 600)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -300)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainFrame.BackgroundTransparency = 0.05
+    MainFrame.BorderSizePixel = 0
+    MainFrame.ZIndex = 10000
+    MainFrame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 20)
+    Corner.Parent = MainFrame
+    
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(139, 0, 255)
+    Stroke.Thickness = 3
+    Stroke.Parent = MainFrame
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(15, 15, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 139))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = MainFrame
+    
+    -- Title Bar
+    local TitleBar = Instance.new("Frame")
+    TitleBar.Size = UDim2.new(1, 0, 0, 60)
+    TitleBar.Position = UDim2.new(0, 0, 0, 0)
+    TitleBar.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    TitleBar.BorderSizePixel = 0
+    TitleBar.ZIndex = 10001
+    TitleBar.Parent = MainFrame
+    
+    local TitleCorner = Instance.new("UICorner")
+    TitleCorner.CornerRadius = UDim.new(0, 20)
+    TitleCorner.Parent = TitleBar
+    
+    local TitleBottom = Instance.new("Frame")
+    TitleBottom.Size = UDim2.new(1, 0, 0, 20)
+    TitleBottom.Position = UDim2.new(0, 0, 1, -20)
+    TitleBottom.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    TitleBottom.BorderSizePixel = 0
+    TitleBottom.ZIndex = 10001
+    TitleBottom.Parent = TitleBar
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, -80, 1, 0)
+    Title.Position = UDim2.new(0, 20, 0, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "🎮 WENER HUB v4.0 ULTIMATE"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 20
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.TextStrokeTransparency = 0.5
+    Title.ZIndex = 10002
+    Title.Parent = TitleBar
+    
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Size = UDim2.new(1, -80, 0, 20)
+    Subtitle.Position = UDim2.new(0, 20, 0, 35)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Text = "Complete Edition - Manual UI Mode"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.TextSize = 14
+    Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+    Subtitle.ZIndex = 10002
+    Subtitle.Parent = TitleBar
+    
+    -- Close Button
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Size = UDim2.new(0, 35, 0, 35)
+    CloseButton.Position = UDim2.new(1, -45, 0, 12.5)
+    CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    CloseButton.Text = "✕"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.TextSize = 18
+    CloseButton.ZIndex = 10002
+    CloseButton.Parent = TitleBar
+    
+    local CloseCorner = Instance.new("UICorner")
+    CloseCorner.CornerRadius = UDim.new(0, 10)
+    CloseCorner.Parent = CloseButton
+    
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui.Enabled = false
+    end)
+    
+    -- Minimize Button
+    local MinimizeButton = Instance.new("TextButton")
+    MinimizeButton.Size = UDim2.new(0, 35, 0, 35)
+    MinimizeButton.Position = UDim2.new(1, -90, 0, 12.5)
+    MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+    MinimizeButton.Text = "—"
+    MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MinimizeButton.Font = Enum.Font.GothamBold
+    MinimizeButton.TextSize = 18
+    MinimizeButton.ZIndex = 10002
+    MinimizeButton.Parent = TitleBar
+    
+    local MinimizeCorner = Instance.new("UICorner")
+    MinimizeCorner.CornerRadius = UDim.new(0, 10)
+    MinimizeCorner.Parent = MinimizeButton
+    
+    local isMinimized = false
+    MinimizeButton.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        if isMinimized then
+            MainFrame:TweenSize(UDim2.new(0, 500, 0, 60), "Out", "Quad", 0.3, true)
+        else
+            MainFrame:TweenSize(UDim2.new(0, 500, 0, 600), "Out", "Quad", 0.3, true)
+        end
+    end)
+    
+    -- Content Frame
+    local ContentFrame = Instance.new("ScrollingFrame")
+    ContentFrame.Size = UDim2.new(1, -30, 1, -80)
+    ContentFrame.Position = UDim2.new(0, 15, 0, 70)
+    ContentFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    ContentFrame.BackgroundTransparency = 0.3
+    ContentFrame.BorderSizePixel = 0
+    ContentFrame.ScrollBarThickness = 10
+    ContentFrame.ScrollBarImageColor3 = Color3.fromRGB(139, 0, 255)
+    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 2000)
+    ContentFrame.ZIndex = 10001
+    ContentFrame.Parent = MainFrame
+    
+    local ContentCorner = Instance.new("UICorner")
+    ContentCorner.CornerRadius = UDim.new(0, 15)
+    ContentCorner.Parent = ContentFrame
+    
+    local UILayout = Instance.new("UIListLayout")
+    UILayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UILayout.Padding = UDim.new(0, 10)
+    UILayout.Parent = ContentFrame
+    
+    local UIPadding = Instance.new("UIPadding")
+    UIPadding.PaddingTop = UDim.new(0, 10)
+    UIPadding.PaddingLeft = UDim.new(0, 10)
+    UIPadding.PaddingRight = UDim.new(0, 10)
+    UIPadding.PaddingBottom = UDim.new(0, 10)
+    UIPadding.Parent = ContentFrame
+    
+    -- Make draggable
+    local dragging = false
+    local dragInput, dragStart, startPos
+    
+    TitleBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = MainFrame.Position
+        end
+    end)
+    
+    TitleBar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    
+    print("✅ Manual UI frame created successfully!")
+    return ScreenGui, ContentFrame
+end
+
+-- ============================================================================
+-- UI ELEMENT CREATORS
+-- ============================================================================
+
+local function createLabel(parent, text, layoutOrder)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1, -20, 0, 35)
+    Label.Position = UDim2.new(0, 10, 0, 0)
+    Label.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    Label.BackgroundTransparency = 0.4
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.Font = Enum.Font.GothamBold
+    Label.TextSize = 18
+    Label.TextStrokeTransparency = 0.5
+    Label.ZIndex = 10002
+    Label.LayoutOrder = layoutOrder or 1
+    Label.Parent = parent
+    
+    local LabelCorner = Instance.new("UICorner")
+    LabelCorner.CornerRadius = UDim.new(0, 10)
+    LabelCorner.Parent = Label
+    
+    local LabelGradient = Instance.new("UIGradient")
+    LabelGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 139))
+    })
+    LabelGradient.Rotation = 90
+    LabelGradient.Parent = Label
+    
+    return Label
+end
+
+local function createButton(parent, text, callback, layoutOrder, color)
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(1, -20, 0, 45)
+    Button.Position = UDim2.new(0, 10, 0, 0)
+    Button.BackgroundColor3 = color or Color3.fromRGB(139, 0, 255)
+    Button.BackgroundTransparency = 0.2
+    Button.Text = text
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.Font = Enum.Font.GothamBold
+    Button.TextSize = 16
+    Button.TextStrokeTransparency = 0.5
+    Button.ZIndex = 10002
+    Button.LayoutOrder = layoutOrder or 1
+    Button.Parent = parent
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 10)
+    ButtonCorner.Parent = Button
+    
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Color = Color3.fromRGB(200, 200, 200)
+    ButtonStroke.Thickness = 1
+    ButtonStroke.Transparency = 0.5
+    ButtonStroke.Parent = Button
+    
+    Button.MouseButton1Click:Connect(function()
+        Button.BackgroundTransparency = 0
+        task.wait(0.1)
+        Button.BackgroundTransparency = 0.2
+        
+        pcall(callback)
+    end)
+    
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundTransparency = 0,
+            Size = UDim2.new(1, -15, 0, 48)
+        }):Play()
+    end)
+    
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfo.new(0.2), {
+            BackgroundTransparency = 0.2,
+            Size = UDim2.new(1, -20, 0, 45)
+        }):Play()
+    end)
+    
+    return Button
+end
+
+local function createToggle(parent, text, callback, layoutOrder)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Size = UDim2.new(1, -20, 0, 50)
+    ToggleFrame.Position = UDim2.new(0, 10, 0, 0)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    ToggleFrame.BackgroundTransparency = 0.2
+    ToggleFrame.ZIndex = 10002
+    ToggleFrame.LayoutOrder = layoutOrder or 1
+    ToggleFrame.Parent = parent
+    
+    local ToggleCorner = Instance.new("UICorner")
+    ToggleCorner.CornerRadius = UDim.new(0, 10)
+    ToggleCorner.Parent = ToggleFrame
+    
+    local ToggleStroke = Instance.new("UIStroke")
+    ToggleStroke.Color = Color3.fromRGB(100, 100, 100)
+    ToggleStroke.Thickness = 1
+    ToggleStroke.Transparency = 0.5
+    ToggleStroke.Parent = ToggleFrame
+    
+    local ToggleLabel = Instance.new("TextLabel")
+    ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    ToggleLabel.Position = UDim2.new(0, 15, 0, 0)
+    ToggleLabel.BackgroundTransparency = 1
+    ToggleLabel.Text = text
+    ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleLabel.Font = Enum.Font.Gotham
+    ToggleLabel.TextSize = 15
+    ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    ToggleLabel.TextStrokeTransparency = 0.5
+    ToggleLabel.ZIndex = 10003
+    ToggleLabel.Parent = ToggleFrame
+    
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Size = UDim2.new(0, 70, 0, 30)
+    ToggleButton.Position = UDim2.new(1, -80, 0.5, -15)
+    ToggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    ToggleButton.Text = "OFF"
+    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButton.Font = Enum.Font.GothamBold
+    ToggleButton.TextSize = 14
+    ToggleButton.ZIndex = 10003
+    ToggleButton.Parent = ToggleFrame
+    
+    local ToggleBtnCorner = Instance.new("UICorner")
+    ToggleBtnCorner.CornerRadius = UDim.new(0, 15)
+    ToggleBtnCorner.Parent = ToggleButton
+    
+    local toggled = false
+    
+    ToggleButton.MouseButton1Click:Connect(function()
+        toggled = not toggled
+        
+        if toggled then
+            TweenService:Create(ToggleButton, TweenInfo.new(0.3), {
+                BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            }):Play()
+            ToggleButton.Text = "ON"
+            ToggleStroke.Color = Color3.fromRGB(0, 255, 0)
+        else
+            TweenService:Create(ToggleButton, TweenInfo.new(0.3), {
+                BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            }):Play()
+            ToggleButton.Text = "OFF"
+            ToggleStroke.Color = Color3.fromRGB(100, 100, 100)
+        end
+        
+        pcall(function()
+            callback(toggled)
+        end)
+    end)
+    
+    return ToggleFrame, ToggleButton
+end
+
+local function createSlider(parent, text, min, max, callback, layoutOrder)
+    local SliderFrame = Instance.new("Frame")
+    SliderFrame.Size = UDim2.new(1, -20, 0, 70)
+    SliderFrame.Position = UDim2.new(0, 10, 0, 0)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    SliderFrame.BackgroundTransparency = 0.2
+    SliderFrame.ZIndex = 10002
+    SliderFrame.LayoutOrder = layoutOrder or 1
+    SliderFrame.Parent = parent
+    
+    local SliderCorner = Instance.new("UICorner")
+    SliderCorner.CornerRadius = UDim.new(0, 10)
+    SliderCorner.Parent = SliderFrame
+    
+    local SliderStroke = Instance.new("UIStroke")
+    SliderStroke.Color = Color3.fromRGB(139, 0, 255)
+    SliderStroke.Thickness = 1
+    SliderStroke.Transparency = 0.5
+    SliderStroke.Parent = SliderFrame
+    
+    local SliderLabel = Instance.new("TextLabel")
+    SliderLabel.Size = UDim2.new(1, -20, 0, 30)
+    SliderLabel.Position = UDim2.new(0, 10, 0, 5)
+    SliderLabel.BackgroundTransparency = 1
+    SliderLabel.Text = text .. ": " .. min
+    SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SliderLabel.Font = Enum.Font.GothamBold
+    SliderLabel.TextSize = 16
+    SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+    SliderLabel.TextStrokeTransparency = 0.5
+    SliderLabel.ZIndex = 10003
+    SliderLabel.Parent = SliderFrame
+    
+    local SliderBar = Instance.new("Frame")
+    SliderBar.Size = UDim2.new(1, -40, 0, 8)
+    SliderBar.Position = UDim2.new(0, 20, 0, 50)
+    SliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    SliderBar.BorderSizePixel = 0
+    SliderBar.ZIndex = 10003
+    SliderBar.Parent = SliderFrame
+    
+    local SliderBarCorner = Instance.new("UICorner")
+    SliderBarCorner.CornerRadius = UDim.new(1, 0)
+    SliderBarCorner.Parent = SliderBar
+    
+    local SliderFill = Instance.new("Frame")
+    SliderFill.Size = UDim2.new(0, 0, 1, 0)
+    SliderFill.Position = UDim2.new(0, 0, 0, 0)
+    SliderFill.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    SliderFill.BorderSizePixel = 0
+    SliderFill.ZIndex = 10004
+    SliderFill.Parent = SliderBar
+    
+    local SliderFillCorner = Instance.new("UICorner")
+    SliderFillCorner.CornerRadius = UDim.new(1, 0)
+    SliderFillCorner.Parent = SliderFill
+    
+    local SliderDot = Instance.new("Frame")
+    SliderDot.Size = UDim2.new(0, 20, 0, 20)
+    SliderDot.Position = UDim2.new(0, -10, 0.5, -10)
+    SliderDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SliderDot.BorderSizePixel = 0
+    SliderDot.ZIndex = 10005
+    SliderDot.Parent = SliderFill
+    
+    local SliderDotCorner = Instance.new("UICorner")
+    SliderDotCorner.CornerRadius = UDim.new(1, 0)
+    SliderDotCorner.Parent = SliderDot
+    
+    local dragging = false
+    local currentValue = min
+    
+    local function updateSlider(input)
+        local relativePos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+        currentValue = min + (max - min) * relativePos
+        
+        SliderFill.Size = UDim2.new(relativePos, 0, 1, 0)
+        SliderLabel.Text = text .. ": " .. math.floor(currentValue * 10) / 10
+        
+        pcall(function()
+            callback(currentValue)
+        end)
+    end
+    
+    SliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateSlider(input)
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    
+    return SliderFrame
+end
+
+-- ============================================================================
+-- POPULATE MANUAL UI WITH ALL FEATURES
+-- ============================================================================
+
+local function populateManualUI(contentFrame)
+    print("📝 Populating manual UI with all features...")
+    
+    -- ===== MAIN FEATURES =====
+    createLabel(contentFrame, "⚙️ MAIN FEATURES", 1)
+    
+    createSlider(contentFrame, "⚡ Speed Multiplier", 1, 10, function(value)
+        setSpeed(16 * value)
+    end, 2)
+    
+    createToggle(contentFrame, "🛡️ God Mode (Invincibility)", function(enabled)
+        if enabled then
+            enableGodMode()
+        else
+            disableGodMode()
+        end
+    end, 3)
+    
+    createToggle(contentFrame, "👻 Noclip (Walk Through Walls)", function(enabled)
+        if enabled then
+            enableNoclip()
+        else
+            disableNoclip()
+        end
+    end, 4)
+    
+    createToggle(contentFrame, "💡 Full Bright (Maximum Visibility)", function(enabled)
+        if enabled then
+            enableFullBright()
+        else
+            disableFullBright()
+        end
+    end, 5)
+    
+    createButton(contentFrame, "🔄 Instant Respawn", function()
+        instantRespawn()
+    end, 6, Color3.fromRGB(0, 200, 255))
+    
+    createButton(contentFrame, "🚪 Teleport to Latest Room", function()
+        teleportToLatestRoom()
+    end, 7, Color3.fromRGB(0, 255, 100))
+    
+    -- ===== AUTO PROXIMITY =====
+    createLabel(contentFrame, "🎯 SMART AUTO PROXIMITY", 8)
+    
+    createToggle(contentFrame, "🎯 Enable Auto Proximity (Smart)", function(enabled)
+        if enabled then
+            enableAutoProximity()
+        else
+            disableAutoProximity()
+        end
+    end, 9)
+    
+    createButton(contentFrame, "ℹ️ About Auto Proximity", function()
+        createAdvancedNotification(
+            "🎯 SMART AUTO PROXIMITY INFO",
+            "Automatically activates ALL proximity prompts EXCEPT:\n• Wardrobes\n• Lockers\n• Hiding spots\n• Storage furniture\n\nPerfect for speed runs and item collection! No more manual clicking!",
+            Color3.fromRGB(0, 255, 255),
+            8,
+            false
+        )
+    end, 10, Color3.fromRGB(0, 150, 200))
+    
+    -- ===== AUTOMATION =====
+    createLabel(contentFrame, "🤖 AUTOMATION FEATURES", 11)
+    
+    createToggle(contentFrame, "📦 Auto Collect Items", function(enabled)
+        if enabled then
+            enableAutoCollect()
+        else
+            disableAutoCollect()
+        end
+    end, 12)
+    
+    createToggle(contentFrame, "💊 Infinite Vitamins Effect", function(enabled)
+        if enabled then
+            enableInfiniteVitamins()
+        else
+            disableInfiniteVitamins()
+        end
+    end, 13)
+    
+    createToggle(contentFrame, "⚡ Instant Interact (No Hold)", function(enabled)
+        if enabled then
+            enableInstantInteract()
+        else
+            disableInstantInteract()
+        end
+    end, 14)
+    
+    -- ===== ESP SYSTEM =====
+    createLabel(contentFrame, "👁️ ESP VISUALIZATION", 15)
+    
+    createToggle(contentFrame, "🚪 Door ESP", function(enabled)
+        doorEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 16)
+    
+    createToggle(contentFrame, "🗝️ Key ESP", function(enabled)
+        keyEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 17)
+    
+    createToggle(contentFrame, "📦 Item ESP", function(enabled)
+        itemEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 18)
+    
+    createToggle(contentFrame, "📚 Book ESP (Figure Books)", function(enabled)
+        bookEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 19)
+    
+    createToggle(contentFrame, "👹 Entity ESP", function(enabled)
+        entityEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 20)
+    
+    createToggle(contentFrame, "👤 Player ESP", function(enabled)
+        playerEspEnabled = enabled
+        if enabled then
+            updateAllESP()
+        else
+            clearAllESP()
+        end
+    end, 21)
+    
+    createButton(contentFrame, "🔄 Refresh All ESP", function()
+        updateAllESP()
+        createAdvancedNotification(
+            "🔄 ESP REFRESHED",
+            "All ESP systems have been updated!",
+            Color3.fromRGB(0, 255, 255),
+            3,
+            true
+        )
+    end, 22, Color3.fromRGB(0, 200, 255))
+    
+    createButton(contentFrame, "🗑️ Clear All ESP", function()
+        doorEspEnabled = false
+        keyEspEnabled = false
+        itemEspEnabled = false
+        bookEspEnabled = false
+        entityEspEnabled = false
+        playerEspEnabled = false
+        clearAllESP()
+        createAdvancedNotification(
+            "🗑️ ESP CLEARED",
+            "All ESP has been removed!",
+            Color3.fromRGB(255, 100, 0),
+            3,
+            false
+        )
+    end, 23, Color3.fromRGB(255, 50, 50))
+    
+    -- ===== NOTIFICATIONS =====
+    createLabel(contentFrame, "🔔 ENTITY NOTIFICATIONS", 24)
+    
+    createToggle(contentFrame, "⚡ Rush/Ambush Alerts", function(enabled)
+        rushNotifEnabled = enabled
+        setupEntityNotifications()
+    end, 25)
+    
+    createToggle(contentFrame, "👹 All Entity Alerts", function(enabled)
+        allEntityNotifications = enabled
+        setupEntityNotifications()
+    end, 26)
+    
+    -- ===== UTILITIES =====
+    createLabel(contentFrame, "🔧 UTILITIES & EXTRAS", 27)
+    
+    createButton(contentFrame, "🧪 Test Notification System", function()
+        createAdvancedNotification(
+            "🧪 NOTIFICATION TEST",
+            "The notification system is working perfectly! All systems are operational.",
+            Color3.fromRGB(139, 0, 255),
+            5,
+            true
+        )
+    end, 28, Color3.fromRGB(139, 0, 255))
+    
+    createButton(contentFrame, "📊 Show Status Report", function()
+        local activeFeatures = 0
+        local statusList = ""
+        
+        if godModeEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ God Mode\n" end
+        if noclipEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Noclip\n" end
+        if fullBrightEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Full Bright\n" end
+        if autoProximityEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Auto Proximity\n" end
+        if autoCollectEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Auto Collect\n" end
+        if infVitaminsEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Infinite Vitamins\n" end
+        if doorEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Door ESP\n" end
+        if keyEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Key ESP\n" end
+        if entityEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Entity ESP\n" end
+        
+        if statusList == "" then
+            statusList = "No features currently active."
+        end
+        
+        createAdvancedNotification(
+            "📊 STATUS REPORT",
+            "Active Features: " .. activeFeatures .. "/15+\n\n" .. statusList,
+            Color3.fromRGB(0, 255, 100),
+            8,
+            false
+        )
+    end, 29, Color3.fromRGB(0, 200, 100))
+    
+    createButton(contentFrame, "🔄 Rejoin Server", function()
+        createAdvancedNotification(
+            "🔄 REJOINING SERVER",
+            "Teleporting to the same server...",
+            Color3.fromRGB(255, 165, 0),
+            3,
+            true
+        )
+        task.wait(1)
+        TeleportService:Teleport(game.PlaceId, player)
+    end, 30, Color3.fromRGB(255, 165, 0))
+    
+    createButton(contentFrame, "❌ Destroy GUI (Can't Undo)", function()
+        createAdvancedNotification(
+            "❌ DESTROYING GUI",
+            "The GUI will be destroyed in 3 seconds. Re-execute the script to bring it back.",
+            Color3.fromRGB(255, 0, 0),
+            3,
+            false
+        )
+        task.wait(3)
+        if MainWindow then
+            MainWindow:Destroy()
+        end
+    end, 31, Color3.fromRGB(200, 0, 0))
+    
+    -- ===== INFO SECTION =====
+    createLabel(contentFrame, "ℹ️ ABOUT WENER HUB v4.0", 32)
+    
+    local InfoFrame = Instance.new("Frame")
+    InfoFrame.Size = UDim2.new(1, -20, 0, 150)
+    InfoFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    InfoFrame.BackgroundTransparency = 0.3
+    InfoFrame.BorderSizePixel = 0
+    InfoFrame.ZIndex = 10002
+    InfoFrame.LayoutOrder = 33
+    InfoFrame.Parent = contentFrame
+    
+    local InfoCorner = Instance.new("UICorner")
+    InfoCorner.CornerRadius = UDim.new(0, 10)
+    InfoCorner.Parent = InfoFrame
+    
+    local InfoText = Instance.new("TextLabel")
+    InfoText.Size = UDim2.new(1, -20, 1, -20)
+    InfoText.Position = UDim2.new(0, 10, 0, 10)
+    InfoText.BackgroundTransparency = 1
+    InfoText.Text = "🎮 WENER HUB v4.0 ULTIMATE COMPLETE EDITION\n\n✨ All Features Working\n🎯 Smart Auto Proximity\n👁️ Advanced ESP System\n🤖 Complete Automation\n👹 Entity Detection\n📱 Mobile & PC Compatible\n\nMade by Wener Team\nManual UI Mode Active"
+    InfoText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    InfoText.Font = Enum.Font.Gotham
+    InfoText.TextSize = 14
+    InfoText.TextWrapped = true
+    InfoText.TextXAlignment = Enum.TextXAlignment.Left
+    InfoText.TextYAlignment = Enum.TextYAlignment.Top
+    InfoText.ZIndex = 10003
+    InfoText.Parent = InfoFrame
+    
+    -- Update canvas size
+    task.wait(0.1)
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, UILayout.AbsoluteContentSize.Y + 20)
+    
+    print("✅ Manual UI populated with all features!")
+end
+
+-- ============================================================================
+-- MOBILE QUICK ACCESS PANEL
+-- ============================================================================
+
+local function createMobileQuickAccess()
     local MobileGui = Instance.new("ScreenGui")
-    MobileGui.Name = "WenerMobileQuick"
+    MobileGui.Name = "WenerUltimateMobileQuick"
     MobileGui.ResetOnSpawn = false
     MobileGui.Parent = CoreGui
     MobileGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
     local QuickFrame = Instance.new("Frame")
-    QuickFrame.Size = UDim2.new(0, 200, 0, 220)
-    QuickFrame.Position = UDim2.new(0, 10, 0.5, -110)
+    QuickFrame.Size = UDim2.new(0, 220, 0, 280)
+    QuickFrame.Position = UDim2.new(0, 10, 0.5, -140)
     QuickFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    QuickFrame.BackgroundTransparency = 0.3
+    QuickFrame.BackgroundTransparency = 0.2
     QuickFrame.BorderSizePixel = 0
     QuickFrame.ZIndex = 99998
     QuickFrame.Parent = MobileGui
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.CornerRadius = UDim.new(0, 15)
     Corner.Parent = QuickFrame
     
     local Stroke = Instance.new("UIStroke")
@@ -1439,50 +2150,39 @@ task.spawn(function()
     Stroke.Parent = QuickFrame
     
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, -10, 0, 30)
-    Title.Position = UDim2.new(0, 5, 0, 5)
+    Title.Size = UDim2.new(1, -15, 0, 35)
+    Title.Position = UDim2.new(0, 10, 0, 5)
     Title.BackgroundTransparency = 1
     Title.Text = "⚡ QUICK ACCESS"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 14
+    Title.TextSize = 16
     Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.TextStrokeTransparency = 0.5
     Title.ZIndex = 99999
     Title.Parent = QuickFrame
     
     local quickButtons = {
         {name = "🎯 Auto Proximity", callback = function() 
             autoProximityEnabled = not autoProximityEnabled
-            if autoProximityEnabled then
-                enableAutoProximity()
-            else
-                disableAutoProximity()
-            end
+            if autoProximityEnabled then enableAutoProximity() else disableAutoProximity() end
         end},
         {name = "📦 Auto Collect", callback = function() 
             autoCollectEnabled = not autoCollectEnabled
-            if autoCollectEnabled then
-                enableAutoCollect()
-            else
-                disableAutoCollect()
-            end
+            if autoCollectEnabled then enableAutoCollect() else disableAutoCollect() end
         end},
         {name = "⚡ Speed x3", callback = function() setSpeed(48) end},
         {name = "🛡️ God Mode", callback = function() 
             godModeEnabled = not godModeEnabled
-            if godModeEnabled then
-                enableGodMode()
-            else
-                disableGodMode()
-            end
+            if godModeEnabled then enableGodMode() else disableGodMode() end
         end},
         {name = "👻 Noclip", callback = function() 
             noclipEnabled = not noclipEnabled
-            if noclipEnabled then
-                enableNoclip()
-            else
-                disableNoclip()
-            end
+            if noclipEnabled then enableNoclip() else disableNoclip() end
+        end},
+        {name = "💡 Full Bright", callback = function() 
+            fullBrightEnabled = not fullBrightEnabled
+            if fullBrightEnabled then enableFullBright() else disableFullBright() end
         end},
         {name = "👁️ All ESP", callback = function() 
             doorEspEnabled = true
@@ -1495,349 +2195,508 @@ task.spawn(function()
     
     for i, buttonData in pairs(quickButtons) do
         local QuickButton = Instance.new("TextButton")
-        QuickButton.Size = UDim2.new(0.95, 0, 0, 28)
-        QuickButton.Position = UDim2.new(0.025, 0, 0, 40 + (i-1) * 32)
+        QuickButton.Size = UDim2.new(0.95, 0, 0, 32)
+        QuickButton.Position = UDim2.new(0.025, 0, 0, 45 + (i-1) * 36)
         QuickButton.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
         QuickButton.BackgroundTransparency = 0.3
         QuickButton.Text = buttonData.name
         QuickButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        QuickButton.Font = Enum.Font.Gotham
-        QuickButton.TextSize = 12
+        QuickButton.Font = Enum.Font.GothamBold
+        QuickButton.TextSize = 13
         QuickButton.ZIndex = 99999
         QuickButton.Parent = QuickFrame
         
-        local ButtonCorner = Instance.new("UICorner")
+        local Button
+Corner = Instance.new("UICorner")
         ButtonCorner.CornerRadius = UDim.new(0, 8)
         ButtonCorner.Parent = QuickButton
         
         QuickButton.MouseButton1Click:Connect(function()
-            -- Visual feedback
             QuickButton.BackgroundTransparency = 0
             task.wait(0.1)
             QuickButton.BackgroundTransparency = 0.3
-            
-            -- Execute callback
             buttonData.callback()
         end)
     end
     
-    -- Make draggable
-    local dragging = false
-    local dragInput, dragStart, startPos
+    -- Collapse button
+    local CollapseButton = Instance.new("TextButton")
+    CollapseButton.Size = UDim2.new(0, 25, 0, 25)
+    CollapseButton.Position = UDim2.new(1, -30, 0, 7)
+    CollapseButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+    CollapseButton.Text = "◄"
+    CollapseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CollapseButton.Font = Enum.Font.GothamBold
+    CollapseButton.TextSize = 14
+    CollapseButton.ZIndex = 99999
+    CollapseButton.Parent = QuickFrame
     
-    QuickFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = QuickFrame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+    local CollapseCorner = Instance.new("UICorner")
+    CollapseCorner.CornerRadius = UDim.new(0, 12)
+    CollapseCorner.Parent = CollapseButton
+    
+    local collapsed = false
+    CollapseButton.MouseButton1Click:Connect(function()
+        collapsed = not collapsed
+        if collapsed then
+            QuickFrame:TweenPosition(UDim2.new(0, -180, 0.5, -140), "Out", "Quad", 0.3, true)
+            CollapseButton.Text = "►"
+        else
+            QuickFrame:TweenPosition(UDim2.new(0, 10, 0.5, -140), "Out", "Quad", 0.3, true)
+            CollapseButton.Text = "◄"
         end
     end)
     
-    QuickFrame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            QuickFrame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    
-    print("📱 Mobile Quick Access Panel created!")
-end)
+    print("📱 Mobile quick access panel created!")
+    return MobileGui
+end
 
--- Auto-update ESP every 3 seconds
-task.spawn(function()
-    while true do
-        task.wait(3)
-        if doorEspEnabled or keyEspEnabled or itemEspEnabled or bookEspEnabled or entityEspEnabled or playerEspEnabled then
-            updateAllESP()
-        end
-    end
-end)
+-- ============================================================================
+-- INITIALIZE COMPLETE SYSTEM
+-- ============================================================================
 
--- Performance monitor (optional)
-task.spawn(function()
-    local lastMemory = 0
-    while true do
-        task.wait(30)
+local function initializeCompleteSystem()
+    print("🚀 ========================================")
+    print("🚀 WENER HUB v4.0 ULTIMATE COMPLETE")
+    print("🚀 Starting full initialization...")
+    print("🚀 ========================================")
+    
+    -- Show loading screen
+    print("📺 Creating loading screen...")
+    local loadingScreen = createLoadingScreen()
+    
+    -- Wait for loading animation to complete
+    task.wait(14)
+    
+    print("🎨 Attempting to load Rayfield UI...")
+    
+    -- Try Rayfield first
+    local rayfieldSuccess = false
+    pcall(function()
+        local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
         
-        local currentMemory = collectgarbage("count")
-        if currentMemory - lastMemory > 10000 then -- If memory increased by 10MB
-            print("🧹 Running garbage collection...")
-            collectgarbage("collect")
-        end
-        lastMemory = currentMemory
-    end
-end)
-
--- Auto-rejoin on kick (optional safety feature)
-player.Kicked:Connect(function(reason)
-    print("⚠️ Player was kicked: " .. tostring(reason))
-    task.wait(1)
-    TeleportService:Teleport(game.PlaceId, player)
-end)
-
--- ============================================================================
--- ADVANCED FEATURE: AUTO-DETECT NEW ROOMS
--- ============================================================================
-
-task.spawn(function()
-    local currentRooms = workspace:FindFirstChild("CurrentRooms")
-    if not currentRooms then return end
-    
-    local lastRoomNumber = 0
-    
-    currentRooms.ChildAdded:Connect(function(room)
-        if tonumber(room.Name) then
-            local roomNumber = tonumber(room.Name)
+        if Rayfield then
+            print("✅ Rayfield loaded successfully!")
+            rayfieldSuccess = true
             
-            if roomNumber > lastRoomNumber then
-                lastRoomNumber = roomNumber
-                
-                -- Notify player of new room
-                task.wait(1)
-                createAdvancedNotification(
-                    "🚪 NEW ROOM DETECTED",
-                    "Room " .. roomNumber .. " has been loaded!",
-                    Color3.fromRGB(0, 255, 0),
-                    3,
-                    false
-                )
-                
-                -- Auto-update ESP for new room
-                if doorEspEnabled or keyEspEnabled or itemEspEnabled then
-                    task.wait(0.5)
+            local Window = Rayfield:CreateWindow({
+                Name = "🎮 WENER HUB v4.0 ULTIMATE",
+                LoadingTitle = "WENER HUB Loading...",
+                LoadingSubtitle = "Complete Edition",
+                ConfigurationSaving = {
+                    Enabled = true,
+                    FolderName = "WenerHubUltimate",
+                    FileName = "WenerConfig"
+                },
+                Discord = {
+                    Enabled = false,
+                    Invite = "noinvite",
+                    RememberJoins = true
+                },
+                KeySystem = false
+            })
+            
+            MainWindow = Window
+            
+            -- ===== MAIN TAB =====
+            local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
+            
+            local SpeedSlider = MainTab:CreateSlider({
+                Name = "⚡ Speed Multiplier",
+                Range = {1, 10},
+                Increment = 0.5,
+                Suffix = "x",
+                CurrentValue = 1,
+                Flag = "SpeedSlider",
+                Callback = function(Value)
+                    setSpeed(16 * Value)
+                end,
+            })
+            
+            local GodModeToggle = MainTab:CreateToggle({
+                Name = "🛡️ God Mode (Invincibility)",
+                CurrentValue = false,
+                Flag = "GodModeToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableGodMode()
+                    else
+                        disableGodMode()
+                    end
+                end,
+            })
+            
+            local NoclipToggle = MainTab:CreateToggle({
+                Name = "👻 Noclip (Walk Through Walls)",
+                CurrentValue = false,
+                Flag = "NoclipToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableNoclip()
+                    else
+                        disableNoclip()
+                    end
+                end,
+            })
+            
+            local FullBrightToggle = MainTab:CreateToggle({
+                Name = "💡 Full Bright (Maximum Visibility)",
+                CurrentValue = false,
+                Flag = "FullBrightToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableFullBright()
+                    else
+                        disableFullBright()
+                    end
+                end,
+            })
+            
+            local RespawnButton = MainTab:CreateButton({
+                Name = "🔄 Instant Respawn",
+                Callback = function()
+                    instantRespawn()
+                end,
+            })
+            
+            local TeleportButton = MainTab:CreateButton({
+                Name = "🚪 Teleport to Latest Room",
+                Callback = function()
+                    teleportToLatestRoom()
+                end,
+            })
+            
+            MainTab:CreateSection("🎯 Smart Auto Proximity")
+            
+            local AutoProximityToggle = MainTab:CreateToggle({
+                Name = "🎯 Enable Auto Proximity (Smart)",
+                CurrentValue = false,
+                Flag = "AutoProximityToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableAutoProximity()
+                    else
+                        disableAutoProximity()
+                    end
+                end,
+            })
+            
+            local ProximityInfoButton = MainTab:CreateButton({
+                Name = "ℹ️ About Auto Proximity",
+                Callback = function()
+                    createAdvancedNotification(
+                        "🎯 SMART AUTO PROXIMITY INFO",
+                        "Automatically activates ALL proximity prompts EXCEPT:\n• Wardrobes\n• Lockers\n• Hiding spots\n• Storage furniture\n\nPerfect for speed runs and item collection!",
+                        Color3.fromRGB(0, 255, 255),
+                        8,
+                        false
+                    )
+                end,
+            })
+            
+            -- ===== AUTOMATION TAB =====
+            local AutoTab = Window:CreateTab("🤖 Automation", 4483362458)
+            
+            local AutoCollectToggle = AutoTab:CreateToggle({
+                Name = "📦 Auto Collect Items",
+                CurrentValue = false,
+                Flag = "AutoCollectToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableAutoCollect()
+                    else
+                        disableAutoCollect()
+                    end
+                end,
+            })
+            
+            local InfVitaminsToggle = AutoTab:CreateToggle({
+                Name = "💊 Infinite Vitamins Effect",
+                CurrentValue = false,
+                Flag = "InfVitaminsToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableInfiniteVitamins()
+                    else
+                        disableInfiniteVitamins()
+                    end
+                end,
+            })
+            
+            local InstantInteractToggle = AutoTab:CreateToggle({
+                Name = "⚡ Instant Interact (No Hold)",
+                CurrentValue = false,
+                Flag = "InstantInteractToggle",
+                Callback = function(Value)
+                    if Value then
+                        enableInstantInteract()
+                    else
+                        disableInstantInteract()
+                    end
+                end,
+            })
+            
+            -- ===== ESP TAB =====
+            local ESPTab = Window:CreateTab("👁️ ESP System", 4483362458)
+            
+            local DoorESPToggle = ESPTab:CreateToggle({
+                Name = "🚪 Door ESP",
+                CurrentValue = false,
+                Flag = "DoorESPToggle",
+                Callback = function(Value)
+                    doorEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            local KeyESPToggle = ESPTab:CreateToggle({
+                Name = "🗝️ Key ESP",
+                CurrentValue = false,
+                Flag = "KeyESPToggle",
+                Callback = function(Value)
+                    keyEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            local ItemESPToggle = ESPTab:CreateToggle({
+                Name = "📦 Item ESP",
+                CurrentValue = false,
+                Flag = "ItemESPToggle",
+                Callback = function(Value)
+                    itemEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            local BookESPToggle = ESPTab:CreateToggle({
+                Name = "📚 Book ESP (Figure Books)",
+                CurrentValue = false,
+                Flag = "BookESPToggle",
+                Callback = function(Value)
+                    bookEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            local EntityESPToggle = ESPTab:CreateToggle({
+                Name = "👹 Entity ESP",
+                CurrentValue = false,
+                Flag = "EntityESPToggle",
+                Callback = function(Value)
+                    entityEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            local PlayerESPToggle = ESPTab:CreateToggle({
+                Name = "👤 Player ESP",
+                CurrentValue = false,
+                Flag = "PlayerESPToggle",
+                Callback = function(Value)
+                    playerEspEnabled = Value
+                    if Value then
+                        updateAllESP()
+                    else
+                        clearAllESP()
+                    end
+                end,
+            })
+            
+            ESPTab:CreateSection("ESP Controls")
+            
+            local RefreshESPButton = ESPTab:CreateButton({
+                Name = "🔄 Refresh All ESP",
+                Callback = function()
                     updateAllESP()
-                end
-                
-                print("🚪 New room detected: " .. roomNumber)
-            end
-        end
-    end)
-    
-    print("🔍 Room detection system active!")
-end)
-
--- ============================================================================
--- ADVANCED FEATURE: INSTANT INTERACTION (ZERO HOLD TIME)
--- ============================================================================
-
-local function enableInstantInteract()
-    instantInteractEnabled = true
-    
-    -- Override all ProximityPrompt hold durations
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then
-            obj.HoldDuration = 0
-        end
-    end
-    
-    -- Monitor new ProximityPrompts
-    workspace.DescendantAdded:Connect(function(descendant)
-        if instantInteractEnabled and descendant:IsA("ProximityPrompt") then
-            descendant.HoldDuration = 0
-        end
-    end)
-    
-    print("⚡ Instant Interact: ENABLED")
-    createAdvancedNotification(
-        "⚡ INSTANT INTERACT ENABLED",
-        "All proximity prompts now have zero hold time!",
-        Color3.fromRGB(0, 255, 0),
-        4,
-        true
-    )
-end
-
-local function disableInstantInteract()
-    instantInteractEnabled = false
-    print("⚡ Instant Interact: DISABLED")
-end
-
--- ============================================================================
--- QUALITY OF LIFE: AUTO-SAVE SETTINGS
--- ============================================================================
-
-local function saveSettings()
-    local settings = {
-        speed = currentSpeed,
-        godMode = godModeEnabled,
-        noclip = noclipEnabled,
-        fullBright = fullBrightEnabled,
-        autoProximity = autoProximityEnabled,
-        autoCollect = autoCollectEnabled,
-        doorESP = doorEspEnabled,
-        keyESP = keyEspEnabled,
-        entityESP = entityEspEnabled,
-        playerESP = playerEspEnabled,
-        itemESP = itemEspEnabled,
-        bookESP = bookEspEnabled,
-        rushNotif = rushNotifEnabled,
-        allEntityNotif = allEntityNotifications
-    }
-    
-    if writefile then
-        writefile("WenerHubSettings.json", game:GetService("HttpService"):JSONEncode(settings))
-        print("💾 Settings saved!")
-    end
-end
-
-local function loadSettings()
-    if readfile and isfile("WenerHubSettings.json") then
-        local success, settings = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(readfile("WenerHubSettings.json"))
-        end)
-        
-        if success and settings then
-            print("📂 Loading saved settings...")
+                    createAdvancedNotification(
+                        "🔄 ESP REFRESHED",
+                        "All ESP systems have been updated!",
+                        Color3.fromRGB(0, 255, 255),
+                        3,
+                        true
+                    )
+                end,
+            })
             
-            -- Apply saved settings
-            if settings.speed then setSpeed(settings.speed) end
-            if settings.godMode then enableGodMode() end
-            if settings.noclip then enableNoclip() end
-            if settings.fullBright then enableFullBright() end
-            if settings.autoProximity then enableAutoProximity() end
-            if settings.autoCollect then enableAutoCollect() end
+            local ClearESPButton = ESPTab:CreateButton({
+                Name = "🗑️ Clear All ESP",
+                Callback = function()
+                    doorEspEnabled = false
+                    keyEspEnabled = false
+                    itemEspEnabled = false
+                    bookEspEnabled = false
+                    entityEspEnabled = false
+                    playerEspEnabled = false
+                    clearAllESP()
+                    createAdvancedNotification(
+                        "🗑️ ESP CLEARED",
+                        "All ESP has been removed!",
+                        Color3.fromRGB(255, 100, 0),
+                        3,
+                        false
+                    )
+                end,
+            })
             
-            doorEspEnabled = settings.doorESP or false
-            keyEspEnabled = settings.keyESP or false
-            entityEspEnabled = settings.entityESP or false
-            playerEspEnabled = settings.playerESP or false
-            itemEspEnabled = settings.itemESP or false
-            bookEspEnabled = settings.bookESP or false
-            rushNotifEnabled = settings.rushNotif or false
-            allEntityNotifications = settings.allEntityNotif or false
+            -- ===== NOTIFICATIONS TAB =====
+            local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
             
-            if doorEspEnabled or keyEspEnabled or entityEspEnabled or playerEspEnabled or itemEspEnabled or bookEspEnabled then
-                updateAllESP()
-            end
+            local RushNotifToggle = NotifTab:CreateToggle({
+                Name = "⚡ Rush/Ambush Alerts",
+                CurrentValue = false,
+                Flag = "RushNotifToggle",
+                Callback = function(Value)
+                    rushNotifEnabled = Value
+                    setupEntityNotifications()
+                end,
+            })
             
-            if rushNotifEnabled or allEntityNotifications then
-                setupEntityNotifications()
-            end
+            local AllEntityNotifToggle = NotifTab:CreateToggle({
+                Name = "👹 All Entity Alerts",
+                CurrentValue = false,
+                Flag = "AllEntityNotifToggle",
+                Callback = function(Value)
+                    allEntityNotifications = Value
+                    setupEntityNotifications()
+                end,
+            })
             
-            print("✅ Settings loaded successfully!")
+            -- ===== UTILITIES TAB =====
+            local UtilTab = Window:CreateTab("🔧 Utilities", 4483362458)
+            
+            local TestNotifButton = UtilTab:CreateButton({
+                Name = "🧪 Test Notification System",
+                Callback = function()
+                    createAdvancedNotification(
+                        "🧪 NOTIFICATION TEST",
+                        "The notification system is working perfectly! All systems are operational.",
+                        Color3.fromRGB(139, 0, 255),
+                        5,
+                        true
+                    )
+                end,
+            })
+            
+            local StatusReportButton = UtilTab:CreateButton({
+                Name = "📊 Show Status Report",
+                Callback = function()
+                    local activeFeatures = 0
+                    local statusList = ""
+                    
+                    if godModeEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ God Mode\n" end
+                    if noclipEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Noclip\n" end
+                    if fullBrightEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Full Bright\n" end
+                    if autoProximityEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Auto Proximity\n" end
+                    if autoCollectEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Auto Collect\n" end
+                    if infVitaminsEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Infinite Vitamins\n" end
+                    if doorEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Door ESP\n" end
+                    if keyEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Key ESP\n" end
+                    if entityEspEnabled then activeFeatures = activeFeatures + 1; statusList = statusList .. "✅ Entity ESP\n" end
+                    
+                    if statusList == "" then
+                        statusList = "No features currently active."
+                    end
+                    
+                    createAdvancedNotification(
+                        "📊 STATUS REPORT",
+                        "Active Features: " .. activeFeatures .. "/15+\n\n" .. statusList,
+                        Color3.fromRGB(0, 255, 100),
+                        8,
+                        false
+                    )
+                end,
+            })
+            
+            local RejoinButton = UtilTab:CreateButton({
+                Name = "🔄 Rejoin Server",
+                Callback = function()
+                    createAdvancedNotification(
+                        "🔄 REJOINING SERVER",
+                        "Teleporting to the same server...",
+                        Color3.fromRGB(255, 165, 0),
+                        3,
+                        true
+                    )
+                    task.wait(1)
+                    TeleportService:Teleport(game.PlaceId, player)
+                end,
+            })
+            
+            -- ===== INFO TAB =====
+            local InfoTab = Window:CreateTab("ℹ️ About", 4483362458)
+            
+            InfoTab:CreateParagraph({Title = "🎮 WENER HUB v4.0 ULTIMATE", Content = "Complete Edition with all features working! This script includes:\n\n✨ All Features Working\n🎯 Smart Auto Proximity\n👁️ Advanced ESP System\n🤖 Complete Automation\n👹 Entity Detection\n📱 Mobile & PC Compatible\n\nUsing Rayfield UI Interface\nMade by Wener Team"})
+            
+            print("✅ Rayfield UI created successfully!")
+            
+            -- Show welcome notification
+            task.wait(2)
             createAdvancedNotification(
-                "📂 SETTINGS LOADED",
-                "Your previous settings have been restored!",
+                "🎉 WELCOME TO WENER HUB v4.0!",
+                "Ultimate Complete Edition loaded successfully!\n\n✅ Rayfield UI Active\n✅ All Features Ready\n✅ 15+ Features Available\n\nEnjoy your enhanced gameplay!",
                 Color3.fromRGB(0, 255, 0),
-                4,
-                false
+                10,
+                true
             )
         end
-    end
-end
-
--- Auto-save settings every 60 seconds
-task.spawn(function()
-    task.wait(10) -- Wait for initialization
-    loadSettings()
+    end)
     
-    while true do
-        task.wait(60)
-        saveSettings()
+    -- If Rayfield failed, use manual UI
+    if not rayfieldSuccess then
+        print("⚠️ Rayfield failed to load, creating manual UI fallback...")
+        isManualUI = true
+        
+        local manualGui, contentFrame = createManualUI()
+        MainWindow = manualGui
+        
+        populateManualUI(contentFrame)
+        
+        print("✅ Manual UI system loaded successfully!")
+        
+        -- Show welcome notification for manual UI
+        task.wait(2)
+        createAdvancedNotification(
+            "🎉 WELCOME TO WENER HUB v4.0!",
+            "Ultimate Complete Edition loaded successfully!\n\n✅ Manual UI Active (Rayfield Fallback)\n✅ All Features Ready\n✅ 15+ Features Available\n\nEnjoy your enhanced gameplay!",
+            Color3.fromRGB(0, 255, 0),
+            10,
+            true
+        )
     end
-end)
-
--- Save on exit
-game:GetService("CoreGui").DescendantRemoving:Connect(function(obj)
-    if obj.Name == "Rayfield" then
-        saveSettings()
-    end
-end)
-
--- ============================================================================
--- FINAL STATUS REPORT
--- ============================================================================
-
-task.spawn(function()
-    task.wait(3)
     
-    print("")
-    print("=" .. string.rep("=", 80) .. "=")
-    print("📊 WENER HUB v4.0 ULTIMATE - STATUS REPORT")
-    print("=" .. string.rep("=", 80) .. "=")
-    print("")
-    print("✅ Core Systems:")
-    print("   • Rayfield GUI: Loaded")
-    print("   • Corner Logo: Active")
-    print("   • Mobile Quick Access: Created")
-    print("   • ESP System: Ready")
-    print("   • Notification System: Active")
-    print("")
-    print("✅ Main Features:")
-    print("   • Speed Control: Ready")
-    print("   • God Mode: Ready")
-    print("   • Noclip: Ready")
-    print("   • Full Bright: Ready")
-    print("")
-    print("✅ Automation:")
-    print("   • 🎯 Auto Proximity: Ready (NEW!)")
-    print("   • Auto Collect: Ready")
-    print("   • Infinite Vitamins: Ready")
-    print("")
-    print("✅ ESP Types:")
-    print("   • Door ESP: Ready")
-    print("   • Key ESP: Ready")
-    print("   • Item ESP: Ready")
-    print("   • Book ESP: Ready")
-    print("   • Entity ESP: Ready")
-    print("   • Player ESP: Ready")
-    print("")
-    print("✅ Notifications:")
-    print("   • Rush/Ambush Alerts: Ready")
-    print("   • All Entity Alerts: Ready")
-    print("   • Room Detection: Active")
-    print("")
-    print("✅ Additional Features:")
-    print("   • Settings Auto-Save: Active")
-    print("   • Performance Monitor: Active")
-    print("   • Auto-Rejoin: Active")
-    print("   • Room Detection: Active")
-    print("")
-    print("🎯 HIGHLIGHT FEATURE:")
-    print("   AUTO PROXIMITY PROMPT (Smart)")
-    print("   • Activates ALL prompts automatically")
-    print("   • Excludes wardrobes/lockers/hiding spots")
-    print("   • Perfect for speed runs")
-    print("   • Zero spam with smart cooldown")
-    print("")
-    print("💡 USAGE TIP:")
-    print("   Enable '🎯 Auto Proximity' from the dedicated tab")
-    print("   Walk near items/doors/keys for instant activation!")
-    print("")
-    print("=" .. string.rep("=", 80) .. "=")
-    print("🎉 ALL SYSTEMS OPERATIONAL - ENJOY WENER HUB ULTIMATE!")
-    print("=" .. string.rep("=", 80) .. "=")
-    print("")
-end)
-
--- ============================================================================
--- END OF SCRIPT
--- ============================================================================
-
-print("✅ Script execution completed!")
-print("🎮 WENER HUB v4.0 ULTIMATE is now fully operational!")
-print("")
-print("📱 Check your screen for:")
-print("   • Main GUI (Rayfield)")
-print("   • Corner Logo (Top-right)")
-print("   • Quick Access Panel (Left side)")
-print("")
-print("🎯 Don't forget to try the NEW Auto Proximity feature!")
-print("   It's a game-changer for collecting items and opening doors!")
+    -- Create corner logo
+    print("🎨 Creating corner logo...")
+    createCornerLogo()
+    
+    -- Create mobile quick access
+    if UserInputService.TouchEnabled then
+        print("📱 Creating mobile quick access panel...")
+        createMobileQuickAccess()
+    end
+    
+    print("✅ ========================================")
+    print("✅ WENER HUB v4.0 ULTIMATE COMPLETE")
+    print("✅ All systems initialized successfully!")
+    print("✅ UI Mode: " .. (rayfieldSuccess and "Rayfield" or "Manual Fallback"))
+    print("✅ ========================================")
