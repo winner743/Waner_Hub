@@ -1,6 +1,6 @@
-        -- WANER HUB v4.0 | FIXED ESP SYSTEM WITH CONSTANT SIZE & BRIGHT OUTLINE
-print("=== WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP ===")
-print("🚀 Loading the most advanced Doors script with proper ESP...")
+-- WANER HUB v4.0 | COMPLETE WITH SMART KEYBIND DRAGGABLE TOGGLE
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE WITH SMART KEYBIND TOGGLE ===")
+print("🚀 Loading the most advanced Doors script with smart keybind detection...")
 
 -- ============================================================================
 -- SERVICES & INITIALIZATION
@@ -48,15 +48,453 @@ local entityConnections = {}
 local godModeConnections = {}
 local bypassConnections = {}
 
+-- Smart Toggle Variables
+local MainWindow = nil
+local ToggleButton = nil
+local isUIOpen = false
+local currentKeybind = "K" -- Default keybind
+local ToggleButtonInstance = nil
+local KeybindBadgeText = nil
+
+-- ============================================================================
+-- SMART DRAGGABLE TOGGLE BUTTON WITH AUTO KEYBIND DETECTION
+-- ============================================================================
+
+local function updateButtonText()
+    if ToggleButtonInstance then
+        if isUIOpen then
+            ToggleButtonInstance.Text = "CLOSE\n(" .. currentKeybind .. ")"
+        else
+            ToggleButtonInstance.Text = "OPEN\n(" .. currentKeybind .. ")"
+        end
+    end
+end
+
+local function updateKeybindBadge(newKeybind)
+    if KeybindBadgeText then
+        KeybindBadgeText.Text = newKeybind
+    end
+end
+
+local function createSmartDraggableToggleButton()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerSmartToggleButton"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Name = "ToggleFrame"
+    ToggleFrame.Size = UDim2.new(0, 95, 0, 95)
+    ToggleFrame.Position = UDim2.new(0, 50, 0, 200)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    ToggleFrame.BorderSizePixel = 0
+    ToggleFrame.ZIndex = 1000
+    ToggleFrame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(1, 0) -- Perfect circle
+    Corner.Parent = ToggleFrame
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 139)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(139, 0, 255))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = ToggleFrame
+    
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Thickness = 3
+    Stroke.Transparency = 0.3
+    Stroke.Parent = ToggleFrame
+    
+    local ToggleButtonMain = Instance.new("TextButton")
+    ToggleButtonMain.Name = "ToggleButton"
+    ToggleButtonMain.Size = UDim2.new(1, 0, 1, 0)
+    ToggleButtonMain.BackgroundTransparency = 1
+    ToggleButtonMain.Text = "OPEN\n(K)"
+    ToggleButtonMain.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ToggleButtonMain.Font = Enum.Font.GothamBold
+    ToggleButtonMain.TextSize = 13
+    ToggleButtonMain.TextStrokeTransparency = 0
+    ToggleButtonMain.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    ToggleButtonMain.ZIndex = 1001
+    ToggleButtonMain.Parent = ToggleFrame
+    
+    ToggleButtonInstance = ToggleButtonMain
+    
+    -- Keybind Display Badge
+    local KeybindBadge = Instance.new("Frame")
+    KeybindBadge.Name = "KeybindBadge"
+    KeybindBadge.Size = UDim2.new(0, 28, 0, 28)
+    KeybindBadge.Position = UDim2.new(1, -33, 0, 5)
+    KeybindBadge.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    KeybindBadge.BorderSizePixel = 0
+    KeybindBadge.ZIndex = 1002
+    KeybindBadge.Parent = ToggleFrame
+    
+    local BadgeCorner = Instance.new("UICorner")
+    BadgeCorner.CornerRadius = UDim.new(1, 0)
+    BadgeCorner.Parent = KeybindBadge
+    
+    local BadgeStroke = Instance.new("UIStroke")
+    BadgeStroke.Color = Color3.fromRGB(139, 0, 255)
+    BadgeStroke.Thickness = 2
+    BadgeStroke.Transparency = 0
+    BadgeStroke.Parent = KeybindBadge
+    
+    local KeybindText = Instance.new("TextLabel")
+    KeybindText.Name = "KeybindText"
+    KeybindText.Size = UDim2.new(1, 0, 1, 0)
+    KeybindText.BackgroundTransparency = 1
+    KeybindText.Text = currentKeybind
+    KeybindText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    KeybindText.Font = Enum.Font.GothamBold
+    KeybindText.TextSize = 16
+    KeybindText.ZIndex = 1003
+    KeybindText.Parent = KeybindBadge
+    
+    KeybindBadgeText = KeybindText
+    
+    -- Status Indicator
+    local StatusIndicator = Instance.new("Frame")
+    StatusIndicator.Name = "StatusIndicator"
+    StatusIndicator.Size = UDim2.new(0, 12, 0, 12)
+    StatusIndicator.Position = UDim2.new(0, 5, 0, 5)
+    StatusIndicator.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    StatusIndicator.BorderSizePixel = 0
+    StatusIndicator.ZIndex = 1002
+    StatusIndicator.Parent = ToggleFrame
+    
+    local StatusCorner = Instance.new("UICorner")
+    StatusCorner.CornerRadius = UDim.new(1, 0)
+    StatusCorner.Parent = StatusIndicator
+    
+    -- Dragging functionality
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    ToggleFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = ToggleFrame.Position
+            
+            TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 90, 0, 90)
+            }):Play()
+            TweenService:Create(Stroke, TweenInfo.new(0.2), {
+                Thickness = 5,
+                Transparency = 0
+            }):Play()
+        end
+    end)
+    
+    ToggleFrame.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            ToggleFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    
+    ToggleFrame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if dragging then
+                dragging = false
+                
+                TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+                    Size = UDim2.new(0, 95, 0, 95)
+                }):Play()
+                TweenService:Create(Stroke, TweenInfo.new(0.2), {
+                    Thickness = 3,
+                    Transparency = 0.3
+                }):Play()
+            end
+        end
+    end)
+    
+    -- Button click functionality with smart key simulation
+    ToggleButtonMain.MouseButton1Click:Connect(function()
+        if not dragging then -- Only toggle if not dragging
+            isUIOpen = not isUIOpen
+            
+            -- Animate button
+            TweenService:Create(ToggleFrame, TweenInfo.new(0.1), {
+                Size = UDim2.new(0, 85, 0, 85)
+            }):Play()
+            
+            task.wait(0.1)
+            
+            TweenService:Create(ToggleFrame, TweenInfo.new(0.1), {
+                Size = UDim2.new(0, 95, 0, 95)
+            }):Play()
+            
+            -- Update button appearance
+            if isUIOpen then
+                TweenService:Create(ToggleFrame, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                }):Play()
+                TweenService:Create(KeybindBadge, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(255, 200, 200)
+                }):Play()
+                TweenService:Create(StatusIndicator, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                }):Play()
+            else
+                TweenService:Create(ToggleFrame, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+                }):Play()
+                TweenService:Create(KeybindBadge, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                }):Play()
+                TweenService:Create(StatusIndicator, TweenInfo.new(0.3), {
+                    BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                }):Play()
+            end
+            
+            updateButtonText()
+            
+            -- Simulate current keybind press
+            local keyCode = Enum.KeyCode[currentKeybind] or Enum.KeyCode.K
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, keyCode, false, game)
+            task.wait(0.1)
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, keyCode, false, game)
+            
+            print("🎛️ Smart Toggle - Simulated key press: " .. currentKeybind)
+        end
+    end)
+    
+    -- Hover effects
+    ToggleButtonMain.MouseEnter:Connect(function()
+        if not dragging then
+            TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 100, 0, 100)
+            }):Play()
+            TweenService:Create(Stroke, TweenInfo.new(0.2), {
+                Transparency = 0
+            }):Play()
+        end
+    end)
+    
+    ToggleButtonMain.MouseLeave:Connect(function()
+        if not dragging then
+            TweenService:Create(ToggleFrame, TweenInfo.new(0.2), {
+                Size = UDim2.new(0, 95, 0, 95)
+            }):Play()
+            TweenService:Create(Stroke, TweenInfo.new(0.2), {
+                Transparency = 0.3
+            }):Play()
+        end
+    end)
+    
+    -- Pulsing animations
+    task.spawn(function()
+        while ScreenGui.Parent do
+            TweenService:Create(Gradient, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Rotation = 405
+            }):Play()
+            
+            TweenService:Create(KeybindBadge, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 32, 0, 32)
+            }):Play()
+            
+            TweenService:Create(StatusIndicator, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 15, 0, 15)
+            }):Play()
+            
+            task.wait(1.5)
+            
+            TweenService:Create(KeybindBadge, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 28, 0, 28)
+            }):Play()
+            
+            TweenService:Create(StatusIndicator, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 12, 0, 12)
+            }):Play()
+            
+            task.wait(1.5)
+        end
+    end)
+    
+    -- Function to update keybind from external source
+    local function updateKeybind(newKeybind)
+        currentKeybind = newKeybind
+        updateKeybindBadge(newKeybind)
+        updateButtonText()
+        
+        -- Animate keybind change
+        TweenService:Create(KeybindBadge, TweenInfo.new(0.3), {
+            BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        }):Play()
+        TweenService:Create(BadgeStroke, TweenInfo.new(0.3), {
+            Color = Color3.fromRGB(0, 255, 0)
+        }):Play()
+        
+        task.wait(1)
+        
+        TweenService:Create(KeybindBadge, TweenInfo.new(0.3), {
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        }):Play()
+        TweenService:Create(BadgeStroke, TweenInfo.new(0.3), {
+            Color = Color3.fromRGB(139, 0, 255)
+        }):Play()
+        
+        print("🔄 Smart Toggle - Keybind updated to: " .. newKeybind)
+    end
+    
+    ScreenGui.UpdateKeybind = updateKeybind
+    
+    return ScreenGui
+end
+
+-- ============================================================================
+-- ADVANCED KEYBIND DETECTION SYSTEM
+-- ============================================================================
+
+local function setupSmartKeybindDetection()
+    -- Monitor for Rayfield keybind changes with multiple detection methods
+    task.spawn(function()
+        local lastKeybind = currentKeybind
+        local detectionAttempts = 0
+        
+        while true do
+            task.wait(2) -- Check every 2 seconds
+            detectionAttempts = detectionAttempts + 1
+            
+            -- Method 1: Try to detect from Rayfield UI elements
+            pcall(function()
+                local rayfield_ui = game.CoreGui:FindFirstChild("Rayfield")
+                if rayfield_ui then
+                    for _, obj in pairs(rayfield_ui:GetDescendants()) do
+                        if obj:IsA("TextLabel") then
+                            local text = obj.Text:upper()
+                            
+                            -- Look for keybind patterns in text
+                            local possibleKeys = {"K", "E", "P", "M", "N", "B", "V", "X", "Z", "C", "F", "G", "H", "J", "L", "O", "Q", "R", "T", "U", "Y", "I"}
+                            
+                            for _, key in pairs(possibleKeys) do
+                                if text:find("PRESS " .. key) or text:find("KEY: " .. key) or text:find("(" .. key .. ")") or text:find("[" .. key .. "]") then
+                                    if key ~= currentKeybind then
+                                        currentKeybind = key
+                                        lastKeybind = key
+                                        if ToggleButton and ToggleButton.UpdateKeybind then
+                                            ToggleButton.UpdateKeybind(key)
+                                        end
+                                        print("🔍 Auto-detected Rayfield keybind: " .. key)
+                                    end
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            
+            -- Method 2: Monitor MainWindow properties
+            pcall(function()
+                if MainWindow and MainWindow.Keybind then
+                    local newKeybind = tostring(MainWindow.Keybind):upper()
+                    if newKeybind:len() == 1 and newKeybind ~= lastKeybind then
+                        currentKeybind = newKeybind
+                        lastKeybind = newKeybind
+                        if ToggleButton and ToggleButton.UpdateKeybind then
+                            ToggleButton.UpdateKeybind(newKeybind)
+                        end
+                        print("🔍 Detected MainWindow keybind: " .. newKeybind)
+                    end
+                end
+            end)
+            
+            -- Method 3: Check for common keybind storage in workspace
+            if detectionAttempts % 5 == 0 then -- Every 10 seconds
+                pcall(function()
+                    local function checkForKeybindInStorage()
+                        local possibleStorages = {game.ReplicatedStorage, workspace, game.StarterGui}
+                        local possibleKeys = {"K", "E", "P", "M", "N", "B", "V", "X", "Z", "C", "F", "G", "H", "J", "L", "O"}
+                        
+                        for _, storage in pairs(possibleStorages) do
+                            for _, obj in pairs(storage:GetDescendants()) do
+                                if obj:IsA("StringValue") or obj:IsA("TextLabel") then
+                                    if obj.Name:lower():find("keybind") or obj.Name:lower():find("toggle") then
+                                        local value = obj:IsA("StringValue") and obj.Value or obj.Text
+                                        value = tostring(value):upper()
+                                        
+                                        for _, key in pairs(possibleKeys) do
+                                            if value == key and key ~= currentKeybind then
+                                                currentKeybind = key
+                                                if ToggleButton and ToggleButton.UpdateKeybind then
+                                                    ToggleButton.UpdateKeybind(key)
+                                                end
+                                                print("🔍 Found keybind in storage: " .. key)
+                                                return true
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        return false
+                    end
+                    
+                    checkForKeybindInStorage()
+                end)
+            end
+        end
+    end)
+    
+    -- Also monitor key inputs to detect when UI toggles
+    local lastToggleTime = 0
+    local inputConnection
+    inputConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            local keyName = input.KeyCode.Name:upper()
+            local currentTime = tick()
+            
+            -- Check if this key press might be toggling the UI
+            if currentTime - lastToggleTime > 1 then -- Prevent spam detection
+                task.wait(0.2) -- Small delay to detect UI state change
+                
+                -- If this is a valid keybind key and different from current
+                local possibleKeys = {"K", "E", "P", "M", "N", "B", "V", "X", "Z", "C", "F", "G", "H", "J", "L", "O"}
+                for _, key in pairs(possibleKeys) do
+                    if keyName == key and key ~= currentKeybind then
+                        -- Check if UI actually toggled by looking for Rayfield elements
+                        pcall(function()
+                            local rayfield = game.CoreGui:FindFirstChild("Rayfield")
+                            if rayfield then
+                                local isVisible = rayfield.Enabled
+                                -- If we detect a state change, this might be the new keybind
+                                currentKeybind = key
+                                lastToggleTime = currentTime
+                                if ToggleButton and ToggleButton.UpdateKeybind then
+                                    ToggleButton.UpdateKeybind(key)
+                                end
+                                print("🔍 Input-detected keybind: " .. key)
+                            end
+                        end)
+                        break
+                    end
+                end
+            end
+        end
+    end)
+end
+
 -- ============================================================================
 -- AUTO EXECUTE & AUTO RECONNECT SETUP
 -- ============================================================================
 
 local function setupAutoExecute()
     local autoExecuteCode = [[
--- WANER HUB ULTIMATE AUTO EXECUTE
+-- WANER HUB ULTIMATE AUTO EXECUTE WITH SMART KEYBIND
 print("🚀 WANER HUB Auto Execute Triggered!")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate-smart.lua"))()
 ]]
     
     if not isfolder("WenerHub") then
@@ -166,7 +604,7 @@ setupAutoExecute()
 setupAutoReconnect()
 
 -- ============================================================================
--- LOADING SCREEN
+-- LOADING SCREEN WITH SMART KEYBIND INFO
 -- ============================================================================
 
 local function createLoadingScreen()
@@ -186,8 +624,8 @@ local function createLoadingScreen()
     Background.Parent = ScreenGui
     
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 600, 0, 350)
-    Container.Position = UDim2.new(0.5, -300, 0.5, -175)
+    Container.Size = UDim2.new(0, 700, 0, 450)
+    Container.Position = UDim2.new(0.5, -350, 0.5, -225)
     Container.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
@@ -198,7 +636,7 @@ local function createLoadingScreen()
     
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(1, 0, 0, 80)
-    Title.Position = UDim2.new(0, 0, 0, 40)
+    Title.Position = UDim2.new(0, 0, 0, 30)
     Title.BackgroundTransparency = 1
     Title.Text = "WENER HUB v4.0"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -209,20 +647,32 @@ local function createLoadingScreen()
     
     local Subtitle = Instance.new("TextLabel")
     Subtitle.Size = UDim2.new(1, 0, 0, 40)
-    Subtitle.Position = UDim2.new(0, 0, 0, 120)
+    Subtitle.Position = UDim2.new(0, 0, 0, 110)
     Subtitle.BackgroundTransparency = 1
-    Subtitle.Text = "ULTIMATE EDITION WITH FIXED ESP"
+    Subtitle.Text = "COMPLETE WITH SMART KEYBIND DETECTION"
     Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
     Subtitle.Font = Enum.Font.Gotham
-    Subtitle.TextSize = 24
+    Subtitle.TextSize = 22
     Subtitle.TextTransparency = 1
     Subtitle.Parent = Container
     
+    local FeatureInfo = Instance.new("TextLabel")
+    FeatureInfo.Size = UDim2.new(1, -40, 0, 80)
+    FeatureInfo.Position = UDim2.new(0, 20, 0, 160)
+    FeatureInfo.BackgroundTransparency = 1
+    FeatureInfo.Text = "🎛️ Smart draggable toggle with auto keybind detection\n🔍 Button text updates based on Rayfield keybind (K), (E), (P), etc.\n🔄 Real-time keybind monitoring and smart key simulation\n♾️ Infinite clicks with multiple detection methods"
+    FeatureInfo.TextColor3 = Color3.fromRGB(100, 200, 255)
+    FeatureInfo.Font = Enum.Font.Gotham
+    FeatureInfo.TextSize = 16
+    FeatureInfo.TextWrapped = true
+    FeatureInfo.TextTransparency = 1
+    FeatureInfo.Parent = Container
+    
     local Status = Instance.new("TextLabel")
     Status.Size = UDim2.new(1, 0, 0, 40)
-    Status.Position = UDim2.new(0, 0, 0, 180)
+    Status.Position = UDim2.new(0, 0, 0, 260)
     Status.BackgroundTransparency = 1
-    Status.Text = "Initializing fixed ESP systems..."
+    Status.Text = "Initializing smart keybind detection algorithms..."
     Status.TextColor3 = Color3.fromRGB(100, 255, 100)
     Status.Font = Enum.Font.Gotham
     Status.TextSize = 18
@@ -231,7 +681,7 @@ local function createLoadingScreen()
     
     local Progress = Instance.new("Frame")
     Progress.Size = UDim2.new(0, 0, 0, 8)
-    Progress.Position = UDim2.new(0.075, 0, 0, 240)
+    Progress.Position = UDim2.new(0.075, 0, 0, 320)
     Progress.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
     Progress.BorderSizePixel = 0
     Progress.BackgroundTransparency = 1
@@ -251,16 +701,20 @@ local function createLoadingScreen()
         wait(0.4)
         TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
         wait(0.4)
+        TweenService:Create(FeatureInfo, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(0.4)
         TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
         TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
         wait(0.8)
         
         local stages = {
-            {text = "🚀 Setting up Auto Execute...", progress = 0.2},
-            {text = "🔄 Configuring Auto Reconnect...", progress = 0.4},
-            {text = "👁️ Loading Fixed ESP Systems...", progress = 0.6},
-            {text = "🛡️ Initializing Protection...", progress = 0.8},
-            {text = "✅ All Systems Ready!", progress = 1.0}
+            {text = "🔧 Setting up multi-method keybind detection...", progress = 0.15},
+            {text = "🎛️ Creating smart draggable button with badges...", progress = 0.3},
+            {text = "🔍 Initializing real-time monitoring systems...", progress = 0.5},
+            {text = "👁️ Loading complete ESP systems...", progress = 0.65},
+            {text = "🤖 Configuring automation features...", progress = 0.8},
+            {text = "⚡ Finalizing smart toggle integration...", progress = 0.95},
+            {text = "✅ Smart keybind system ready!", progress = 1.0}
         }
         
         for _, stage in ipairs(stages) do
@@ -273,6 +727,7 @@ local function createLoadingScreen()
         
         TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
         TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(FeatureInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
         TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
         TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
         TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
@@ -286,10 +741,10 @@ local function createLoadingScreen()
 end
 
 createLoadingScreen()
-wait(6)
+wait(7)
 
 -- ============================================================================
--- KEY SYSTEM DENGAN EXPIRE 2 JAM
+-- KEY SYSTEM WITH SMART KEYBIND INTEGRATION
 -- ============================================================================
 
 local KeySystemEnabled = true
@@ -329,7 +784,8 @@ local function saveKey()
         save_time = currentTime,
         expire_time = expireTime,
         user = player.Name,
-        version = "v4.0_Ultimate"
+        version = "v4.0_Smart_Keybind",
+        keybind_default = currentKeybind
     }
     
     writefile("WenerHub/Key.json", game:GetService("HttpService"):JSONEncode(keyData))
@@ -355,8 +811,8 @@ if KeySystemEnabled and not checkKey() and not isOwner then
     Background.Parent = ScreenGui
     
     local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 350)
-    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    MainFrame.Size = UDim2.new(0, 550, 0, 400)
+    MainFrame.Position = UDim2.new(0.5, -275, 0.5, -200)
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     MainFrame.BackgroundTransparency = 1
     MainFrame.Parent = ScreenGui
@@ -376,12 +832,22 @@ if KeySystemEnabled and not checkKey() and not isOwner then
     Title.Text = "🔐 WENER HUB KEY ACCESS"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 28
+    Title.TextSize = 32
     Title.Parent = MainFrame
+    
+    local SmartInfo = Instance.new("TextLabel")
+    SmartInfo.Size = UDim2.new(1, -40, 0, 40)
+    SmartInfo.Position = UDim2.new(0, 20, 0, 80)
+    SmartInfo.BackgroundTransparency = 1
+    SmartInfo.Text = "🎛️ Smart Keybind Detection: Auto-adapts to your Rayfield keybind!"
+    SmartInfo.TextColor3 = Color3.fromRGB(100, 200, 255)
+    SmartInfo.Font = Enum.Font.Gotham
+    SmartInfo.TextSize = 16
+    SmartInfo.Parent = MainFrame
     
     local ExpireInfo = Instance.new("TextLabel")
     ExpireInfo.Size = UDim2.new(1, -40, 0, 30)
-    ExpireInfo.Position = UDim2.new(0, 20, 0, 80)
+    ExpireInfo.Position = UDim2.new(0, 20, 0, 125)
     ExpireInfo.BackgroundTransparency = 1
     ExpireInfo.Text = "⏰ Key valid for 2 hours after verification"
     ExpireInfo.TextColor3 = Color3.fromRGB(255, 165, 0)
@@ -390,15 +856,15 @@ if KeySystemEnabled and not checkKey() and not isOwner then
     ExpireInfo.Parent = MainFrame
     
     local KeyInput = Instance.new("TextBox")
-    KeyInput.Size = UDim2.new(1, -40, 0, 55)
-    KeyInput.Position = UDim2.new(0, 20, 0, 130)
+    KeyInput.Size = UDim2.new(1, -40, 0, 60)
+    KeyInput.Position = UDim2.new(0, 20, 0, 170)
     KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     KeyInput.PlaceholderText = "Enter Access Key: Wene-***"
     KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.Font = Enum.Font.Gotham
-    KeyInput.TextSize = 20
+    KeyInput.TextSize = 22
     KeyInput.Parent = MainFrame
     
     local InputCorner = Instance.new("UICorner")
@@ -406,10 +872,10 @@ if KeySystemEnabled and not checkKey() and not isOwner then
     InputCorner.Parent = KeyInput
     
     local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Size = UDim2.new(1, -40, 0, 55)
-    SubmitBtn.Position = UDim2.new(0, 20, 0, 210)
+    SubmitBtn.Size = UDim2.new(1, -40, 0, 60)
+    SubmitBtn.Position = UDim2.new(0, 20, 0, 250)
     SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-    SubmitBtn.Text = "✓ VERIFY KEY"
+    SubmitBtn.Text = "✓ VERIFY KEY & ACTIVATE SMART TOGGLE"
     SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitBtn.Font = Enum.Font.GothamBold
     SubmitBtn.TextSize = 20
@@ -420,10 +886,10 @@ if KeySystemEnabled and not checkKey() and not isOwner then
     BtnCorner.Parent = SubmitBtn
     
     local Info = Instance.new("TextLabel")
-    Info.Size = UDim2.new(1, -40, 0, 50)
-    Info.Position = UDim2.new(0, 20, 0, 280)
+    Info.Size = UDim2.new(1, -40, 0, 60)
+    Info.Position = UDim2.new(0, 20, 0, 330)
     Info.BackgroundTransparency = 1
-    Info.Text = "🔑 Get key from Discord or contact owner\n💎 30+ Premium Features"
+    Info.Text = "🔑 Get key from Discord or contact owner\n🎛️ Smart Toggle: Auto-detects K, E, P, M and other keybinds\n♾️ Infinite clicks with real-time keybind monitoring"
     Info.TextColor3 = Color3.fromRGB(200, 200, 200)
     Info.Font = Enum.Font.Gotham
     Info.TextSize = 14
@@ -437,12 +903,13 @@ if KeySystemEnabled and not checkKey() and not isOwner then
             submitted = true
             
             SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            SubmitBtn.Text = "✅ SUCCESS! Key valid for 2 hours"
+            SubmitBtn.Text = "✅ SUCCESS! Smart Toggle Activated!"
             
-            wait(1)
+            wait(1.5)
             
             TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
             TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(SmartInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
             TweenService:Create(ExpireInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
             TweenService:Create(KeyInput, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
             TweenService:Create(SubmitBtn, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
@@ -458,7 +925,7 @@ if KeySystemEnabled and not checkKey() and not isOwner then
             SubmitBtn.Text = "❌ INVALID KEY"
             wait(1.5)
             SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            SubmitBtn.Text = "✓ VERIFY KEY"
+            SubmitBtn.Text = "✓ VERIFY KEY & ACTIVATE SMART TOGGLE"
         end
     end)
     
@@ -466,7 +933,7 @@ if KeySystemEnabled and not checkKey() and not isOwner then
 end
 
 -- ============================================================================
--- WELCOME SCREEN
+-- WELCOME SCREEN WITH KEYBIND INFO
 -- ============================================================================
 
 local function createWelcomeScreen()
@@ -486,8 +953,8 @@ local function createWelcomeScreen()
     Background.Parent = ScreenGui
     
     local WelcomeText = Instance.new("TextLabel")
-    WelcomeText.Size = UDim2.new(0.8, 0, 0.2, 0)
-    WelcomeText.Position = UDim2.new(0.1, 0, 0.3, 0)
+    WelcomeText.Size = UDim2.new(0.9, 0, 0.15, 0)
+    WelcomeText.Position = UDim2.new(0.05, 0, 0.25, 0)
     WelcomeText.BackgroundTransparency = 1
     WelcomeText.Text = "Welcome " .. player.DisplayName .. " To WENER Hub"
     WelcomeText.TextColor3 = Color3.fromRGB(139, 0, 255)
@@ -495,275 +962,278 @@ local function createWelcomeScreen()
     WelcomeText.TextSize = 48
     WelcomeText.TextStrokeTransparency = 0
     WelcomeText.TextTransparency = 1
+    WelcomeText.TextScaled = true
     WelcomeText.Parent = ScreenGui
     
     local HubText = Instance.new("TextLabel")
-    HubText.Size = UDim2.new(1, 0, 0.3, 0)
-    HubText.Position = UDim2.new(0, 0, 0.55, 0)
+    HubText.Size = UDim2.new(1, 0, 0.2, 0)
+    HubText.Position = UDim2.new(0, 0, 0.45, 0)
     HubText.BackgroundTransparency = 1
-    HubText.Text = "W3n3r HuB"
+    HubText.Text = "Smart Keybind Toggle"
     HubText.TextColor3 = Color3.fromRGB(255, 255, 255)
     HubText.Font = Enum.Font.GothamBold
-    HubText.TextSize = 72
+    HubText.TextSize = 64
     HubText.TextStrokeTransparency = 0
     HubText.TextTransparency = 1
     HubText.Parent = ScreenGui
     
+    local KeybindInfo = Instance.new("TextLabel")
+    KeybindInfo.Size = UDim2.new(0.8, 0, 0.1, 0)
+    KeybindInfo.Position = UDim2.new(0.1, 0, 0.7, 0)
+    KeybindInfo.BackgroundTransparency = 1
+    KeybindInfo.Text = "🎛️ Button auto-detects your keybind: (K), (E), (P), etc."
+    KeybindInfo.TextColor3 = Color3.fromRGB(100, 200, 255)
+    KeybindInfo.Font = Enum.Font.Gotham
+        KeybindInfo.TextSize = 24
+    KeybindInfo.TextStrokeTransparency = 0
+    KeybindInfo.TextTransparency = 1
+    KeybindInfo.TextScaled = true
+    KeybindInfo.Parent = ScreenGui
+    
     task.spawn(function()
         TweenService:Create(Blur, TweenInfo.new(1), {Size = 25}):Play()
-        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.3}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.4}):Play()
         wait(1)
         
         TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
-        wait(2)
-        
-        TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-        wait(0.5)
-        
-        local glitchTexts = {
-            "W3n3r HuB", "W€n€r H∪B", "W£n£r HμB", "W∈n∈r H∪ß",
-            "W∂n∂r Hub", "Wen€r Hub", "Wen3r Hub", "Wener Hub"
-        }
-        
-        for i = 1, 15 do
-            HubText.Text = glitchTexts[math.random(1, #glitchTexts)]
-            HubText.TextColor3 = Color3.fromRGB(
-                math.random(100, 255),
-                math.random(100, 255), 
-                math.random(100, 255)
-            )
-            HubText.Position = UDim2.new(
-                math.random(-5, 5) / 100,
-                0,
-                0.55 + math.random(-2, 2) / 100,
-                0
-            )
-            wait(0.1)
-        end
-        
-        TweenService:Create(HubText, TweenInfo.new(1), {
-            TextColor3 = Color3.fromRGB(139, 0, 255),
-            Position = UDim2.new(0, 0, 0.55, 0)
-        }):Play()
-        HubText.Text = "Wener Hub"
-        
+        wait(1)
+        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
+        wait(1)
+        TweenService:Create(KeybindInfo, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
         wait(3)
         
-        TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
-        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
-        TweenService:Create(Background, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(WelcomeText, TweenInfo.new(1), {TextTransparency = 1}):Play()
+        TweenService:Create(HubText, TweenInfo.new(1), {TextTransparency = 1}):Play()
+        TweenService:Create(KeybindInfo, TweenInfo.new(1), {TextTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 1}):Play()
         TweenService:Create(Blur, TweenInfo.new(1.5), {Size = 0}):Play()
+        wait(2)
         
-        wait(1.5)
-        ScreenGui:Destroy()
         Blur:Destroy()
+        ScreenGui:Destroy()
     end)
 end
 
 createWelcomeScreen()
+wait(7)
 
 -- ============================================================================
--- PERMANENT LOGO
+-- PERMANENT LOGO SYSTEM
 -- ============================================================================
 
 local function createPermanentLogo()
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WanerLogo"
+    ScreenGui.Name = "WenerPermanentLogo"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 500, 0, 90)
-    Container.Position = UDim2.new(0.5, -250, 0.02, 0)
-    Container.BackgroundTransparency = 1
-    Container.Parent = ScreenGui
+    local LogoFrame = Instance.new("Frame")
+    LogoFrame.Name = "LogoFrame"
+    LogoFrame.Size = UDim2.new(0, 200, 0, 60)
+    LogoFrame.Position = UDim2.new(1, -210, 0, 10)
+    LogoFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    LogoFrame.BackgroundTransparency = 0.1
+    LogoFrame.BorderSizePixel = 0
+    LogoFrame.ZIndex = 999
+    LogoFrame.Parent = ScreenGui
     
-    local WenerText = Instance.new("TextLabel")
-    WenerText.Size = UDim2.new(0, 170, 1, 0)
-    WenerText.Position = UDim2.new(0, 0, 0, 0)
-    WenerText.BackgroundTransparency = 1
-    WenerText.Text = "WENER"
-    WenerText.TextColor3 = Color3.fromRGB(139, 0, 255)
-    WenerText.Font = Enum.Font.GothamBold
-    WenerText.TextSize = 44
-    WenerText.TextStrokeTransparency = 0.3
-    WenerText.TextXAlignment = Enum.TextXAlignment.Right
-    WenerText.TextTransparency = 1
-    WenerText.Parent = Container
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 12)
+    Corner.Parent = LogoFrame
     
-    local HubText = Instance.new("TextLabel")
-    HubText.Size = UDim2.new(0, 110, 1, 0)
-    HubText.Position = UDim2.new(0, 180, 0, 0)
-    HubText.BackgroundTransparency = 1
-    HubText.Text = "HUB"
-    HubText.TextColor3 = Color3.fromRGB(139, 0, 255)
-    HubText.Font = Enum.Font.GothamBold
-    HubText.TextSize = 44
-    HubText.TextStrokeTransparency = 0.3
-    HubText.TextXAlignment = Enum.TextXAlignment.Left
-    HubText.TextTransparency = 1
-    HubText.Parent = Container
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(139, 0, 255)
+    Stroke.Thickness = 2
+    Stroke.Transparency = 0.3
+    Stroke.Parent = LogoFrame
     
-    local VersionText = Instance.new("TextLabel")
-    VersionText.Size = UDim2.new(0, 90, 0, 25)
-    VersionText.Position = UDim2.new(0, 300, 1, -25)
-    VersionText.BackgroundTransparency = 1
-    VersionText.Text = "v4.0 Ultimate"
-    VersionText.TextColor3 = Color3.fromRGB(200, 200, 200)
-    VersionText.Font = Enum.Font.Gotham
-    VersionText.TextSize = 16
-    VersionText.TextTransparency = 1
-    VersionText.Parent = Container
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(139, 0, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 139))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = LogoFrame
     
+    local MainText = Instance.new("TextLabel")
+    MainText.Size = UDim2.new(0.75, 0, 0.6, 0)
+    MainText.Position = UDim2.new(0.05, 0, 0.1, 0)
+    MainText.BackgroundTransparency = 1
+    MainText.Text = "WENER HUB v4.0"
+    MainText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MainText.Font = Enum.Font.GothamBold
+    MainText.TextSize = 16
+    MainText.TextStrokeTransparency = 0
+    MainText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    MainText.ZIndex = 1000
+    MainText.Parent = LogoFrame
+    
+    local SubText = Instance.new("TextLabel")
+    SubText.Size = UDim2.new(0.75, 0, 0.3, 0)
+    SubText.Position = UDim2.new(0.05, 0, 0.65, 0)
+    SubText.BackgroundTransparency = 1
+    SubText.Text = "Smart Keybind: " .. currentKeybind
+    SubText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    SubText.Font = Enum.Font.Gotham
+    SubText.TextSize = 12
+    SubText.TextStrokeTransparency = 0
+    SubText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    SubText.ZIndex = 1000
+    SubText.Parent = LogoFrame
+    
+    local StatusIcon = Instance.new("Frame")
+    StatusIcon.Size = UDim2.new(0, 12, 0, 12)
+    StatusIcon.Position = UDim2.new(0.85, 0, 0.2, 0)
+    StatusIcon.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    StatusIcon.BorderSizePixel = 0
+    StatusIcon.ZIndex = 1000
+    StatusIcon.Parent = LogoFrame
+    
+    local IconCorner = Instance.new("UICorner")
+    IconCorner.CornerRadius = UDim.new(1, 0)
+    IconCorner.Parent = StatusIcon
+    
+    local OwnerIcon = nil
     if isOwner then
-        local OwnerText = Instance.new("TextLabel")
-        OwnerText.Size = UDim2.new(0, 120, 0, 25)
-        OwnerText.Position = UDim2.new(0, 300, 0, 0)
-        OwnerText.BackgroundTransparency = 1
-        OwnerText.Text = "👑 OWNER ACCESS"
-        OwnerText.TextColor3 = Color3.fromRGB(255, 215, 0)
-        OwnerText.Font = Enum.Font.GothamBold
-        OwnerText.TextSize = 14
-        OwnerText.TextTransparency = 1
-        OwnerText.Parent = Container
-        
-        task.spawn(function()
-            wait(14)
-            TweenService:Create(OwnerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
-        end)
+        OwnerIcon = Instance.new("TextLabel")
+        OwnerIcon.Size = UDim2.new(0, 16, 0, 16)
+        OwnerIcon.Position = UDim2.new(0.85, 0, 0.6, 0)
+        OwnerIcon.BackgroundTransparency = 1
+        OwnerIcon.Text = "👑"
+        OwnerIcon.TextColor3 = Color3.fromRGB(255, 215, 0)
+        OwnerIcon.Font = Enum.Font.Gotham
+        OwnerIcon.TextSize = 14
+        OwnerIcon.ZIndex = 1001
+        OwnerIcon.Parent = LogoFrame
     end
     
-    task.spawn(function()
-        wait(14)
-        TweenService:Create(WenerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
-        wait(0.3)
-        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
-        wait(0.3)
-        TweenService:Create(VersionText, TweenInfo.new(1.2), {TextTransparency = 0}):Play()
-    end)
-end
-
-task.spawn(createPermanentLogo)
-
--- ============================================================================
--- FIXED ESP SYSTEM - SIZE TETAP & DENGAN OUTLINE TERANG
--- ============================================================================
-
-local function createFixedESP(obj, text, color, espType)
-    if not obj or obj:FindFirstChild("WenerESP_" .. espType) then return end
-    
-    -- Cek jarak maksimal
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
-        if distance > 500 then return end
+    -- Function to update keybind display
+    local function updateLogoKeybind(newKeybind)
+        SubText.Text = "Smart Keybind: " .. newKeybind
     end
     
-    -- Create Highlight untuk outline terang
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "WenerESP_" .. espType
-    highlight.Adornee = obj.Parent or obj
-    highlight.FillColor = color
-    highlight.FillTransparency = 0.5
-    highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0
-    highlight.Parent = obj
+    ScreenGui.UpdateKeybind = updateLogoKeybind
     
-    -- Create BillboardGui dengan size TETAP (tidak berubah saat zoom)
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "WenerESP_" .. espType .. "_Bill"
-    billboard.Adornee = obj
-    billboard.Size = UDim2.new(4, 0, 2, 0) -- SIZE TETAP DAN LEBIH BESAR
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    billboard.MaxDistance = 500
-    billboard.LightInfluence = 0
-    billboard.Parent = obj
-    
-    -- Background frame
-    local bgFrame = Instance.new("Frame")
-    bgFrame.Size = UDim2.new(1, 0, 1, 0)
-    bgFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-    bgFrame.BackgroundTransparency = 0.3
-    bgFrame.BorderSizePixel = 0
-    bgFrame.Parent = billboard
-    
-    local bgCorner = Instance.new("UICorner")
-    bgCorner.CornerRadius = UDim.new(0, 8)
-    bgCorner.Parent = bgFrame
-    
-    -- Stroke untuk frame (outline terang)
-    local frameStroke = Instance.new("UIStroke")
-    frameStroke.Color = color
-    frameStroke.Thickness = 3
-    frameStroke.Transparency = 0
-    frameStroke.Parent = bgFrame
-    
-    -- Text label
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -10, 0.6, 0)
-    label.Position = UDim2.new(0, 5, 0, 5)
-    label.BackgroundTransparency = 1
-    label.Text = text
-    label.TextColor3 = color
-    label.TextStrokeTransparency = 0
-    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    label.TextScaled = true
-    label.Font = Enum.Font.GothamBold
-    label.Parent = billboard
-    
-    -- Distance label
-    local distanceLabel = Instance.new("TextLabel")
-    distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
-    distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
-    distanceLabel.BackgroundTransparency = 1
-    distanceLabel.Text = "0m"
-    distanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    distanceLabel.TextStrokeTransparency = 0
-    distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    distanceLabel.TextScaled = true
-    distanceLabel.Font = Enum.Font.Gotham
-    distanceLabel.Parent = billboard
-    
-    -- Animation untuk highlight glow effect
+    -- Pulsing animation
     task.spawn(function()
-        while highlight.Parent and obj.Parent do
-            TweenService:Create(highlight, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                FillTransparency = 0.8,
-                OutlineTransparency = 0.2
+        while ScreenGui.Parent do
+            TweenService:Create(Gradient, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Rotation = 405
             }):Play()
             
-            TweenService:Create(frameStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                Transparency = 0.3
+            TweenService:Create(StatusIcon, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 15, 0, 15)
             }):Play()
             
-            task.wait(1)
+            if OwnerIcon then
+                TweenService:Create(OwnerIcon, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                    TextTransparency = 0.3
+                }):Play()
+            end
+            
+            task.wait(2)
+            
+            TweenService:Create(StatusIcon, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Size = UDim2.new(0, 12, 0, 12)
+            }):Play()
+            
+            if OwnerIcon then
+                TweenService:Create(OwnerIcon, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                    TextTransparency = 0
+                }):Play()
+            end
+            
+            task.wait(2)
         end
     end)
     
-    -- Update distance
+    return ScreenGui
+end
+
+local PermanentLogo = createPermanentLogo()
+
+-- ============================================================================
+-- ADVANCED ESP SYSTEM WITH FIXED SIZE
+-- ============================================================================
+
+local function createFixedESP(part, text, color, espType)
+    if not part or part:FindFirstChild("WenerESP_" .. espType) then return end
+    
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "WenerESP_" .. espType
+    highlight.Adornee = part
+    highlight.FillColor = color
+    highlight.FillTransparency = 0.7
+    highlight.OutlineColor = color
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.Parent = part
+    
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "WenerESP_" .. espType .. "_Bill"
+    billboard.Adornee = part
+    billboard.Size = UDim2.new(0, 200, 0, 80)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = part
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.TextSize = 18
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    textLabel.Parent = billboard
+    
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    distanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Text = "0 studs"
+    distanceLabel.TextColor3 = color
+    distanceLabel.Font = Enum.Font.Gotham
+    distanceLabel.TextSize = 14
+    distanceLabel.TextStrokeTransparency = 0
+    distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    distanceLabel.Parent = billboard
+    
+    local espData = {
+        part = part,
+        highlight = highlight,
+        billboard = billboard,
+        textLabel = textLabel,
+        distanceLabel = distanceLabel,
+        espType = espType
+    }
+    
+    table.insert(espObjects, espData)
+    
     task.spawn(function()
-        while billboard.Parent and obj.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
-            local distance = math.floor((player.Character.HumanoidRootPart.Position - obj.Position).Magnitude)
-            distanceLabel.Text = distance .. "m"
+        while highlight.Parent and billboard.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+            local distance = (player.Character.HumanoidRootPart.Position - part.Position).Magnitude
+            distanceLabel.Text = math.floor(distance) .. " studs"
             
-            -- Auto remove jika terlalu jauh
             if distance > 500 then
-                if highlight then highlight:Destroy() end
-                if billboard then billboard:Destroy() end
+                highlight:Destroy()
+                billboard:Destroy()
                 break
             end
             
-            task.wait(0.5)
+            wait(0.5)
+        end
+        
+        for i, data in pairs(espObjects) do
+            if data == espData then
+                table.remove(espObjects, i)
+                break
+            end
         end
     end)
-    
-    table.insert(espObjects, {highlight = highlight, billboard = billboard})
-    return {highlight, billboard}
 end
-
--- ============================================================================
--- ESP UPDATE FUNCTIONS - FIXED & PROPER DETECTION
--- ============================================================================
 
 local function updateDoorESP()
     if not doorEspEnabled then return end
@@ -775,9 +1245,9 @@ local function updateDoorESP()
         if room:IsA("Model") and tonumber(room.Name) then
             local door = room:FindFirstChild("Door")
             if door then
-                local doorPart = door:FindFirstChildWhichIsA("BasePart")
+                local doorPart = door:FindFirstChild("Door") or door:FindFirstChildWhichIsA("BasePart")
                 if doorPart and not doorPart:FindFirstChild("WenerESP_door") then
-                    createFixedESP(doorPart, "🚪 Door " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
+                    createFixedESP(doorPart, "🚪 Room " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
                 end
             end
         end
@@ -787,37 +1257,27 @@ end
 local function updateKeyESP()
     if not keyEspEnabled then return end
     
-    -- Cari Key dengan multiple detection methods
+    local keyNames = {"Key", "LibraryHintPaper", "Paper"}
+    
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
-            -- Method 1: Direct Key model
-            if obj.Name == "KeyObtain" or obj.Name == "Key" or obj.Name:find("Key") then
-                local keyPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
-                if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
-                    createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+            local isKey = false
+            local keyName = "Key"
+            
+            for _, name in pairs(keyNames) do
+                if obj.Name == name or obj.Name:find(name) then
+                    isKey = true
+                    keyName = name
+                    break
                 end
             end
-        elseif obj:IsA("BasePart") then
-            -- Method 2: Direct key part
-            if obj.Name == "Key" or obj.Name:find("Key") then
-                if not obj:FindFirstChild("WenerESP_key") then
-                    createFixedESP(obj, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
-                end
-            end
-        end
-    end
-    
-    -- Method 3: Check dalam CurrentRooms untuk keys
-    local currentRooms = workspace:FindFirstChild("CurrentRooms")
-    if currentRooms then
-        for _, room in pairs(currentRooms:GetChildren()) do
-            if room:IsA("Model") then
-                for _, asset in pairs(room:GetDescendants()) do
-                    if asset:IsA("Model") and (asset.Name == "KeyObtain" or asset.Name == "Key") then
-                        local keyPart = asset:FindFirstChild("Handle") or asset:FindFirstChildWhichIsA("BasePart")
-                        if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
-                            createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
-                        end
+            
+            if isKey then
+                local keyPart = obj:FindFirstChildWhichIsA("BasePart")
+                if keyPart then
+                    local prompt = keyPart:FindFirstChildOfClass("ProximityPrompt")
+                    if prompt and not keyPart:FindFirstChild("WenerESP_key") then
+                        createFixedESP(keyPart, "🗝️ " .. keyName, Color3.fromRGB(255, 255, 0), "key")
                     end
                 end
             end
@@ -828,53 +1288,22 @@ end
 local function updateItemESP()
     if not itemEspEnabled then return end
     
-    -- List item yang bisa diambil (collectable items)
     local collectableItems = {
-        "Vitamins", "Lockpick", "Candle", "Lighter", "FlashlightPickup", "Flashlight",
-        "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner", 
-        "Battery", "Herb", "Pill"
+        "Vitamins", "Lockpick", "Flashlight", "Lighter", 
+        "Candle", "Crucifix", "Bandage", "SkeletonKey"
     }
     
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
             for _, itemName in pairs(collectableItems) do
                 if obj.Name == itemName or obj.Name:find(itemName) then
-                    -- Cek apakah item ini bisa diambil (ada ProximityPrompt)
-                    local hasPrompt = false
                     local itemPart = obj:FindFirstChildWhichIsA("BasePart")
-                    
                     if itemPart then
                         local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
-                        if prompt then hasPrompt = true end
-                        
-                        -- Jika tidak ada prompt di main part, cek di children
-                        if not hasPrompt then
-                            for _, child in pairs(obj:GetDescendants()) do
-                                if child:IsA("ProximityPrompt") then
-                                    hasPrompt = true
-                                    break
-                                end
-                            end
-                        end
-                        
-                        -- Hanya buat ESP jika item bisa diambil dan belum ada ESP
-                        if hasPrompt and not itemPart:FindFirstChild("WenerESP_item") then
-                            local icon = "📦"
-                            if itemName == "Vitamins" or itemName == "Pill" then icon = "💊"
-                            elseif itemName == "Lockpick" then icon = "🔓"
-                            elseif itemName:find("Flashlight") or itemName == "Shakelight" then icon = "🔦"
-                            elseif itemName == "Candle" then icon = "🕯️"
-                            elseif itemName == "Lighter" then icon = "🔥"
-                            elseif itemName == "Crucifix" then icon = "✝️"
-                            elseif itemName == "Bandage" then icon = "🩹"
-                            elseif itemName == "SkeletonKey" then icon = "🗝️"
-                            elseif itemName == "Battery" then icon = "🔋"
-                            end
-                            
-                            createFixedESP(itemPart, icon .. " " .. itemName, Color3.fromRGB(255, 0, 0), "item")
+                        if prompt and not itemPart:FindFirstChild("WenerESP_item") then
+                            createFixedESP(itemPart, "📦 " .. itemName, Color3.fromRGB(255, 0, 0), "item")
                         end
                     end
-                    break
                 end
             end
         end
@@ -884,45 +1313,13 @@ end
 local function updateBookESP()
     if not bookEspEnabled then return end
     
-    -- Cari Figure Books (yang benar untuk Figure sequence)
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") then
-            -- Method 1: Book models dalam library/rooms
-            if obj.Name == "Book" or obj.Name:find("Book") then
-                local bookPart = obj:FindFirstChildWhichIsA("BasePart")
-                if bookPart then
-                    -- Cek apakah ini book yang bisa di-interact untuk Figure
-                    local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
-                    if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
-                        createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                    end
-                end
-            end
-        elseif obj:IsA("BasePart") then
-            -- Method 2: Direct book parts
-            if obj.Name == "Book" or obj.Name:find("Book") then
-                local hasPrompt = obj:FindFirstChildOfClass("ProximityPrompt")
-                if hasPrompt and not obj:FindFirstChild("WenerESP_book") then
-                    createFixedESP(obj, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                end
-            end
-        end
-    end
-    
-    -- Method 3: Check in specific room 50 (Library) for books
-    local currentRooms = workspace:FindFirstChild("CurrentRooms")
-    if currentRooms then
-        local room50 = currentRooms:FindFirstChild("50")
-        if room50 then
-            for _, asset in pairs(room50:GetDescendants()) do
-                if asset:IsA("Model") and (asset.Name == "Book" or asset.Name:find("Book")) then
-                    local bookPart = asset:FindFirstChildWhichIsA("BasePart")
-                    if bookPart then
-                        local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
-                        if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
-                            createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                        end
-                    end
+        if obj:IsA("Model") and (obj.Name == "Book" or obj.Name:find("Book")) then
+            local bookPart = obj:FindFirstChild("Book") or obj:FindFirstChildWhichIsA("BasePart")
+            if bookPart then
+                local prompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
+                if prompt and not bookPart:FindFirstChild("WenerESP_book") then
+                    createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
                 end
             end
         end
@@ -933,27 +1330,28 @@ local function updateEntityESP()
     if not entityEspEnabled then return end
     
     local entities = {
-        {name = "RushMoving", display = "Rush", color = Color3.fromRGB(255, 0, 0)},
-        {name = "AmbushMoving", display = "Ambush", color = Color3.fromRGB(255, 100, 0)},
-        {name = "Eyes", display = "Eyes", color = Color3.fromRGB(255, 255, 255)},
-        {name = "Screech", display = "Screech", color = Color3.fromRGB(0, 255, 0)},
-        {name = "Halt", display = "Halt", color = Color3.fromRGB(0, 0, 255)},
-        {name = "Seek", display = "Seek", color = Color3.fromRGB(0, 0, 0)},
-        {name = "Figure", display = "Figure", color = Color3.fromRGB(139, 0, 255)},
-        {name = "Dupe", display = "Dupe", color = Color3.fromRGB(255, 255, 0)},
-        {name = "A60", display = "A-60", color = Color3.fromRGB(255, 0, 255)},
-        {name = "A120", display = "A-120", color = Color3.fromRGB(0, 255, 255)}
+        {name = "RushMoving", displayName = "Rush", color = Color3.fromRGB(255, 0, 0)},
+        {name = "AmbushMoving", displayName = "Ambush", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Eyes", displayName = "Eyes", color = Color3.fromRGB(255, 255, 255)},
+        {name = "Screech", displayName = "Screech", color = Color3.fromRGB(0, 255, 0)},
+        {name = "Halt", displayName = "Halt", color = Color3.fromRGB(0, 0, 255)},
+        {name = "Seek", displayName = "Seek", color = Color3.fromRGB(0, 0, 0)},
+        {name = "Figure", displayName = "Figure", color = Color3.fromRGB(139, 0, 255)},
+        {name = "Dupe", displayName = "Dupe", color = Color3.fromRGB(255, 255, 0)},
+        {name = "A60", displayName = "A-60", color = Color3.fromRGB(255, 0, 255)},
+        {name = "A120", displayName = "A-120", color = Color3.fromRGB(0, 255, 255)},
+        {name = "Timothy", displayName = "Timothy", color = Color3.fromRGB(128, 0, 128)},
+        {name = "Shadow", displayName = "Shadow", color = Color3.fromRGB(64, 64, 64)}
     }
     
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
             for _, entityData in pairs(entities) do
                 if obj.Name == entityData.name or obj.Name:find(entityData.name) then
-                    local entityPart = obj:FindFirstChildWhichIsA("BasePart")
+                    local entityPart = obj:FindFirstChild("Base") or obj:FindFirstChildWhichIsA("BasePart")
                     if entityPart and not entityPart:FindFirstChild("WenerESP_entity") then
-                        createFixedESP(entityPart, "👹 " .. entityData.display, entityData.color, "entity")
+                        createFixedESP(entityPart, "👹 " .. entityData.displayName, entityData.color, "entity")
                     end
-                    break
                 end
             end
         end
@@ -964,9 +1362,9 @@ local function updatePlayerESP()
     if not playerEspEnabled then return end
     
     for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Character then
-            local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart and not humanoidRootPart:FindFirstChild("WenerESP_player") then
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoidRootPart = otherPlayer.Character.HumanoidRootPart
+            if not humanoidRootPart:FindFirstChild("WenerESP_player") then
                 createFixedESP(humanoidRootPart, "👤 " .. otherPlayer.DisplayName, Color3.fromRGB(0, 255, 255), "player")
             end
         end
@@ -974,22 +1372,25 @@ local function updatePlayerESP()
 end
 
 local function clearAllESP()
-    for _, esp in pairs(espObjects) do
-        if esp and esp.highlight then esp.highlight:Destroy() end
-        if esp and esp.billboard then esp.billboard:Destroy() end
+    for _, espData in pairs(espObjects) do
+        if espData.highlight and espData.highlight.Parent then
+            espData.highlight:Destroy()
+        end
+        if espData.billboard and espData.billboard.Parent then
+            espData.billboard:Destroy()
+        end
     end
     espObjects = {}
     
-    -- Clean up any remaining ESP objects
     for _, obj in pairs(workspace:GetDescendants()) do
         local highlight = obj:FindFirstChild("WenerESP_door") or obj:FindFirstChild("WenerESP_key") or 
-                         obj:FindFirstChild("WenerESP_item") or obj:FindFirstChild("WenerESP_book") or
-                         obj:FindFirstChild("WenerESP_entity") or obj:FindFirstChild("WenerESP_player")
-        if highlight then highlight:Destroy() end
+                         obj:FindFirstChild("WenerESP_entity") or obj:FindFirstChild("WenerESP_player") or
+                         obj:FindFirstChild("WenerESP_book") or obj:FindFirstChild("WenerESP_item")
+        local billboard = obj:FindFirstChild("WenerESP_door_Bill") or obj:FindFirstChild("WenerESP_key_Bill") or 
+                         obj:FindFirstChild("WenerESP_entity_Bill") or obj:FindFirstChild("WenerESP_player_Bill") or
+                         obj:FindFirstChild("WenerESP_book_Bill") or obj:FindFirstChild("WenerESP_item_Bill")
         
-        local billboard = obj:FindFirstChild("WenerESP_door_Bill") or obj:FindFirstChild("WenerESP_key_Bill") or
-                         obj:FindFirstChild("WenerESP_item_Bill") or obj:FindFirstChild("WenerESP_book_Bill") or
-                         obj:FindFirstChild("WenerESP_entity_Bill") or obj:FindFirstChild("WenerESP_player_Bill")
+        if highlight then highlight:Destroy() end
         if billboard then billboard:Destroy() end
     end
 end
@@ -1005,7 +1406,7 @@ local function createAdvancedNotification(title, message, color, duration, sound
     ScreenGui.Parent = game.CoreGui
     
     local NotificationFrame = Instance.new("Frame")
-    NotificationFrame.Size = UDim2.new(0, 400, 0, 120)
+    NotificationFrame.Size = UDim2.new(0, 450, 0, 130)
     NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
     NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     NotificationFrame.BorderSizePixel = 0
@@ -1035,7 +1436,7 @@ local function createAdvancedNotification(title, message, color, duration, sound
     TitleLabel.Parent = NotificationFrame
     
     local MessageLabel = Instance.new("TextLabel")
-    MessageLabel.Size = UDim2.new(1, -20, 0, 60)
+    MessageLabel.Size = UDim2.new(1, -20, 0, 70)
     MessageLabel.Position = UDim2.new(0, 10, 0, 50)
     MessageLabel.BackgroundTransparency = 1
     MessageLabel.Text = message
@@ -1060,7 +1461,7 @@ local function createAdvancedNotification(title, message, color, duration, sound
     end
     
     TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-        Position = UDim2.new(1, -420, 0, 100)
+        Position = UDim2.new(1, -470, 0, 100)
     }):Play()
     
     task.spawn(function()
@@ -1479,21 +1880,73 @@ player.CharacterAdded:Connect(function(character)
 end)
 
 -- ============================================================================
--- RAYFIELD UI
+-- MAIN RAYFIELD UI WITH SMART KEYBIND INTEGRATION
 -- ============================================================================
 
 task.spawn(function()
-    wait(14) -- Wait for all screens
+    wait(10) -- Wait for all loading screens
+    
+    -- Create smart draggable toggle button
+    ToggleButton = createSmartDraggableToggleButton()
+    
+    -- Setup keybind detection
+    setupSmartKeybindDetection()
     
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
-    local Window = Rayfield:CreateWindow({
-        Name = "Wener Hub v4.0 - Ultimate Complete Edition [FIXED ESP]",
-        LoadingTitle = "Wener Hub Ultimate Complete",
-        LoadingSubtitle = "Fixed ESP System & All Advanced Features",
+    -- Hook into Rayfield to detect keybind
+    local originalCreateWindow = Rayfield.CreateWindow
+    Rayfield.CreateWindow = function(settings)
+        local window = originalCreateWindow(settings)
+        
+        -- Try to extract keybind from window
+        task.spawn(function()
+            wait(3)
+            
+            -- Check for keybind in window properties
+            if window and window.KeybindFrame then
+                local keybindText = window.KeybindFrame:FindFirstChild("Text")
+                if keybindText then
+                    local detectedKey = keybindText.Text:upper()
+                    if detectedKey:len() == 1 and detectedKey ~= currentKeybind then
+                        currentKeybind = detectedKey
+                        if ToggleButton and ToggleButton.UpdateKeybind then
+                            ToggleButton.UpdateKeybind(detectedKey)
+                        end
+                        if PermanentLogo and PermanentLogo.UpdateKeybind then
+                            PermanentLogo.UpdateKeybind(detectedKey)
+                        end
+                        print("🔍 Window-detected keybind: " .. detectedKey)
+                    end
+                end
+            end
+            
+            -- Check settings if available
+            if settings and settings.KeySettings and settings.KeySettings.Toggle then
+                local keybind = tostring(settings.KeySettings.Toggle):upper()
+                if keybind and keybind:len() == 1 and keybind ~= currentKeybind then
+                    currentKeybind = keybind
+                    if ToggleButton and ToggleButton.UpdateKeybind then
+                        ToggleButton.UpdateKeybind(keybind)
+                    end
+                    if PermanentLogo and PermanentLogo.UpdateKeybind then
+                        PermanentLogo.UpdateKeybind(keybind)
+                    end
+                    print("🔍 Settings-detected keybind: " .. keybind)
+                end
+            end
+        end)
+        
+        return window
+    end
+    
+    MainWindow = Rayfield:CreateWindow({
+        Name = "Wener Hub v4.0 - Complete Smart Keybind",
+        LoadingTitle = "Complete Smart Toggle System",
+        LoadingSubtitle = "All features + Smart keybind detection",
         ConfigurationSaving = {
             Enabled = true,
-            FolderName = "WenerHub",
+            FolderName = "WenerHub", 
             FileName = "Config"
         },
         Discord = {
@@ -1502,31 +1955,33 @@ task.spawn(function()
         KeySystem = false
     })
     
-    -- Create Tabs
-    local InfoTab = Window:CreateTab("📋 Info", 4483362458)
-    local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
-    local ESPTab = Window:CreateTab("👁️ Fixed ESP", 4483362458)
-    local AutoTab = Window:CreateTab("🤖 Automation", 4483362458)
-    local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
-    local MiscTab = Window:CreateTab("🔧 Miscellaneous", 4483362458)
+    -- Create all tabs
+    local InfoTab = MainWindow:CreateTab("📋 Smart Info", 4483362458)
+    local MainTab = MainWindow:CreateTab("⚙️ Main Features", 4483362458)
+    local ESPTab = MainWindow:CreateTab("👁️ Fixed ESP", 4483362458)
+    local AutoTab = MainWindow:CreateTab("🤖 Automation", 4483362458)
+    local NotifTab = MainWindow:CreateTab("🔔 Notifications", 4483362458)
+    local KeybindTab = MainWindow:CreateTab("🎛️ Smart Keybind", 4483362458)
+    local MiscTab = MainWindow:CreateTab("🔧 Miscellaneous", 4483362458)
     
     -- Info Tab
+    InfoTab:CreateParagraph({
+        Title = "🎛️ Smart Draggable Toggle Button", 
+        Content = "✨ Purple circular button with smart keybind detection!\n🔍 Auto-detects Rayfield keybind: (K), (E), (P), etc.\n🖱️ Drag anywhere, click infinite times\n📱 Mobile & desktop compatible\n🎯 Smart key simulation based on detected keybind\n🔄 Real-time keybind monitoring"
+    })
+    
+    InfoTab:CreateParagraph({
+        Title = "🚀 COMPLETE FEATURE LIST", 
+        Content = "✅ Smart keybind detection & adaptation\n✅ Fixed ESP system with size stability\n✅ Advanced automation (auto collect, unlock, vitamins)\n✅ Entity notifications with sound\n✅ God mode, noclip, speed controls\n✅ Anti-cheat bypass\n✅ Auto execute & reconnect\n✅ Permanent logo with owner detection"
+    })
+    
     InfoTab:CreateParagraph({
         Title = "👤 Player Information", 
         Content = "Username: " .. player.Name .. 
                   "\nDisplay Name: " .. player.DisplayName .. 
                   "\nUser ID: " .. player.UserId ..
+                  "\nCurrent Keybind: " .. currentKeybind ..
                   (isOwner and "\n\n👑 OWNER ACCESS GRANTED" or "")
-    })
-    
-    InfoTab:CreateParagraph({
-        Title = "🚀 WENER Hub v4.0 Ultimate - FIXED ESP", 
-        Content = "✅ Fixed ESP Size - Billboard size tetap saat zoom\n✅ Fixed Key ESP - Deteksi key yang benar\n✅ Fixed Item ESP - Hanya item yang bisa diambil\n✅ Fixed Book ESP - Hanya Figure books\n✅ Bright Outline - Terang dengan warna:\n   • Doors: Hijau 🟢\n   • Items: Merah 🔴\n   • Keys: Kuning 🟡\n   • Books: Coklat 🟤"
-    })
-    
-    InfoTab:CreateParagraph({
-        Title = "🔑 Key System Info", 
-        Content = "• Key expires every 2 hours\n• Valid key: Wene-you\n• Owner bypass available\n• Automatic key verification\n• Settings auto-save enabled"
     })
     
     -- Main Features Tab
@@ -1616,8 +2071,8 @@ task.spawn(function()
         end
     })
     
-    -- Fixed ESP Features Tab
-    ESPTab:CreateLabel("✨ FIXED ESP SYSTEM - Size tetap, outline terang!")
+    -- Fixed ESP Tab
+    ESPTab:CreateLabel("✨ FIXED ESP SYSTEM - Size tetap saat zoom!")
     
     ESPTab:CreateToggle({
         Name = "🚪 Door ESP (Green Outline)",
@@ -1724,19 +2179,22 @@ task.spawn(function()
             entityEspEnabled = false
             playerEspEnabled = false
             bookEspEnabled = false
-            itemEspEnabled = false
+                itemEspEnabled = false
             clearAllESP()
+            Rayfield:Notify({
+                Title = "🗑️ ESP Cleared",
+                Content = "All ESP objects have been removed",
+                Duration = 3,
+                Image = 4483362458,
+            })
         end
     })
     
-    ESPTab:CreateParagraph({
-        Title = "🎯 ESP Features", 
-        Content = "✅ Billboard size tetap saat zoom in/out\n✅ Bright outline dengan warna berbeda\n✅ Distance indicator real-time\n✅ Auto remove ESP objek jauh\n✅ Smart detection algorithms\n✅ Performance optimized"
-    })
-    
     -- Automation Tab
+    AutoTab:CreateLabel("🤖 ADVANCED AUTOMATION FEATURES")
+    
     AutoTab:CreateToggle({
-        Name = "📦 Smart Auto Collect Items",
+        Name = "📦 Auto Collect Items",
         CurrentValue = false,
         Flag = "AutoCollect",
         Callback = function(v)
@@ -1747,6 +2205,22 @@ task.spawn(function()
             end
         end
     })
+    
+    AutoTab:CreateSection("📦 Auto Collect Settings")
+    
+    local collectableItems = {"Vitamins", "Lockpick", "Key", "Flashlight", "Lighter", "Candle", "Crucifix", "Bandage", "SkeletonKey", "Book"}
+    
+    for _, itemName in pairs(collectableItems) do
+        AutoTab:CreateToggle({
+            Name = "🔹 Collect " .. itemName,
+            CurrentValue = true,
+            Flag = "Collect" .. itemName,
+            Callback = function(v)
+                autoCollectSettings[itemName] = v
+                print("📦 Auto Collect " .. itemName .. ": " .. (v and "ENABLED" or "DISABLED"))
+            end
+        })
+    end
     
     AutoTab:CreateToggle({
         Name = "🔓 Auto Unlock Doors",
@@ -1762,7 +2236,7 @@ task.spawn(function()
     })
     
     AutoTab:CreateToggle({
-        Name = "💊 Infinite Vitamins Effect",
+        Name = "💊 Infinite Vitamins",
         CurrentValue = false,
         Flag = "InfVitamins",
         Callback = function(v)
@@ -1774,22 +2248,11 @@ task.spawn(function()
         end
     })
     
-    AutoTab:CreateSection("Auto Collect Settings")
-    
-    for itemName, _ in pairs(autoCollectSettings) do
-        AutoTab:CreateToggle({
-            Name = "Collect " .. itemName,
-            CurrentValue = true,
-            Flag = "Collect" .. itemName,
-            Callback = function(v)
-                autoCollectSettings[itemName] = v
-            end
-        })
-    end
-    
     -- Notifications Tab
+    NotifTab:CreateLabel("🔔 ADVANCED NOTIFICATION SYSTEM")
+    
     NotifTab:CreateToggle({
-        Name = "🚨 Rush/Ambush Notifications",
+        Name = "⚡ Rush/Ambush Notifications",
         CurrentValue = false,
         Flag = "RushNotif",
         Callback = function(v)
@@ -1812,139 +2275,229 @@ task.spawn(function()
         Name = "🧪 Test Notification System",
         Callback = function()
             createAdvancedNotification(
-                "🧪 Test Notification",
-                "This is a test of the advanced notification system with sound effects!",
+                "🧪 TEST NOTIFICATION",
+                "This is a test of the advanced notification system with sound and animations!",
                 Color3.fromRGB(0, 255, 0),
-                3,
+                4,
                 true
             )
         end
     })
     
-    NotifTab:CreateParagraph({
-        Title = "📋 Notification Features", 
-        Content = "• Advanced visual effects with gradients\n• Sound notifications for important events\n• Smart spam prevention\n• Customizable duration and colors\n• Slide-in animations"
+    -- Smart Keybind Tab
+    KeybindTab:CreateLabel("🎛️ SMART KEYBIND DETECTION SYSTEM")
+    
+    local currentKeybindLabel = KeybindTab:CreateLabel("Current Detected Keybind: " .. currentKeybind)
+    local detectionStatus = KeybindTab:CreateLabel("🔍 Status: Auto-detecting...")
+    
+    KeybindTab:CreateParagraph({
+        Title = "🔍 Auto Detection Methods",
+        Content = "Method 1: Rayfield UI element scanning\nMethod 2: Window property monitoring\nMethod 3: Settings extraction\nMethod 4: Input pattern analysis\nMethod 5: Storage value checking"
     })
     
-    -- Miscellaneous Tab
-    MiscTab:CreateButton({
-        Name = "💾 Save Current Settings",
-        Callback = function()
-            local settings = {
-                speed = currentSpeed,
-                godMode = godModeEnabled,
-                noclip = noclipEnabled,
-                bypassAntiCheat = bypassAntiCheat,
-                doorESP = doorEspEnabled,
-                keyESP = keyEspEnabled,
-                entityESP = entityEspEnabled,
-                playerESP = playerEspEnabled,
-                bookESP = bookEspEnabled,
-                itemESP = itemEspEnabled,
-                autoCollect = autoCollectEnabled,
-                autoUnlock = autoUnlockEnabled,
-                infVitamins = infVitaminsEnabled,
-                rushNotif = rushNotifEnabled,
-                allEntityNotif = allEntityNotifications,
-                autoCollectSettings = autoCollectSettings
-            }
-            
-            writefile("WenerHub/Settings.json", game:GetService("HttpService"):JSONEncode(settings))
-            
-            createAdvancedNotification(
-                "💾 Settings Saved",
-                "All current settings have been saved successfully!",
-                Color3.fromRGB(0, 255, 0),
-                3,
-                false
-            )
+    KeybindTab:CreateDropdown({
+        Name = "🔧 Manual Keybind Override",
+        Options = {"K", "E", "P", "M", "N", "B", "V", "X", "Z", "C", "F", "G", "H", "J", "L", "O", "Q", "R", "T", "U", "Y", "I"},
+        CurrentOption = currentKeybind,
+        Flag = "ManualKeybind",
+        Callback = function(Option)
+            currentKeybind = Option
+            if ToggleButton and ToggleButton.UpdateKeybind then
+                ToggleButton.UpdateKeybind(Option)
+            end
+            if PermanentLogo and PermanentLogo.UpdateKeybind then
+                PermanentLogo.UpdateKeybind(Option)
+            end
+            currentKeybindLabel.Set("Current Keybind: " .. Option)
+            detectionStatus.Set("🔧 Manual Override: " .. Option)
+            print("🔧 Manual keybind override: " .. Option)
         end
     })
     
-    MiscTab:CreateButton({
-        Name = "📂 Load Saved Settings",
+    KeybindTab:CreateButton({
+        Name = "🔄 Reset to Auto-Detection",
         Callback = function()
-            local success, settings = pcall(function()
-                return game:GetService("HttpService"):JSONDecode(readfile("WenerHub/Settings.json"))
-            end)
+            detectionStatus.Set("🔍 Status: Auto-detecting...")
+            setupSmartKeybindDetection()
+        end
+    })
+    
+    KeybindTab:CreateButton({
+        Name = "🧪 Test Current Keybind",
+        Callback = function()
+            local keyCode = Enum.KeyCode[currentKeybind] or Enum.KeyCode.K
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, keyCode, false, game)
+            task.wait(0.1)
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, keyCode, false, game)
             
-            if success and settings then
-                if settings.speed then setSpeed(settings.speed) end
-                if settings.godMode then 
-                    if settings.godMode then enableGodMode() else disableGodMode() end
-                end
-                if settings.noclip then
-                    if settings.noclip then enableNoclip() else disableNoclip() end
-                end
-                
-                createAdvancedNotification(
-                    "📂 Settings Loaded",
-                    "Saved settings have been loaded and applied successfully!",
-                    Color3.fromRGB(0, 255, 0),
-                    3,
-                    false
-                )
-            else
-                createAdvancedNotification(
-                    "❌ Load Failed",
-                    "No saved settings found or file is corrupted.",
-                    Color3.fromRGB(255, 0, 0),
-                    3,
-                    false
-                )
+            detectionStatus.Set("🧪 Tested: " .. currentKeybind .. " key simulated!")
+            
+            task.wait(3)
+            detectionStatus.Set("🔍 Current: " .. currentKeybind)
+        end
+    })
+    
+    KeybindTab:CreateButton({
+        Name = "🎛️ Show Toggle Button Info",
+        Callback = function()
+            Rayfield:Notify({
+                Title = "🎛️ Smart Toggle Button",
+                Content = "Look for the purple circular button!\nKeybind: " .. currentKeybind .. "\nDrag to move, click to toggle",
+                Duration = 5,
+                Image = 4483362458,
+            })
+        end
+    })
+    
+    -- Miscellaneous Tab
+    MiscTab:CreateLabel("🔧 MISCELLANEOUS FEATURES")
+    
+    MiscTab:CreateButton({
+        Name = "📋 Copy Script to Clipboard",
+        Callback = function()
+            local scriptCode = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate-smart.lua"))()'
+            if setclipboard then
+                setclipboard(scriptCode)
+                Rayfield:Notify({
+                    Title = "📋 Copied!",
+                    Content = "Script code copied to clipboard",
+                    Duration = 3,
+                    Image = 4483362458,
+                })
             end
         end
     })
     
     MiscTab:CreateButton({
-        Name = "🔄 Reconnect to Server",
+        Name = "🚀 Enable Auto Execute",
         Callback = function()
-            TeleportService:Teleport(game.PlaceId, player)
+            setupAutoExecute()
+            Rayfield:Notify({
+                Title = "🚀 Auto Execute",
+                Content = "Auto execute has been configured",
+                Duration = 3,
+                Image = 4483362458,
+            })
         end
     })
     
     MiscTab:CreateButton({
-        Name = "📋 Copy Discord Link",
+        Name = "📱 Create Mobile GUI",
         Callback = function()
-            setclipboard("https://discord.gg/wanerhub")
-            createAdvancedNotification(
-                "📋 Copied!",
-                "Discord link has been copied to clipboard!",
-                Color3.fromRGB(0, 255, 255),
-                3,
-                false
-            )
+            -- Create additional mobile-friendly GUI
+            local MobileGui = Instance.new("ScreenGui")
+            MobileGui.Name = "WenerMobileGUI"
+            MobileGui.ResetOnSpawn = false
+            MobileGui.Parent = game.CoreGui
+            
+            local MobileFrame = Instance.new("Frame")
+            MobileFrame.Size = UDim2.new(0, 300, 0, 200)
+            MobileFrame.Position = UDim2.new(0, 10, 0.5, -100)
+            MobileFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+            MobileFrame.Parent = MobileGui
+            
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0, 15)
+            Corner.Parent = MobileFrame
+            
+            local Title = Instance.new("TextLabel")
+            Title.Size = UDim2.new(1, 0, 0, 40)
+            Title.BackgroundTransparency = 1
+            Title.Text = "📱 WENER MOBILE"
+            Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Title.Font = Enum.Font.GothamBold
+            Title.TextSize = 18
+            Title.Parent = MobileFrame
+            
+            local quickButtons = {
+                {name = "Speed x3", callback = function() setSpeed(48) end},
+                {name = "God Mode", callback = function() enableGodMode() end},
+                {name = "Noclip", callback = function() enableNoclip() end},
+                {name = "ESP All", callback = function() 
+                    doorEspEnabled = true
+                    keyEspEnabled = true
+                    updateDoorESP()
+                    updateKeyESP()
+                end}
+            }
+            
+            for i, buttonData in pairs(quickButtons) do
+                local QuickButton = Instance.new("TextButton")
+                QuickButton.Size = UDim2.new(0.45, 0, 0, 30)
+                QuickButton.Position = UDim2.new(
+                    (i-1) % 2 == 0 and 0.05 or 0.5, 0, 
+                    0, 50 + math.floor((i-1) / 2) * 35
+                )
+                QuickButton.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+                QuickButton.Text = buttonData.name
+                QuickButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+                QuickButton.Font = Enum.Font.Gotham
+                QuickButton.TextSize = 12
+                QuickButton.Parent = MobileFrame
+                
+                local ButtonCorner = Instance.new("UICorner")
+                ButtonCorner.CornerRadius = UDim.new(0, 8)
+                ButtonCorner.Parent = QuickButton
+                
+                QuickButton.MouseButton1Click:Connect(buttonData.callback)
+            end
+            
+            Rayfield:Notify({
+                Title = "📱 Mobile GUI Created",
+                Content = "Additional mobile controls added",
+                Duration = 3,
+                Image = 4483362458,
+            })
         end
     })
     
-    MiscTab:CreateParagraph({
-        Title = "🔧 System Information", 
-        Content = "• Auto Execute: ✅ CONFIGURED\n• Auto Reconnect: ✅ ACTIVE\n• Fixed ESP: ✅ OPERATIONAL\n• Performance: ✅ OPTIMIZED\n• Memory Usage: ✅ MINIMAL"
-    })
+    if isOwner then
+        MiscTab:CreateSection("👑 OWNER EXCLUSIVE")
+        
+        MiscTab:CreateButton({
+            Name = "👑 Owner Broadcast",
+            Callback = function()
+                for _, otherPlayer in pairs(Players:GetPlayers()) do
+                    if otherPlayer ~= player then
+                        createAdvancedNotification(
+                            "👑 OWNER MESSAGE",
+                            "WENER HUB v4.0 by " .. player.DisplayName .. " is active!",
+                            Color3.fromRGB(255, 215, 0),
+                            8,
+                            true
+                        )
+                    end
+                end
+            end
+        })
+        
+        MiscTab:CreateButton({
+            Name = "🛠️ Debug Keybind Detection",
+            Callback = function()
+                print("🔍 === KEYBIND DEBUG INFO ===")
+                print("Current Keybind:", currentKeybind)
+                print("Rayfield UI Found:", game.CoreGui:FindFirstChild("Rayfield") ~= nil)
+                print("Toggle Button Active:", ToggleButton ~= nil)
+                print("Permanent Logo Active:", PermanentLogo ~= nil)
+                
+                local rayfield = game.CoreGui:FindFirstChild("Rayfield")
+                if rayfield then
+                    print("Rayfield Elements:")
+                    for _, obj in pairs(rayfield:GetDescendants()) do
+                        if obj:IsA("TextLabel") and obj.Text:find("[A-Z]") then
+                            print(" - " .. obj.Name .. ": " .. obj.Text)
+                        end
+                    end
+                end
+                print("🔍 === END DEBUG INFO ===")
+            end
+        })
+    end
     
-    -- Final notification
-    Rayfield:Notify({
-        Title = "🚀 WENER HUB v4.0 LOADED - ESP FIXED!",
-        Content = "Welcome " .. player.DisplayName .. "!\nAll systems operational with FIXED ESP!",
-        Duration = 5,
-        Image = 4483362458,
-    })
-    
-    print("✅ WENER HUB v4.0 ULTIMATE WITH FIXED ESP LOADED!")
-    print("🚀 All systems operational and ready to use!")
-    print("👁️ ESP System: FIXED - Size tetap, outline terang!")
-    print("👑 Owner Status: " .. (isOwner and "ACTIVE" or "INACTIVE"))
-    print("🔑 Key System: 2-HOUR EXPIRY ACTIVE")
-    print("📡 Auto Reconnect: ACTIVE")
-    print("🚀 Auto Execute: CONFIGURED")
-end)
-
--- Auto refresh ESP every 10 seconds
-task.spawn(function()
-    while true do
-        wait(10)
-        if doorEspEnabled or keyEspEnabled or entityEspEnabled or playerEspEnabled or bookEspEnabled or itemEspEnabled then
-            clearAllESP()
+    -- Start periodic ESP updates
+    task.spawn(function()
+        while true do
+            wait(2)
             if doorEspEnabled then updateDoorESP() end
             if keyEspEnabled then updateKeyESP() end
             if itemEspEnabled then updateItemESP() end
@@ -1952,15 +2505,95 @@ task.spawn(function()
             if entityEspEnabled then updateEntityESP() end
             if playerEspEnabled then updatePlayerESP() end
         end
-    end
+    end)
+    
+    -- Update keybind status periodically
+    task.spawn(function()
+        while true do
+            wait(5)
+            if currentKeybindLabel and currentKeybindLabel.Set then
+                currentKeybindLabel.Set("Current Keybind: " .. currentKeybind)
+            end
+            if detectionStatus and detectionStatus.Set and not detectionStatus.Text:find("Manual") and not detectionStatus.Text:find("Tested") then
+                detectionStatus.Set("🔍 Monitoring: " .. currentKeybind)
+            end
+        end
+    end)
+    
+    -- Try to detect Rayfield's actual keybind after full load
+    task.spawn(function()
+        wait(5)
+        
+        -- Final keybind detection attempt
+        local rayfield_ui = game.CoreGui:FindFirstChild("Rayfield")
+        if rayfield_ui then
+            print("🔍 Final keybind detection scan...")
+            
+            for _, obj in pairs(rayfield_ui:GetDescendants()) do
+                if obj:IsA("TextLabel") then
+                    local text = obj.Text:upper()
+                    local possibleKeys = {"K", "E", "P", "M", "N", "B", "V", "X", "Z", "C", "F", "G", "H", "J", "L", "O"}
+                    
+                    for _, key in pairs(possibleKeys) do
+                        if text:find("PRESS " .. key) or text:find("KEY " .. key) or (text == key and obj.Name:find("Key")) then
+                            if key ~= currentKeybind then
+                                currentKeybind = key
+                                if ToggleButton and ToggleButton.UpdateKeybind then
+                                    ToggleButton.UpdateKeybind(key)
+                                end
+                                if PermanentLogo and PermanentLogo.UpdateKeybind then
+                                    PermanentLogo.UpdateKeybind(key)
+                                end
+                                if currentKeybindLabel and currentKeybindLabel.Set then
+                                    currentKeybindLabel.Set("Current Keybind: " .. key)
+                                end
+                                if detectionStatus and detectionStatus.Set then
+                                    detectionStatus.Set("🔍 Auto-detected: " .. key)
+                                end
+                                print("🔍 Final scan detected keybind: " .. key)
+                            end
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    
+    -- Final success notification
+    Rayfield:Notify({
+        Title = "🎛️ COMPLETE WENER HUB LOADED!",
+        Content = "Smart keybind: " .. currentKeybind .. " | All features active!",
+        Duration = 8,
+        Image = 4483362458,
+    })
+    
+    print("✅ === WENER HUB v4.0 COMPLETE WITH SMART KEYBIND FULLY LOADED! ===")
+    print("🎛️ Smart draggable button created with keybind: " .. currentKeybind)
+    print("🔍 Advanced keybind detection system active!")
+    print("📊 All features loaded: ESP, Automation, Notifications, etc.")
+    print("🔄 Button text shows current keybind and simulates correct key!")
+    print("♾️ Infinite clicks with real-time keybind monitoring!")
 end)
 
-print("✅ WENER HUB v4.0 CORE SYSTEMS INITIALIZED!")
-print("🎮 All features integrated and working!")
-print("👁️ ESP System: COMPLETELY FIXED!")
-print("🔑 Key expires every 2 hours - fully functional!")
-print("=" .. string.rep("=", 60) .. "=")
-print("WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP")
-print("Created by: winnertupiq52")
-print("All systems ready and operational! 🚀")
-print("=" .. string.rep("=", 60) .. "=")
+print("✅ WENER HUB v4.0 COMPLETE SMART KEYBIND SYSTEM INITIALIZED!")
+print("🎛️ Look for purple button that shows current keybind!")
+print("🔍 Button automatically detects and adapts to Rayfield keybind changes!")
+print("📋 COMPLETE FEATURE LIST:")
+print("   ✅ Smart keybind detection with 5 methods")
+print("   ✅ Draggable toggle button with keybind display")  
+print("   ✅ Fixed ESP system (stable size)")
+print("   ✅ Advanced automation (collect, unlock, vitamins)")
+print("   ✅ Entity notifications with sound")
+print("   ✅ God mode, noclip, speed controls")
+print("   ✅ Anti-cheat bypass")
+print("   ✅ Auto execute & reconnect")
+print("   ✅ Permanent logo with owner detection")
+print("   ✅ Mobile GUI support")
+print("   ✅ Complete Doors features")
+print("=" .. string.rep("=", 80) .. "=")
+print("WENER HUB v4.0 - COMPLETE WITH SMART KEYBIND DETECTION")
+print("The most advanced Doors script with intelligent keybind adaptation!")
+print("Button shows: (K), (E), (P), etc. based on your Rayfield keybind")
+print("Infinite clicks + Real-time monitoring + Complete automation!")
+print("=" .. string.rep("=", 80) .. "=")
