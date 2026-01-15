@@ -1,835 +1,1966 @@
--- Custom Key UI System (Super Bagus)
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+       -- WANER HUB v4.0 | FIXED ESP SYSTEM WITH CONSTANT SIZE & BRIGHT OUTLINE
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP ===")
+print("🚀 Loading the most advanced Doors script with proper ESP...")
+
+-- ============================================================================
+-- SERVICES & INITIALIZATION
+-- ============================================================================
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 
--- Key System Variables
-local validKeys = {
-    ["Wene-you"] = true,
-    ["Wene-123"] = true,
-    ["Wene-anti"] = true,
-    ["Wene-police"] = true
-}
+-- Wait for character
+repeat wait() until player.Character
+repeat wait() until player.Character:FindFirstChild("HumanoidRootPart")
 
-local keyExpiry = "KeyExpiry_Doors"
-local keyUsed = "KeyUsed_Doors"
+-- ============================================================================
+-- VARIABLES UNTUK SEMUA FITUR
+-- ============================================================================
 
-local function checkKey()
-    local success, savedKey = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile(keyUsed) or '""')
-    end)
-    local success2, expiry = pcall(function()
-        return tonumber(readfile(keyExpiry) or "0")
+local espObjects = {}
+local currentSpeed = 16
+local godModeEnabled = false
+local noclipEnabled = false
+local doorEspEnabled = false
+local keyEspEnabled = false
+local entityEspEnabled = false
+local playerEspEnabled = false
+local itemEspEnabled = false
+local bookEspEnabled = false
+local autoCollectEnabled = false
+local autoUnlockEnabled = false
+local infVitaminsEnabled = false
+local rushNotifEnabled = false
+local allEntityNotifications = false
+local bypassAntiCheat = false
+
+local noclipConnection
+local autoCollectConnection
+local autoUnlockConnection
+local infVitaminsConnection
+local entityConnections = {}
+local godModeConnections = {}
+local bypassConnections = {}
+
+-- ============================================================================
+-- AUTO EXECUTE & AUTO RECONNECT SETUP
+-- ============================================================================
+
+local function setupAutoExecute()
+    local autoExecuteCode = [[
+-- WANER HUB ULTIMATE AUTO EXECUTE
+print("🚀 WANER HUB Auto Execute Triggered!")
+loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate.lua"))()
+]]
+    
+    if not isfolder("WenerHub") then
+        makefolder("WenerHub")
+    end
+    
+    writefile("WenerHub/AutoExecute.lua", autoExecuteCode)
+    print("🚀 Auto Execute: CONFIGURED")
+end
+
+local function setupAutoReconnect()
+    local disconnectDetected = false
+    
+    local function createDisconnectGUI()
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "WenerDisconnectGUI"
+        ScreenGui.ResetOnSpawn = false
+        ScreenGui.Parent = game.CoreGui
+        
+        local Blur = Instance.new("BlurEffect")
+        Blur.Size = 30
+        Blur.Parent = Lighting
+        
+        local Background = Instance.new("Frame")
+        Background.Size = UDim2.new(1, 0, 1, 0)
+        Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Background.BackgroundTransparency = 0.4
+        Background.Parent = ScreenGui
+        
+        local DisconnectPanel = Instance.new("Frame")
+        DisconnectPanel.Size = UDim2.new(0, 500, 0, 300)
+        DisconnectPanel.Position = UDim2.new(0.5, -250, 0.5, -150)
+        DisconnectPanel.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+        DisconnectPanel.Parent = ScreenGui
+        
+        local Corner = Instance.new("UICorner")
+        Corner.CornerRadius = UDim.new(0, 20)
+        Corner.Parent = DisconnectPanel
+        
+        local Title = Instance.new("TextLabel")
+        Title.Size = UDim2.new(1, 0, 0, 60)
+        Title.BackgroundTransparency = 1
+        Title.Text = "⚠️ CONNECTION LOST"
+        Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Title.Font = Enum.Font.GothamBold
+        Title.TextSize = 32
+        Title.Parent = DisconnectPanel
+        
+        local Message = Instance.new("TextLabel")
+        Message.Size = UDim2.new(1, -40, 0, 100)
+        Message.Position = UDim2.new(0, 20, 0, 80)
+        Message.BackgroundTransparency = 1
+        Message.Text = "🔌 Disconnected from server\n📡 Auto Reconnect in 5 seconds..."
+        Message.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Message.Font = Enum.Font.Gotham
+        Message.TextSize = 18
+        Message.TextWrapped = true
+        Message.Parent = DisconnectPanel
+        
+        local ReconnectBtn = Instance.new("TextButton")
+        ReconnectBtn.Size = UDim2.new(0, 200, 0, 50)
+        ReconnectBtn.Position = UDim2.new(0.5, -100, 0, 200)
+        ReconnectBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        ReconnectBtn.Text = "🔄 Reconnect Now"
+        ReconnectBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ReconnectBtn.Font = Enum.Font.GothamBold
+        ReconnectBtn.TextSize = 18
+        ReconnectBtn.Parent = DisconnectPanel
+        
+        local BtnCorner = Instance.new("UICorner")
+        BtnCorner.CornerRadius = UDim.new(0, 10)
+        BtnCorner.Parent = ReconnectBtn
+        
+        local countdown = 5
+        task.spawn(function()
+            while countdown > 0 do
+                Message.Text = string.format("🔌 Disconnected from server\n📡 Auto Reconnect in %d seconds...", countdown)
+                countdown = countdown - 1
+                wait(1)
+            end
+            TeleportService:Teleport(game.PlaceId, player)
+        end)
+        
+        ReconnectBtn.MouseButton1Click:Connect(function()
+            TeleportService:Teleport(game.PlaceId, player)
+        end)
+    end
+    
+    local lastHeartbeat = tick()
+    RunService.Heartbeat:Connect(function()
+        lastHeartbeat = tick()
     end)
     
-    if success and success2 and savedKey ~= "" and validKeys[savedKey] and os.time() < expiry then
+    task.spawn(function()
+        while true do
+            wait(1)
+            if tick() - lastHeartbeat > 8 and not disconnectDetected then
+                disconnectDetected = true
+                createDisconnectGUI()
+                break
+            end
+        end
+    end)
+end
+
+setupAutoExecute()
+setupAutoReconnect()
+
+-- ============================================================================
+-- LOADING SCREEN
+-- ============================================================================
+
+local function createLoadingScreen()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerLoading"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = Lighting
+    
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
+    
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 600, 0, 350)
+    Container.Position = UDim2.new(0.5, -300, 0.5, -175)
+    Container.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 25)
+    Corner.Parent = Container
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 80)
+    Title.Position = UDim2.new(0, 0, 0, 40)
+    Title.BackgroundTransparency = 1
+    Title.Text = "WENER HUB v4.0"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 54
+    Title.TextTransparency = 1
+    Title.Parent = Container
+    
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Size = UDim2.new(1, 0, 0, 40)
+    Subtitle.Position = UDim2.new(0, 0, 0, 120)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Text = "ULTIMATE EDITION WITH FIXED ESP"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.TextSize = 24
+    Subtitle.TextTransparency = 1
+    Subtitle.Parent = Container
+    
+    local Status = Instance.new("TextLabel")
+    Status.Size = UDim2.new(1, 0, 0, 40)
+    Status.Position = UDim2.new(0, 0, 0, 180)
+    Status.BackgroundTransparency = 1
+    Status.Text = "Initializing fixed ESP systems..."
+    Status.TextColor3 = Color3.fromRGB(100, 255, 100)
+    Status.Font = Enum.Font.Gotham
+    Status.TextSize = 18
+    Status.TextTransparency = 1
+    Status.Parent = Container
+    
+    local Progress = Instance.new("Frame")
+    Progress.Size = UDim2.new(0, 0, 0, 8)
+    Progress.Position = UDim2.new(0.075, 0, 0, 240)
+    Progress.BackgroundColor3 = Color3.fromRGB(139, 0, 255)
+    Progress.BorderSizePixel = 0
+    Progress.BackgroundTransparency = 1
+    Progress.Parent = Container
+    
+    local ProgressCorner = Instance.new("UICorner")
+    ProgressCorner.CornerRadius = UDim.new(1, 0)
+    ProgressCorner.Parent = Progress
+    
+    task.spawn(function()
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 35}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(Container, TweenInfo.new(1), {BackgroundTransparency = 0.1}):Play()
+        wait(1)
+        
+        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(0.4)
+        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(0.4)
+        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+        wait(0.8)
+        
+        local stages = {
+            {text = "🚀 Setting up Auto Execute...", progress = 0.2},
+            {text = "🔄 Configuring Auto Reconnect...", progress = 0.4},
+            {text = "👁️ Loading Fixed ESP Systems...", progress = 0.6},
+            {text = "🛡️ Initializing Protection...", progress = 0.8},
+            {text = "✅ All Systems Ready!", progress = 1.0}
+        }
+        
+        for _, stage in ipairs(stages) do
+            Status.Text = stage.text
+            TweenService:Create(Progress, TweenInfo.new(1), {Size = UDim2.new(0.85 * stage.progress, 0, 0, 8)}):Play()
+            wait(1)
+        end
+        
+        wait(1)
+        
+        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+        wait(1.2)
+        
+        Blur:Destroy()
+        ScreenGui:Destroy()
+    end)
+end
+
+createLoadingScreen()
+wait(6)
+
+-- ============================================================================
+-- KEY SYSTEM DENGAN EXPIRE 2 JAM
+-- ============================================================================
+
+local KeySystemEnabled = true
+local CorrectKey = "Wene-you"
+local KeyExpireTime = 7200
+
+local function checkKey()
+    if not isfolder("WenerHub") then
+        makefolder("WenerHub")
+        return false
+    end
+    
+    if not isfile("WenerHub/Key.json") then
+        return false
+    end
+    
+    local success, data = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile("WenerHub/Key.json"))
+    end)
+    
+    if not success or not data then return false end
+    
+    local currentTime = os.time()
+    if data.key == CorrectKey and data.expire_time and currentTime < data.expire_time then
         return true
     end
+    
     return false
 end
 
-local function saveKey(key)
-    pcall(function()
-        writefile(keyUsed, game:GetService("HttpService"):JSONEncode(key))
-        writefile(keyExpiry, tostring(os.time() + 86400))
-    end)
+local function saveKey()
+    local currentTime = os.time()
+    local expireTime = currentTime + KeyExpireTime
+    
+    local keyData = {
+        key = CorrectKey,
+        save_time = currentTime,
+        expire_time = expireTime,
+        user = player.Name,
+        version = "v4.0_Ultimate"
+    }
+    
+    writefile("WenerHub/Key.json", game:GetService("HttpService"):JSONEncode(keyData))
 end
 
--- Custom Notification Function
-local function createNotification(title, message, duration, color)
-    local notifGui = Instance.new("ScreenGui")
-    notifGui.Name = "CustomNotification"
-    notifGui.Parent = playerGui
-    
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 350, 0, 80)
-    frame.Position = UDim2.new(1, 10, 0, 100)
-    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    frame.BorderSizePixel = 0
-    frame.Parent = notifGui
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
-    
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 35))
-    }
-    gradient.Rotation = 45
-    gradient.Parent = frame
-    
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = color or Color3.fromRGB(100, 200, 255)
-    stroke.Thickness = 2
-    stroke.Parent = frame
-    
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -20, 0, 25)
-    titleLabel.Position = UDim2.new(0, 10, 0, 5)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextScaled = true
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.Parent = frame
-    
-    local messageLabel = Instance.new("TextLabel")
-    messageLabel.Size = UDim2.new(1, -20, 0, 40)
-    messageLabel.Position = UDim2.new(0, 10, 0, 30)
-    messageLabel.BackgroundTransparency = 1
-    messageLabel.Text = message
-    messageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    messageLabel.TextScaled = true
-    messageLabel.Font = Enum.Font.Gotham
-    messageLabel.TextWrapped = true
-    messageLabel.Parent = frame
-    
-    -- Animation
-    local slideIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Position = UDim2.new(1, -360, 0, 100)
-    })
-    
-    slideIn:Play()
-    
-    wait(duration or 3)
-    
-    local slideOut = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Position = UDim2.new(1, 10, 0, 100)
-    })
-    
-    slideOut:Play()
-    slideOut.Completed:Connect(function()
-        notifGui:Destroy()
-    end)
-end
+local ownerUsername = "winnertupiq52"
+local isOwner = player.Name == ownerUsername
 
--- Loading Screen Function
-local function createLoadingScreen()
-    local loadingGui = Instance.new("ScreenGui")
-    loadingGui.Name = "LoadingScreen"
-    loadingGui.Parent = playerGui
-    loadingGui.ResetOnSpawn = false
+if KeySystemEnabled and not checkKey() and not isOwner then
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerKeySystem"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
     
-    -- Background
-    local bgFrame = Instance.new("Frame")
-    bgFrame.Size = UDim2.new(1, 0, 1, 0)
-    bgFrame.Position = UDim2.new(0, 0, 0, 0)
-    bgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-    bgFrame.BorderSizePixel = 0
-    bgFrame.Parent = loadingGui
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = Lighting
     
-    -- Animated Background
-    local animBg = Instance.new("Frame")
-    animBg.Size = UDim2.new(1, 0, 1, 0)
-    animBg.Position = UDim2.new(0, 0, 0, 0)
-    animBg.BackgroundTransparency = 0.7
-    animBg.Parent = bgFrame
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
     
-    local bgGradient = Instance.new("UIGradient")
-    bgGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 100, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 200))
-    }
-    bgGradient.Rotation = 0
-    bgGradient.Parent = animBg
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 500, 0, 350)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainFrame.BackgroundTransparency = 1
+    MainFrame.Parent = ScreenGui
     
-    -- Animate background
-    spawn(function()
-        while loadingGui.Parent do
-            for i = 0, 360, 3 do
-                if not loadingGui.Parent then break end
-                bgGradient.Rotation = i
-                wait(0.05)
-            end
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 25)
+    Corner.Parent = MainFrame
+    
+    TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 30}):Play()
+    TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 0.3}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 0.1}):Play()
+    wait(0.8)
+    
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 80)
+    Title.BackgroundTransparency = 1
+    Title.Text = "🔐 WENER HUB KEY ACCESS"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 28
+    Title.Parent = MainFrame
+    
+    local ExpireInfo = Instance.new("TextLabel")
+    ExpireInfo.Size = UDim2.new(1, -40, 0, 30)
+    ExpireInfo.Position = UDim2.new(0, 20, 0, 80)
+    ExpireInfo.BackgroundTransparency = 1
+    ExpireInfo.Text = "⏰ Key valid for 2 hours after verification"
+    ExpireInfo.TextColor3 = Color3.fromRGB(255, 165, 0)
+    ExpireInfo.Font = Enum.Font.Gotham
+    ExpireInfo.TextSize = 16
+    ExpireInfo.Parent = MainFrame
+    
+    local KeyInput = Instance.new("TextBox")
+    KeyInput.Size = UDim2.new(1, -40, 0, 55)
+    KeyInput.Position = UDim2.new(0, 20, 0, 130)
+    KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    KeyInput.PlaceholderText = "Enter Access Key: Wene-***"
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    KeyInput.Text = ""
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.TextSize = 20
+    KeyInput.Parent = MainFrame
+    
+    local InputCorner = Instance.new("UICorner")
+    InputCorner.CornerRadius = UDim.new(0, 15)
+    InputCorner.Parent = KeyInput
+    
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Size = UDim2.new(1, -40, 0, 55)
+    SubmitBtn.Position = UDim2.new(0, 20, 0, 210)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    SubmitBtn.Text = "✓ VERIFY KEY"
+    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.TextSize = 20
+    SubmitBtn.Parent = MainFrame
+    
+    local BtnCorner = Instance.new("UICorner")
+    BtnCorner.CornerRadius = UDim.new(0, 15)
+    BtnCorner.Parent = SubmitBtn
+    
+    local Info = Instance.new("TextLabel")
+    Info.Size = UDim2.new(1, -40, 0, 50)
+    Info.Position = UDim2.new(0, 20, 0, 280)
+    Info.BackgroundTransparency = 1
+    Info.Text = "🔑 Get key from Discord or contact owner\n💎 30+ Premium Features"
+    Info.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Info.Font = Enum.Font.Gotham
+    Info.TextSize = 14
+    Info.TextWrapped = true
+    Info.Parent = MainFrame
+    
+    local submitted = false
+    SubmitBtn.MouseButton1Click:Connect(function()
+        if KeyInput.Text == CorrectKey then
+            saveKey()
+            submitted = true
+            
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            SubmitBtn.Text = "✅ SUCCESS! Key valid for 2 hours"
+            
+            wait(1)
+            
+            TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(ExpireInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(KeyInput, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(SubmitBtn, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+            TweenService:Create(Info, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+            TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+            wait(1.2)
+            
+            Blur:Destroy()
+            ScreenGui:Destroy()
+        else
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            SubmitBtn.Text = "❌ INVALID KEY"
+            wait(1.5)
+            SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            SubmitBtn.Text = "✓ VERIFY KEY"
         end
     end)
     
-    -- Logo/Title
-    local logoFrame = Instance.new("Frame")
-    logoFrame.Size = UDim2.new(0, 400, 0, 100)
-    logoFrame.Position = UDim2.new(0.5, -200, 0.4, -50)
-    logoFrame.BackgroundTransparency = 1
-    logoFrame.Parent = bgFrame
+    repeat wait(0.1) until submitted
+end
+
+-- ============================================================================
+-- WELCOME SCREEN
+-- ============================================================================
+
+local function createWelcomeScreen()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerWelcome"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
     
-    local logoText = Instance.new("TextLabel")
-    logoText.Size = UDim2.new(1, 0, 1, 0)
-    logoText.Position = UDim2.new(0, 0, 0, 0)
-    logoText.BackgroundTransparency = 1
-    logoText.Text = "🚪 DOORS SCRIPT"
-    logoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    logoText.TextScaled = true
-    logoText.Font = Enum.Font.GothamBold
-    logoText.Parent = logoFrame
+    local Blur = Instance.new("BlurEffect")
+    Blur.Size = 0
+    Blur.Parent = Lighting
     
-    local logoStroke = Instance.new("UIStroke")
-    logoStroke.Color = Color3.fromRGB(100, 200, 255)
-    logoStroke.Thickness = 3
-    logoStroke.Parent = logoText
+    local Background = Instance.new("Frame")
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.Parent = ScreenGui
     
-    -- Loading Bar Background
-    local loadBarBg = Instance.new("Frame")
-    loadBarBg.Size = UDim2.new(0, 300, 0, 8)
-    loadBarBg.Position = UDim2.new(0.5, -150, 0.6, 0)
-    loadBarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    loadBarBg.BorderSizePixel = 0
-    loadBarBg.Parent = bgFrame
+    local WelcomeText = Instance.new("TextLabel")
+    WelcomeText.Size = UDim2.new(0.8, 0, 0.2, 0)
+    WelcomeText.Position = UDim2.new(0.1, 0, 0.3, 0)
+    WelcomeText.BackgroundTransparency = 1
+    WelcomeText.Text = "Welcome " .. player.DisplayName .. " To WENER Hub"
+    WelcomeText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    WelcomeText.Font = Enum.Font.GothamBold
+    WelcomeText.TextSize = 48
+    WelcomeText.TextStrokeTransparency = 0
+    WelcomeText.TextTransparency = 1
+    WelcomeText.Parent = ScreenGui
     
-    local loadBarCorner = Instance.new("UICorner")
-    loadBarCorner.CornerRadius = UDim.new(0, 10)
-    loadBarCorner.Parent = loadBarBg
+    local HubText = Instance.new("TextLabel")
+    HubText.Size = UDim2.new(1, 0, 0.3, 0)
+    HubText.Position = UDim2.new(0, 0, 0.55, 0)
+    HubText.BackgroundTransparency = 1
+    HubText.Text = "W3n3r HuB"
+    HubText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    HubText.Font = Enum.Font.GothamBold
+    HubText.TextSize = 72
+    HubText.TextStrokeTransparency = 0
+    HubText.TextTransparency = 1
+    HubText.Parent = ScreenGui
     
-    -- Loading Bar
-    local loadBar = Instance.new("Frame")
-    loadBar.Size = UDim2.new(0, 0, 1, 0)
-    loadBar.Position = UDim2.new(0, 0, 0, 0)
-    loadBar.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-    loadBar.BorderSizePixel = 0
-    loadBar.Parent = loadBarBg
-    
-    local loadBarCorner2 = Instance.new("UICorner")
-    loadBarCorner2.CornerRadius = UDim.new(0, 10)
-    loadBarCorner2.Parent = loadBar
-    
-    -- Loading Text
-    local loadText = Instance.new("TextLabel")
-    loadText.Size = UDim2.new(0, 300, 0, 30)
-    loadText.Position = UDim2.new(0.5, -150, 0.65, 0)
-    loadText.BackgroundTransparency = 1
-    loadText.Text = "Loading..."
-    loadText.TextColor3 = Color3.fromRGB(200, 200, 200)
-    loadText.TextScaled = true
-    loadText.Font = Enum.Font.Gotham
-    loadText.Parent = bgFrame
-    
-    -- Loading Animation
-    local loadingTexts = {"Loading...", "Initializing...", "Setting up...", "Almost ready..."}
-    local currentText = 1
-    
-    spawn(function()
-        while loadingGui.Parent do
-            loadText.Text = loadingTexts[currentText]
-            currentText = currentText + 1
-            if currentText > #loadingTexts then
-                currentText = 1
-            end
-            wait(0.5)
-        end
-    end)
-    
-    -- Progress bar animation
-    local progressTween = TweenService:Create(loadBar, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(1, 0, 1, 0)
-    })
-    progressTween:Play()
-    
-    -- Wait 3 seconds then fade out
-    progressTween.Completed:Connect(function()
+    task.spawn(function()
+        TweenService:Create(Blur, TweenInfo.new(1), {Size = 25}):Play()
+        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.3}):Play()
+        wait(1)
+        
+        TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
+        wait(2)
+        
+        TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
         wait(0.5)
         
-        -- Fade out animation
-        local fadeOut = TweenService:Create(bgFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-            BackgroundTransparency = 1
-        })
+        local glitchTexts = {
+            "W3n3r HuB", "W€n€r H∪B", "W£n£r HμB", "W∈n∈r H∪ß",
+            "W∂n∂r Hub", "Wen€r Hub", "Wen3r Hub", "Wener Hub"
+        }
         
-        for _, obj in pairs(loadingGui:GetDescendants()) do
-            if obj:IsA("GuiObject") and obj ~= bgFrame then
-                local fade = TweenService:Create(obj, TweenInfo.new(0.8), {
-                    BackgroundTransparency = 1,
-                    TextTransparency = 1
-                })
-                fade:Play()
-            end
+        for i = 1, 15 do
+            HubText.Text = glitchTexts[math.random(1, #glitchTexts)]
+            HubText.TextColor3 = Color3.fromRGB(
+                math.random(100, 255),
+                math.random(100, 255), 
+                math.random(100, 255)
+            )
+            HubText.Position = UDim2.new(
+                math.random(-5, 5) / 100,
+                0,
+                0.55 + math.random(-2, 2) / 100,
+                0
+            )
+            wait(0.1)
         end
         
-        fadeOut:Play()
-        fadeOut.Completed:Connect(function()
-            loadingGui:Destroy()
-            loadMainScript()
-        end)
+        TweenService:Create(HubText, TweenInfo.new(1), {
+            TextColor3 = Color3.fromRGB(139, 0, 255),
+            Position = UDim2.new(0, 0, 0.55, 0)
+        }):Play()
+        HubText.Text = "Wener Hub"
+        
+        wait(3)
+        
+        TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        TweenService:Create(Background, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(Blur, TweenInfo.new(1.5), {Size = 0}):Play()
+        
+        wait(1.5)
+        ScreenGui:Destroy()
+        Blur:Destroy()
     end)
 end
 
--- Custom Key UI
-if not checkKey() then
-    local keyGui = Instance.new("ScreenGui")
-    keyGui.Name = "DoorsKeySystem"
-    keyGui.Parent = playerGui
-    keyGui.ResetOnSpawn = false
+createWelcomeScreen()
+
+-- ============================================================================
+-- PERMANENT LOGO
+-- ============================================================================
+
+local function createPermanentLogo()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WanerLogo"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
     
-    -- Background Blur
-    local blurFrame = Instance.new("Frame")
-    blurFrame.Size = UDim2.new(1, 0, 1, 0)
-    blurFrame.Position = UDim2.new(0, 0, 0, 0)
-    blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    blurFrame.BackgroundTransparency = 0.3
-    blurFrame.Parent = keyGui
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(0, 500, 0, 90)
+    Container.Position = UDim2.new(0.5, -250, 0.02, 0)
+    Container.BackgroundTransparency = 1
+    Container.Parent = ScreenGui
     
-    -- Main Frame
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 450, 0, 450)
-    mainFrame.Position = UDim2.new(0.5, -225, 0.5, -225)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    mainFrame.BorderSizePixel = 0
-    mainFrame.Parent = keyGui
+    local WenerText = Instance.new("TextLabel")
+    WenerText.Size = UDim2.new(0, 170, 1, 0)
+    WenerText.Position = UDim2.new(0, 0, 0, 0)
+    WenerText.BackgroundTransparency = 1
+    WenerText.Text = "WENER"
+    WenerText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    WenerText.Font = Enum.Font.GothamBold
+    WenerText.TextSize = 44
+    WenerText.TextStrokeTransparency = 0.3
+    WenerText.TextXAlignment = Enum.TextXAlignment.Right
+    WenerText.TextTransparency = 1
+    WenerText.Parent = Container
     
-    local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 15)
-    mainCorner.Parent = mainFrame
+    local HubText = Instance.new("TextLabel")
+    HubText.Size = UDim2.new(0, 110, 1, 0)
+    HubText.Position = UDim2.new(0, 180, 0, 0)
+    HubText.BackgroundTransparency = 1
+    HubText.Text = "HUB"
+    HubText.TextColor3 = Color3.fromRGB(139, 0, 255)
+    HubText.Font = Enum.Font.GothamBold
+    HubText.TextSize = 44
+    HubText.TextStrokeTransparency = 0.3
+    HubText.TextXAlignment = Enum.TextXAlignment.Left
+    HubText.TextTransparency = 1
+    HubText.Parent = Container
     
-    local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Color3.fromRGB(100, 200, 255)
-    mainStroke.Thickness = 3
-    mainStroke.Parent = mainFrame
+    local VersionText = Instance.new("TextLabel")
+    VersionText.Size = UDim2.new(0, 90, 0, 25)
+    VersionText.Position = UDim2.new(0, 300, 1, -25)
+    VersionText.BackgroundTransparency = 1
+    VersionText.Text = "v4.0 Ultimate"
+    VersionText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    VersionText.Font = Enum.Font.Gotham
+    VersionText.TextSize = 16
+    VersionText.TextTransparency = 1
+    VersionText.Parent = Container
     
-    -- Animated Gradient Background
-    local gradientFrame = Instance.new("Frame")
-    gradientFrame.Size = UDim2.new(1, 0, 1, 0)
-    gradientFrame.Position = UDim2.new(0, 0, 0, 0)
-    gradientFrame.BackgroundTransparency = 0.8
-    gradientFrame.Parent = mainFrame
-    
-    local gradientCorner = Instance.new("UICorner")
-    gradientCorner.CornerRadius = UDim.new(0, 15)
-    gradientCorner.Parent = gradientFrame
-    
-    local animatedGradient = Instance.new("UIGradient")
-    animatedGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 100, 255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 200))
-    }
-    animatedGradient.Rotation = 0
-    animatedGradient.Parent = gradientFrame
-    
-    -- Animate gradient rotation
-    spawn(function()
-        while keyGui.Parent do
-            for i = 0, 360, 2 do
-                if not keyGui.Parent then break end
-                animatedGradient.Rotation = i
-                wait(0.05)
-            end
-        end
-    end)
-    
-    -- Title
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -40, 0, 60)
-    titleLabel.Position = UDim2.new(0, 20, 0, 20)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = "🚪 DOORS SCRIPT"
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextScaled = true
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.Parent = mainFrame
-    
-    -- Subtitle
-    local subtitleLabel = Instance.new("TextLabel")
-    subtitleLabel.Size = UDim2.new(1, -40, 0, 30)
-    subtitleLabel.Position = UDim2.new(0, 20, 0, 80)
-    subtitleLabel.BackgroundTransparency = 1
-    subtitleLabel.Text = "Premium Key System"
-    subtitleLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
-    subtitleLabel.TextScaled = true
-    subtitleLabel.Font = Enum.Font.Gotham
-    subtitleLabel.Parent = mainFrame
-    
-    -- Key Input Frame
-    local inputFrame = Instance.new("Frame")
-    inputFrame.Size = UDim2.new(1, -60, 0, 60)
-    inputFrame.Position = UDim2.new(0, 30, 0, 140)
-    inputFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
-    inputFrame.BorderSizePixel = 0
-    inputFrame.Parent = mainFrame
-    
-    local inputCorner = Instance.new("UICorner")
-    inputCorner.CornerRadius = UDim.new(0, 10)
-    inputCorner.Parent = inputFrame
-    
-    local inputStroke = Instance.new("UIStroke")
-    inputStroke.Color = Color3.fromRGB(60, 60, 70)
-    inputStroke.Thickness = 2
-    inputStroke.Parent = inputFrame
-    
-    -- Key Input TextBox
-    local keyInput = Instance.new("TextBox")
-    keyInput.Size = UDim2.new(1, -20, 1, -10)
-    keyInput.Position = UDim2.new(0, 10, 0, 5)
-    keyInput.BackgroundTransparency = 1
-    keyInput.Text = ""
-    keyInput.PlaceholderText = "Enter your key here..."
-    keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-    keyInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
-    keyInput.TextScaled = true
-    keyInput.Font = Enum.Font.Gotham
-    keyInput.Parent = inputFrame
-    
-    -- Submit Button
-    local submitButton = Instance.new("TextButton")
-    submitButton.Size = UDim2.new(1, -60, 0, 50)
-    submitButton.Position = UDim2.new(0, 30, 0, 220)
-    submitButton.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-    submitButton.BorderSizePixel = 0
-    submitButton.Text = "🔓 VERIFY KEY"
-    submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    submitButton.TextScaled = true
-    submitButton.Font = Enum.Font.GothamBold
-    submitButton.Parent = mainFrame
-    
-    local submitCorner = Instance.new("UICorner")
-    submitCorner.CornerRadius = UDim.new(0, 10)
-    submitCorner.Parent = submitButton
-    
-    -- Info Frame (tanpa kasih tau key)
-    local infoFrame = Instance.new("Frame")
-    infoFrame.Size = UDim2.new(1, -60, 0, 120)
-    infoFrame.Position = UDim2.new(0, 30, 0, 290)
-    infoFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    infoFrame.BorderSizePixel = 0
-    infoFrame.Parent = mainFrame
-    
-    local infoCorner = Instance.new("UICorner")
-    infoCorner.CornerRadius = UDim.new(0, 10)
-    infoCorner.Parent = infoFrame
-    
-    local infoStroke = Instance.new("UIStroke")
-    infoStroke.Color = Color3.fromRGB(50, 50, 60)
-    infoStroke.Thickness = 1
-    infoStroke.Parent = infoFrame
-    
-    local infoTitle = Instance.new("TextLabel")
-    infoTitle.Size = UDim2.new(1, -20, 0, 30)
-    infoTitle.Position = UDim2.new(0, 10, 0, 10)
-    infoTitle.BackgroundTransparency = 1
-    infoTitle.Text = "ℹ️ Information:"
-    infoTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    infoTitle.TextScaled = true
-    infoTitle.Font = Enum.Font.GothamBold
-    infoTitle.TextXAlignment = Enum.TextXAlignment.Left
-    infoTitle.Parent = infoFrame
-    
-    local info1 = Instance.new("TextLabel")
-    info1.Size = UDim2.new(1, -20, 0, 20)
-    info1.Position = UDim2.new(0, 10, 0, 45)
-    info1.BackgroundTransparency = 1
-    info1.Text = "• Get keys from the developer"
-    info1.TextColor3 = Color3.fromRGB(150, 255, 150)
-    info1.TextScaled = true
-    info1.Font = Enum.Font.Gotham
-    info1.TextXAlignment = Enum.TextXAlignment.Left
-    info1.Parent = infoFrame
-    
-    local info2 = Instance.new("TextLabel")
-    info2.Size = UDim2.new(1, -20, 0, 20)
-    info2.Position = UDim2.new(0, 10, 0, 70)
-    info2.BackgroundTransparency = 1
-    info2.Text = "• Keys are valid for 24 hours"
-    info2.TextColor3 = Color3.fromRGB(150, 255, 150)
-    info2.TextScaled = true
-    info2.Font = Enum.Font.Gotham
-    info2.TextXAlignment = Enum.TextXAlignment.Left
-    info2.Parent = infoFrame
-    
-    local info3 = Instance.new("TextLabel")
-    info3.Size = UDim2.new(1, -20, 0, 20)
-    info3.Position = UDim2.new(0, 10, 0, 95)
-    info3.BackgroundTransparency = 1
-    info3.Text = "• Premium features included"
-    info3.TextColor3 = Color3.fromRGB(150, 255, 150)
-    info3.TextScaled = true
-    info3.Font = Enum.Font.Gotham
-    info3.TextXAlignment = Enum.TextXAlignment.Left
-    info3.Parent = infoFrame
-    
-    -- Status Label
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, -40, 0, 20)
-    statusLabel.Position = UDim2.new(0, 20, 0, 420)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Text = "Ready to verify..."
-    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    statusLabel.TextScaled = true
-    statusLabel.Font = Enum.Font.Gotham
-    statusLabel.Parent = mainFrame
-    
-    -- Button Animations
-    local function animateButton(button, hoverColor, normalColor)
-        button.MouseEnter:Connect(function()
-            local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor})
-            tween:Play()
-        end)
+    if isOwner then
+        local OwnerText = Instance.new("TextLabel")
+        OwnerText.Size = UDim2.new(0, 120, 0, 25)
+        OwnerText.Position = UDim2.new(0, 300, 0, 0)
+        OwnerText.BackgroundTransparency = 1
+        OwnerText.Text = "👑 OWNER ACCESS"
+        OwnerText.TextColor3 = Color3.fromRGB(255, 215, 0)
+        OwnerText.Font = Enum.Font.GothamBold
+        OwnerText.TextSize = 14
+        OwnerText.TextTransparency = 1
+        OwnerText.Parent = Container
         
-        button.MouseLeave:Connect(function()
-            local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = normalColor})
-            tween:Play()
+        task.spawn(function()
+            wait(14)
+            TweenService:Create(OwnerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
         end)
     end
     
-    animateButton(submitButton, Color3.fromRGB(120, 220, 255), Color3.fromRGB(100, 200, 255))
+    task.spawn(function()
+        wait(14)
+        TweenService:Create(WenerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(VersionText, TweenInfo.new(1.2), {TextTransparency = 0}):Play()
+    end)
+end
+
+task.spawn(createPermanentLogo)
+
+-- ============================================================================
+-- FIXED ESP SYSTEM - SIZE TETAP & DENGAN OUTLINE TERANG
+-- ============================================================================
+
+local function createFixedESP(obj, text, color, espType)
+    if not obj or obj:FindFirstChild("WenerESP_" .. espType) then return end
     
-    -- Input Focus Animation
-    keyInput.Focused:Connect(function()
-        local tween = TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 200, 255)})
-        tween:Play()
+    -- Cek jarak maksimal
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
+        if distance > 500 then return end
+    end
+    
+    -- Create Highlight untuk outline terang
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "WenerESP_" .. espType
+    highlight.Adornee = obj.Parent or obj
+    highlight.FillColor = color
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = color
+    highlight.OutlineTransparency = 0
+    highlight.Parent = obj
+    
+    -- Create BillboardGui dengan size TETAP (tidak berubah saat zoom)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "WenerESP_" .. espType .. "_Bill"
+    billboard.Adornee = obj
+    billboard.Size = UDim2.new(4, 0, 2, 0) -- SIZE TETAP DAN LEBIH BESAR
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 500
+    billboard.LightInfluence = 0
+    billboard.Parent = obj
+    
+    -- Background frame
+    local bgFrame = Instance.new("Frame")
+    bgFrame.Size = UDim2.new(1, 0, 1, 0)
+    bgFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    bgFrame.BackgroundTransparency = 0.3
+    bgFrame.BorderSizePixel = 0
+    bgFrame.Parent = billboard
+    
+    local bgCorner = Instance.new("UICorner")
+    bgCorner.CornerRadius = UDim.new(0, 8)
+    bgCorner.Parent = bgFrame
+    
+    -- Stroke untuk frame (outline terang)
+    local frameStroke = Instance.new("UIStroke")
+    frameStroke.Color = color
+    frameStroke.Thickness = 3
+    frameStroke.Transparency = 0
+    frameStroke.Parent = bgFrame
+    
+    -- Text label
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0.6, 0)
+    label.Position = UDim2.new(0, 5, 0, 5)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = color
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.Parent = billboard
+    
+    -- Distance label
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
+    distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Text = "0m"
+    distanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    distanceLabel.TextStrokeTransparency = 0
+    distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    distanceLabel.TextScaled = true
+    distanceLabel.Font = Enum.Font.Gotham
+    distanceLabel.Parent = billboard
+    
+    -- Animation untuk highlight glow effect
+    task.spawn(function()
+        while highlight.Parent and obj.Parent do
+            TweenService:Create(highlight, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                FillTransparency = 0.8,
+                OutlineTransparency = 0.2
+            }):Play()
+            
+            TweenService:Create(frameStroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+                Transparency = 0.3
+            }):Play()
+            
+            task.wait(1)
+        end
     end)
     
-    keyInput.FocusLost:Connect(function()
-        local tween = TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(60, 60, 70)})
-        tween:Play()
+    -- Update distance
+    task.spawn(function()
+        while billboard.Parent and obj.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+            local distance = math.floor((player.Character.HumanoidRootPart.Position - obj.Position).Magnitude)
+            distanceLabel.Text = distance .. "m"
+            
+            -- Auto remove jika terlalu jauh
+            if distance > 500 then
+                if highlight then highlight:Destroy() end
+                if billboard then billboard:Destroy() end
+                break
+            end
+            
+            task.wait(0.5)
+        end
     end)
     
-    -- Key Verification Function
-    local function verifyKey()
-        local key = keyInput.Text
-        statusLabel.Text = "Verifying key..."
-        statusLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
-        
-        wait(1) -- Simulate verification delay
-        
-        if validKeys[key] then
-            statusLabel.Text = "✅ Key verified successfully!"
-            statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-            
-            saveKey(key)
-            
-            -- Fade out animation
-            local fadeOut = TweenService:Create(keyGui, TweenInfo.new(0.5), {BackgroundTransparency = 1})
-            fadeOut:Play()
-            
-            for _, obj in pairs(keyGui:GetDescendants()) do
-                if obj:IsA("GuiObject") then
-                    local fade = TweenService:Create(obj, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1})
-                    fade:Play()
+    table.insert(espObjects, {highlight = highlight, billboard = billboard})
+    return {highlight, billboard}
+end
+
+-- ============================================================================
+-- ESP UPDATE FUNCTIONS - FIXED & PROPER DETECTION
+-- ============================================================================
+
+local function updateDoorESP()
+    if not doorEspEnabled then return end
+    
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if not currentRooms then return end
+    
+    for _, room in pairs(currentRooms:GetChildren()) do
+        if room:IsA("Model") and tonumber(room.Name) then
+            local door = room:FindFirstChild("Door")
+            if door then
+                local doorPart = door:FindFirstChildWhichIsA("BasePart")
+                if doorPart and not doorPart:FindFirstChild("WenerESP_door") then
+                    createFixedESP(doorPart, "🚪 Door " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
                 end
             end
-            
-            fadeOut.Completed:Connect(function()
-                keyGui:Destroy()
-                createLoadingScreen() -- Show loading screen sebelum main script
-            end)
-        else
-            statusLabel.Text = "❌ Invalid key! Please try again."
-            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            
-            -- Shake animation
-            local originalPos = mainFrame.Position
-            for i = 1, 5 do
-                local tween1 = TweenService:Create(mainFrame, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, 10, 0, 0)})
-                local tween2 = TweenService:Create(mainFrame, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, -10, 0, 0)})
-                tween1:Play()
-                tween1.Completed:Wait()
-                tween2:Play()
-                tween2.Completed:Wait()
+        end
+    end
+end
+
+local function updateKeyESP()
+    if not keyEspEnabled then return end
+    
+    -- Cari Key dengan multiple detection methods
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            -- Method 1: Direct Key model
+            if obj.Name == "KeyObtain" or obj.Name == "Key" or obj.Name:find("Key") then
+                local keyPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
+                    createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+                end
             end
-            local resetTween = TweenService:Create(mainFrame, TweenInfo.new(0.1), {Position = originalPos})
-            resetTween:Play()
-            
-            keyInput.Text = "" -- Clear input setelah salah
+        elseif obj:IsA("BasePart") then
+            -- Method 2: Direct key part
+            if obj.Name == "Key" or obj.Name:find("Key") then
+                if not obj:FindFirstChild("WenerESP_key") then
+                    createFixedESP(obj, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+                end
+            end
         end
     end
     
-    -- Event Connections
-    submitButton.MouseButton1Click:Connect(verifyKey)
-    keyInput.FocusLost:Connect(function(enterPressed)
-        if enterPressed then
-            verifyKey()
+    -- Method 3: Check dalam CurrentRooms untuk keys
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        for _, room in pairs(currentRooms:GetChildren()) do
+            if room:IsA("Model") then
+                for _, asset in pairs(room:GetDescendants()) do
+                    if asset:IsA("Model") and (asset.Name == "KeyObtain" or asset.Name == "Key") then
+                        local keyPart = asset:FindFirstChild("Handle") or asset:FindFirstChildWhichIsA("BasePart")
+                        if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
+                            createFixedESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 255, 0), "key")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function updateItemESP()
+    if not itemEspEnabled then return end
+    
+    -- List item yang bisa diambil (collectable items)
+    local collectableItems = {
+        "Vitamins", "Lockpick", "Candle", "Lighter", "FlashlightPickup", "Flashlight",
+        "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner", 
+        "Battery", "Herb", "Pill"
+    }
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            for _, itemName in pairs(collectableItems) do
+                if obj.Name == itemName or obj.Name:find(itemName) then
+                    -- Cek apakah item ini bisa diambil (ada ProximityPrompt)
+                    local hasPrompt = false
+                    local itemPart = obj:FindFirstChildWhichIsA("BasePart")
+                    
+                    if itemPart then
+                        local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then hasPrompt = true end
+                        
+                        -- Jika tidak ada prompt di main part, cek di children
+                        if not hasPrompt then
+                            for _, child in pairs(obj:GetDescendants()) do
+                                if child:IsA("ProximityPrompt") then
+                                    hasPrompt = true
+                                    break
+                                end
+                            end
+                        end
+                        
+                        -- Hanya buat ESP jika item bisa diambil dan belum ada ESP
+                        if hasPrompt and not itemPart:FindFirstChild("WenerESP_item") then
+                            local icon = "📦"
+                            if itemName == "Vitamins" or itemName == "Pill" then icon = "💊"
+                            elseif itemName == "Lockpick" then icon = "🔓"
+                            elseif itemName:find("Flashlight") or itemName == "Shakelight" then icon = "🔦"
+                            elseif itemName == "Candle" then icon = "🕯️"
+                            elseif itemName == "Lighter" then icon = "🔥"
+                            elseif itemName == "Crucifix" then icon = "✝️"
+                            elseif itemName == "Bandage" then icon = "🩹"
+                            elseif itemName == "SkeletonKey" then icon = "🗝️"
+                            elseif itemName == "Battery" then icon = "🔋"
+                            end
+                            
+                            createFixedESP(itemPart, icon .. " " .. itemName, Color3.fromRGB(255, 0, 0), "item")
+                        end
+                    end
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function updateBookESP()
+    if not bookEspEnabled then return end
+    
+    -- Cari Figure Books (yang benar untuk Figure sequence)
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            -- Method 1: Book models dalam library/rooms
+            if obj.Name == "Book" or obj.Name:find("Book") then
+                local bookPart = obj:FindFirstChildWhichIsA("BasePart")
+                if bookPart then
+                    -- Cek apakah ini book yang bisa di-interact untuk Figure
+                    local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
+                    if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
+                        createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                    end
+                end
+            end
+        elseif obj:IsA("BasePart") then
+            -- Method 2: Direct book parts
+            if obj.Name == "Book" or obj.Name:find("Book") then
+                local hasPrompt = obj:FindFirstChildOfClass("ProximityPrompt")
+                if hasPrompt and not obj:FindFirstChild("WenerESP_book") then
+                    createFixedESP(obj, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                end
+            end
+        end
+    end
+    
+    -- Method 3: Check in specific room 50 (Library) for books
+    local currentRooms = workspace:FindFirstChild("CurrentRooms")
+    if currentRooms then
+        local room50 = currentRooms:FindFirstChild("50")
+        if room50 then
+            for _, asset in pairs(room50:GetDescendants()) do
+                if asset:IsA("Model") and (asset.Name == "Book" or asset.Name:find("Book")) then
+                    local bookPart = asset:FindFirstChildWhichIsA("BasePart")
+                    if bookPart then
+                        local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
+                        if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
+                            createFixedESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function updateEntityESP()
+    if not entityEspEnabled then return end
+    
+    local entities = {
+        {name = "RushMoving", display = "Rush", color = Color3.fromRGB(255, 0, 0)},
+        {name = "AmbushMoving", display = "Ambush", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Eyes", display = "Eyes", color = Color3.fromRGB(255, 255, 255)},
+        {name = "Screech", display = "Screech", color = Color3.fromRGB(0, 255, 0)},
+        {name = "Halt", display = "Halt", color = Color3.fromRGB(0, 0, 255)},
+        {name = "Seek", display = "Seek", color = Color3.fromRGB(0, 0, 0)},
+        {name = "Figure", display = "Figure", color = Color3.fromRGB(139, 0, 255)},
+        {name = "Dupe", display = "Dupe", color = Color3.fromRGB(255, 255, 0)},
+        {name = "A60", display = "A-60", color = Color3.fromRGB(255, 0, 255)},
+        {name = "A120", display = "A-120", color = Color3.fromRGB(0, 255, 255)}
+    }
+    
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
+            for _, entityData in pairs(entities) do
+                if obj.Name == entityData.name or obj.Name:find(entityData.name) then
+                    local entityPart = obj:FindFirstChildWhichIsA("BasePart")
+                    if entityPart and not entityPart:FindFirstChild("WenerESP_entity") then
+                        createFixedESP(entityPart, "👹 " .. entityData.display, entityData.color, "entity")
+                    end
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function updatePlayerESP()
+    if not playerEspEnabled then return end
+    
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character then
+            local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart and not humanoidRootPart:FindFirstChild("WenerESP_player") then
+                createFixedESP(humanoidRootPart, "👤 " .. otherPlayer.DisplayName, Color3.fromRGB(0, 255, 255), "player")
+            end
+        end
+    end
+end
+
+local function clearAllESP()
+    for _, esp in pairs(espObjects) do
+        if esp and esp.highlight then esp.highlight:Destroy() end
+        if esp and esp.billboard then esp.billboard:Destroy() end
+    end
+    espObjects = {}
+    
+    -- Clean up any remaining ESP objects
+    for _, obj in pairs(workspace:GetDescendants()) do
+        local highlight = obj:FindFirstChild("WenerESP_door") or obj:FindFirstChild("WenerESP_key") or 
+                         obj:FindFirstChild("WenerESP_item") or obj:FindFirstChild("WenerESP_book") or
+                         obj:FindFirstChild("WenerESP_entity") or obj:FindFirstChild("WenerESP_player")
+        if highlight then highlight:Destroy() end
+        
+        local billboard = obj:FindFirstChild("WenerESP_door_Bill") or obj:FindFirstChild("WenerESP_key_Bill") or
+                         obj:FindFirstChild("WenerESP_item_Bill") or obj:FindFirstChild("WenerESP_book_Bill") or
+                         obj:FindFirstChild("WenerESP_entity_Bill") or obj:FindFirstChild("WenerESP_player_Bill")
+       if billboard then billboard:Destroy() end
+    end
+end
+
+-- ============================================================================
+-- ADVANCED NOTIFICATION SYSTEM
+-- ============================================================================
+
+local function createAdvancedNotification(title, message, color, duration, sound)
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "WenerNotification"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
+    
+    local NotificationFrame = Instance.new("Frame")
+    NotificationFrame.Size = UDim2.new(0, 400, 0, 120)
+    NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    NotificationFrame.BorderSizePixel = 0
+    NotificationFrame.Parent = ScreenGui
+    
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 15)
+    Corner.Parent = NotificationFrame
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color),
+        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.5, color.G * 0.5, color.B * 0.5))
+    })
+    Gradient.Rotation = 45
+    Gradient.Parent = NotificationFrame
+    
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, -20, 0, 40)
+    TitleLabel.Position = UDim2.new(0, 10, 0, 10)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 20
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.Parent = NotificationFrame
+    
+    local MessageLabel = Instance.new("TextLabel")
+    MessageLabel.Size = UDim2.new(1, -20, 0, 60)
+    MessageLabel.Position = UDim2.new(0, 10, 0, 50)
+    MessageLabel.BackgroundTransparency = 1
+    MessageLabel.Text = message
+    MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    MessageLabel.Font = Enum.Font.Gotham
+    MessageLabel.TextSize = 16
+    MessageLabel.TextWrapped = true
+    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+    MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
+    MessageLabel.Parent = NotificationFrame
+    
+    if sound then
+        local soundEffect = Instance.new("Sound")
+        soundEffect.SoundId = "rbxassetid://131961136"
+        soundEffect.Volume = 0.5
+        soundEffect.Parent = ScreenGui
+        soundEffect:Play()
+        
+        soundEffect.Ended:Connect(function()
+            soundEffect:Destroy()
+        end)
+    end
+    
+    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
+        Position = UDim2.new(1, -420, 0, 100)
+    }):Play()
+    
+    task.spawn(function()
+        task.wait(duration or 5)
+        
+        TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+            Position = UDim2.new(1, 20, 0, 100),
+            BackgroundTransparency = 1
+        }):Play()
+        
+        TweenService:Create(TitleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        TweenService:Create(MessageLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        
+        task.wait(0.5)
+        ScreenGui:Destroy()
+    end)
+end
+
+-- ============================================================================
+-- ENTITY DETECTION & NOTIFICATION SYSTEM
+-- ============================================================================
+
+local lastEntityNotification = {}
+
+local function setupEntityNotifications()
+    for _, conn in pairs(entityConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    entityConnections = {}
+    
+    if not rushNotifEnabled and not allEntityNotifications then return end
+    
+    local entities = {
+        {name = "RushMoving", displayName = "Rush", color = Color3.fromRGB(255, 0, 0), message = "Rush is coming! Hide immediately!"},
+        {name = "AmbushMoving", displayName = "Ambush", color = Color3.fromRGB(255, 100, 0), message = "Ambush detected! Get ready to hide multiple times!"},
+        {name = "Eyes", displayName = "Eyes", color = Color3.fromRGB(255, 255, 255), message = "Eyes appeared! Don't look at them!"},
+        {name = "Screech", displayName = "Screech", color = Color3.fromRGB(0, 255, 0), message = "Screech is near! Turn around when you hear the sound!"},
+        {name = "Halt", displayName = "Halt", color = Color3.fromRGB(0, 0, 255), message = "Halt appeared! Stop moving when the screen turns blue!"},
+        {name = "Seek", displayName = "Seek", color = Color3.fromRGB(0, 0, 0), message = "Seek chase sequence! Run and avoid obstacles!"},
+        {name = "Figure", displayName = "Figure", color = Color3.fromRGB(139, 0, 255), message = "Figure is in the library! Move quietly and avoid making noise!"},
+        {name = "Dupe", displayName = "Dupe", color = Color3.fromRGB(255, 255, 0), message = "Dupe detected! Check door numbers carefully!"},
+        {name = "A60", displayName = "A-60", color = Color3.fromRGB(255, 0, 255), message = "A-60 is coming! Hide in a locker immediately!"},
+        {name = "A120", displayName = "A-120", color = Color3.fromRGB(0, 255, 255), message = "A-120 detected! Find a hiding spot quickly!"}
+    }
+    
+    local function onEntityAdded(entity)
+        for _, entityData in pairs(entities) do
+            if entity.Name == entityData.name or entity.Name:find(entityData.name) then
+                local currentTime = tick()
+                
+                if lastEntityNotification[entityData.name] and currentTime - lastEntityNotification[entityData.name] < 3 then
+                    return
+                end
+                lastEntityNotification[entityData.name] = currentTime
+                
+                local shouldNotify = false
+                if allEntityNotifications then
+                    shouldNotify = true
+                elseif rushNotifEnabled and (entityData.name == "RushMoving" or entityData.name == "AmbushMoving") then
+                    shouldNotify = true
+                end
+                
+                if shouldNotify then
+                    createAdvancedNotification(
+                        "⚠️ ENTITY DETECTED: " .. entityData.displayName,
+                        entityData.message,
+                        entityData.color,
+                        6,
+                        true
+                    )
+                    
+                    print("🚨 Entity Alert: " .. entityData.displayName .. " detected!")
+                end
+                break
+            end
+        end
+    end
+    
+    local conn = workspace.DescendantAdded:Connect(function(descendant)
+        if descendant:IsA("Model") then
+            task.wait(0.1)
+            onEntityAdded(descendant)
         end
     end)
     
-    -- Entrance Animation
-    mainFrame.Position = UDim2.new(0.5, -225, 1, 0)
-    local entranceAnim = TweenService:Create(mainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, -225, 0.5, -225)
-    })
-    entranceAnim:Play()
-    
-else
-    createLoadingScreen() -- Kalau key sudah ada, langsung loading screen
+    table.insert(entityConnections, conn)
 end
 
--- Main Script Function (Load Rayfield setelah loading screen)
-function loadMainScript()
-    -- Load Rayfield Library
+-- ============================================================================
+-- AUTO COLLECT SYSTEM
+-- ============================================================================
+
+local autoCollectSettings = {
+    ["Vitamins"] = true,
+    ["Lockpick"] = true,
+    ["Key"] = true,
+    ["Flashlight"] = true,
+    ["Lighter"] = true,
+    ["Candle"] = true,
+    ["Crucifix"] = true,
+    ["Bandage"] = true,
+    ["SkeletonKey"] = true,
+    ["Book"] = true
+}
+
+local function enableAutoCollect()
+    autoCollectEnabled = true
+    
+    if autoCollectConnection then autoCollectConnection:Disconnect() end
+    
+    local function collectItems()
+        if not autoCollectEnabled or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+        
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("Model") then
+                local shouldCollect = false
+                
+                for itemName, enabled in pairs(autoCollectSettings) do
+                    if enabled and (obj.Name == itemName or obj.Name:find(itemName)) then
+                        shouldCollect = true
+                        break
+                    end
+                end
+                
+                if shouldCollect then
+                    local itemPart = obj:FindFirstChildWhichIsA("BasePart")
+                    if itemPart then
+                        local distance = (player.Character.HumanoidRootPart.Position - itemPart.Position).Magnitude
+                        if distance <= 15 then
+                            local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
+                            if prompt and prompt.Enabled then
+                                pcall(function()
+                                    fireproximityprompt(prompt)
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    autoCollectConnection = RunService.Heartbeat:Connect(function()
+        collectItems()
+    end)
+    
+    print("📦 Advanced Auto Collect: ENABLED")
+end
+
+local function disableAutoCollect()
+    autoCollectEnabled = false
+    
+    if autoCollectConnection then autoCollectConnection:Disconnect() end
+    
+    print("📦 Advanced Auto Collect: DISABLED")
+end
+
+-- ============================================================================
+-- AUTO UNLOCK SYSTEM
+-- ============================================================================
+
+local function enableAutoUnlock()
+    autoUnlockEnabled = true
+    
+    if autoUnlockConnection then autoUnlockConnection:Disconnect() end
+    
+    local function unlockDoors()
+        if not autoUnlockEnabled or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+        
+        local currentRooms = workspace:FindFirstChild("CurrentRooms")
+        if not currentRooms then return end
+        
+        for _, room in pairs(currentRooms:GetChildren()) do
+            if room:IsA("Model") and tonumber(room.Name) then
+                local door = room:FindFirstChild("Door")
+                if door then
+                    local lockPart = door:FindFirstChild("Lock")
+                    if lockPart then
+                        local prompt = lockPart:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt and prompt.Enabled then
+                            local distance = (player.Character.HumanoidRootPart.Position - lockPart.Position).Magnitude
+                            if distance <= 15 then
+                                pcall(function()
+                                    fireproximityprompt(prompt)
+                                end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    autoUnlockConnection = RunService.Heartbeat:Connect(function()
+        unlockDoors()
+    end)
+    
+    print("🔓 Advanced Auto Unlock: ENABLED")
+end
+
+local function disableAutoUnlock()
+    autoUnlockEnabled = false
+    
+    if autoUnlockConnection then autoUnlockConnection:Disconnect() end
+    
+    print("🔓 Advanced Auto Unlock: DISABLED")
+end
+
+-- ============================================================================
+-- INFINITE VITAMINS SYSTEM
+-- ============================================================================
+
+local function enableInfVitamins()
+    infVitaminsEnabled = true
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    local function maintainVitamins()
+        if not infVitaminsEnabled or not player.Character then return end
+        
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if not humanoid then return end
+        
+        for _, effect in pairs(humanoid:GetChildren()) do
+            if effect:IsA("NumberValue") and effect.Name == "Vitamins" then
+                effect.Value = math.huge
+            end
+        end
+        
+        if humanoid.Health < humanoid.MaxHealth * 0.8 then
+            for _, item in pairs(player.Backpack:GetChildren()) do
+                if item.Name == "Vitamins" and item:IsA("Tool") then
+                    humanoid:EquipTool(item)
+                    task.wait(0.5)
+                    if item:FindFirstChild("Handle") then
+                        local prompt = item.Handle:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                            fireproximityprompt(prompt)
+                        end
+                    end
+                    break
+                end
+            end
+        end
+    end
+    
+    infVitaminsConnection = RunService.Heartbeat:Connect(function()
+        maintainVitamins()
+    end)
+    
+    print("💊 Infinite Vitamins: ENABLED")
+end
+
+local function disableInfVitamins()
+    infVitaminsEnabled = false
+    
+    if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+    
+    print("💊 Infinite Vitamins: DISABLED")
+end
+
+-- ============================================================================
+-- MAIN FUNCTIONS
+-- ============================================================================
+
+local function setSpeed(speed)
+    currentSpeed = speed
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.WalkSpeed = speed
+    end
+end
+
+local function enableGodMode()
+    godModeEnabled = true
+    
+    for _, conn in pairs(godModeConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    godModeConnections = {}
+    
+    local function maintainGodMode()
+        if not godModeEnabled or not player.Character then return end
+        
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = math.huge
+            humanoid.Health = math.huge
+            
+            for _, child in pairs(player.Character:GetChildren()) do
+                if child:IsA("BasePart") then
+                    child:SetAttribute("OriginalCanTouch", child.CanTouch)
+                    child.CanTouch = false
+                end
+            end
+        end
+    end
+    
+    local conn1 = RunService.Heartbeat:Connect(maintainGodMode)
+    table.insert(godModeConnections, conn1)
+    
+    print("🛡️ Advanced God Mode: ENABLED")
+end
+
+local function disableGodMode()
+    godModeEnabled = false
+    
+    for _, conn in pairs(godModeConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    godModeConnections = {}
+    
+    if player.Character then
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = 100
+            humanoid.Health = 100
+        end
+        
+        for _, child in pairs(player.Character:GetChildren()) do
+            if child:IsA("BasePart") and child:GetAttribute("OriginalCanTouch") ~= nil then
+                child.CanTouch = child:GetAttribute("OriginalCanTouch")
+            end
+        end
+    end
+    
+    print("🛡️ Advanced God Mode: DISABLED")
+end
+
+local function enableNoclip()
+    noclipEnabled = true
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+    
+    noclipConnection = RunService.Stepped:Connect(function()
+        if noclipEnabled and player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+    
+    print("👻 Advanced Noclip: ENABLED")
+end
+
+local function disableNoclip()
+    noclipEnabled = false
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+    
+    if player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                part.CanCollide = true
+            end
+        end
+    end
+    
+    print("👻 Advanced Noclip: DISABLED")
+end
+
+local function enableBypassAntiCheat()
+    bypassAntiCheat = true
+    
+    for _, conn in pairs(bypassConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    bypassConnections = {}
+    
+    local mt = getrawmetatable(game)
+    local oldNamecall = mt.__namecall
+    
+    setreadonly(mt, false)
+    mt.__namecall = function(self, ...)
+        local method = getnamecallmethod()
+        local args = {...}
+        
+        if method == "FireServer" or method == "InvokeServer" then
+            local remoteName = tostring(self)
+            if remoteName:find("Anti") or remoteName:find("Kick") or remoteName:find("Ban") then
+                return
+            end
+        end
+        
+        return oldNamecall(self, ...)
+    end
+    setreadonly(mt, true)
+    
+    print("🛡️ Bypass Anti-Cheat: ENABLED")
+end
+
+local function disableBypassAntiCheat()
+    bypassAntiCheat = false
+    
+    for _, conn in pairs(bypassConnections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    bypassConnections = {}
+    
+    print("🛡️ Bypass Anti-Cheat: DISABLED")
+end
+
+-- Apply settings on character spawn
+player.CharacterAdded:Connect(function(character)
+    wait(1)
+    if character:FindFirstChild("Humanoid") then
+        character.Humanoid.WalkSpeed = currentSpeed
+        if godModeEnabled then
+            enableGodMode()
+        end
+        if noclipEnabled then
+            enableNoclip()
+        end
+    end
+end)
+
+-- ============================================================================
+-- RAYFIELD UI
+-- ============================================================================
+
+task.spawn(function()
+    wait(14) -- Wait for all screens
+    
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
-    -- Main Window
     local Window = Rayfield:CreateWindow({
-        Name = "🚪 Doors Script",
-        LoadingTitle = "Doors Script Loading...",
-        LoadingSubtitle = "Premium Version",
+        Name = "Wener Hub v4.0 - Ultimate Complete Edition [FIXED ESP]",
+        LoadingTitle = "Wener Hub Ultimate Complete",
+        LoadingSubtitle = "Fixed ESP System & All Advanced Features",
+        ConfigurationSaving = {
+            Enabled = true,
+            FolderName = "WenerHub",
+            FileName = "Config"
+        },
+        Discord = {
+            Enabled = false
+        },
+        KeySystem = false
     })
-
-    -- Variables
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-
-    local autoProximity = false
-    local autoLoot = false
-    local godMode = false
-    local speedEnabled = false
-    local noclipEnabled = false
-    local espEnabled = false
-    local notifyEnabled = true
-
-    local speedValue = 16
-    local originalSpeed = humanoid.WalkSpeed
-
+    
+    -- Create Tabs
+    local InfoTab = Window:CreateTab("📋 Info", 4483362458)
+    local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
+    local ESPTab = Window:CreateTab("👁️ Fixed ESP", 4483362458)
+    local AutoTab = Window:CreateTab("🤖 Automation", 4483362458)
+    local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
+    local MiscTab = Window:CreateTab("🔧 Miscellaneous", 4483362458)
+    
     -- Info Tab
-    local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
-    
-    local InfoSection = InfoTab:CreateSection("Player Information")
-    
-    InfoSection:CreateLabel("👤 Username: " .. player.Name)
-    InfoSection:CreateLabel("📝 Display Name: " .. player.DisplayName)
-    InfoSection:CreateLabel("🆔 User ID: " .. player.UserId)
-    
-    local expiryTime = tonumber(readfile(keyExpiry) or "0")
-    local hoursLeft = math.max(0, math.floor((expiryTime - os.time()) / 3600))
-    InfoSection:CreateLabel("⏰ Key Expires: " .. hoursLeft .. " hours")
-
-    -- Auto Tab
-    local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
-    
-    local AutoSection = AutoTab:CreateSection("Auto Features")
-    
-    local AutoProximityToggle = AutoSection:CreateToggle({
-        Name = "🔄 Auto ProximityPrompt (R)",
-        CurrentValue = false,
-        Flag = "AutoProximity",
-        Callback = function(Value)
-            autoProximity = Value
-        end,
+    InfoTab:CreateParagraph({
+        Title = "👤 Player Information", 
+        Content = "Username: " .. player.Name .. 
+                  "\nDisplay Name: " .. player.DisplayName .. 
+                  "\nUser ID: " .. player.UserId ..
+                  (isOwner and "\n\n👑 OWNER ACCESS GRANTED" or "")
     })
     
-    local AutoLootToggle = AutoSection:CreateToggle({
-        Name = "📦 Auto Ambil Barang di Laci",
-        CurrentValue = false,
-        Flag = "AutoLoot",
-        Callback = function(Value)
-            autoLoot = Value
-        end,
+    InfoTab:CreateParagraph({
+        Title = "🚀 WENER Hub v4.0 Ultimate - FIXED ESP", 
+        Content = "✅ Fixed ESP Size - Billboard size tetap saat zoom\n✅ Fixed Key ESP - Deteksi key yang benar\n✅ Fixed Item ESP - Hanya item yang bisa diambil\n✅ Fixed Book ESP - Hanya Figure books\n✅ Bright Outline - Terang dengan warna:\n   • Doors: Hijau 🟢\n   • Items: Merah 🔴\n   • Keys: Kuning 🟡\n   • Books: Coklat 🟤"
     })
-
-    -- Bypass Tab
-    local BypassTab = Window:CreateTab("🛡️ Bypass", 4483362458)
     
-    local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
+    InfoTab:CreateParagraph({
+        Title = "🔑 Key System Info", 
+        Content = "• Key expires every 2 hours\n• Valid key: Wene-you\n• Owner bypass available\n• Automatic key verification\n• Settings auto-save enabled"
+    })
     
-    local GodModeToggle = BypassSection:CreateToggle({
-        Name = "⚡ God Mode Bypass",
+    -- Main Features Tab
+    MainTab:CreateSlider({
+        Name = "⚡ Speed Multiplier",
+        Range = {1, 6},
+        Increment = 0.1,
+        Suffix = "x",
+        CurrentValue = 1,
+        Flag = "SpeedSlider",
+        Callback = function(v) 
+            setSpeed(16 * v)
+        end
+    })
+    
+    MainTab:CreateToggle({
+        Name = "🛡️ Advanced God Mode",
         CurrentValue = false,
         Flag = "GodMode",
-        Callback = function(Value)
-            godMode = Value
-            if godMode then
-                humanoid.Health = humanoid.MaxHealth
-            end
-        end,
-    })
-    
-    local SpeedSlider = BypassSection:CreateSlider({
-        Name = "🏃 Speed Bypass",
-        Range = {16, 100},
-        Increment = 1,
-        Suffix = " Speed",
-        CurrentValue = 16,
-        Flag = "SpeedValue",
-        Callback = function(Value)
-            speedValue = Value
-            if speedEnabled then
-                humanoid.WalkSpeed = speedValue
-            end
-        end,
-    })
-    
-    local SpeedToggle = BypassSection:CreateToggle({
-        Name = "✅ Enable Speed",
-        CurrentValue = false,
-        Flag = "SpeedEnabled",
-        Callback = function(Value)
-            speedEnabled = Value
-            if speedEnabled then
-                humanoid.WalkSpeed = speedValue
+        Callback = function(v)
+            if v then
+                enableGodMode()
             else
-                humanoid.WalkSpeed = originalSpeed
+                disableGodMode()
             end
-        end,
+        end
     })
     
-    local NoclipToggle = BypassSection:CreateToggle({
-        Name = "👻 Noclip Bypass",
+    MainTab:CreateToggle({
+        Name = "🔓 Bypass Anti-Cheat",
+        CurrentValue = false,
+        Flag = "BypassAntiCheat",
+        Callback = function(v)
+            if v then
+                enableBypassAntiCheat()
+            else
+                disableBypassAntiCheat()
+            end
+        end
+    })
+    
+    MainTab:CreateToggle({
+        Name = "👻 Advanced Noclip",
         CurrentValue = false,
         Flag = "Noclip",
-        Callback = function(Value)
-            noclipEnabled = Value
-        end,
-    })
-
-    -- Main Menu Tab
-    local MainTab = Window:CreateTab("🎮 Main Menu", 4483362458)
-    
-    local MainSection = MainTab:CreateSection("Main Features")
-    
-    local MainSpeedSlider = MainSection:CreateSlider({
-        Name = "🏃 Speed",
-        Range = {16, 100},
-        Increment = 1,
-        Suffix = " Speed",
-        CurrentValue = 16,
-        Flag = "MainSpeed",
-        Callback = function(Value)
-            humanoid.WalkSpeed = Value
-        end,
-    })
-    
-    local MainGodToggle = MainSection:CreateToggle({
-        Name = "⚡ God Mode",
-        CurrentValue = false,
-        Flag = "MainGod",
-        Callback = function(Value)
-            if Value then
-                humanoid.Health = humanoid.MaxHealth
-            end
-        end,
-    })
-    
-    local MainNoclipToggle = MainSection:CreateToggle({
-        Name = "👻 Noclip",
-        CurrentValue = false,
-        Flag = "MainNoclip",
-        Callback = function(Value)
-            noclipEnabled = Value
-        end,
-    })
-
-    -- ESP Tab
-    local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
-    
-    local ESPSection = ESPTab:CreateSection("ESP Features")
-    
-    local ESPToggle = ESPSection:CreateToggle({
-        Name = "🔍 Enable ESP",
-        CurrentValue = false,
-        Flag = "ESP",
-        Callback = function(Value)
-            espEnabled = Value
-        end,
-    })
-    
-    ESPSection:CreateLabel("🔵 Key = Blue | 🟢 Door = Green")
-    ESPSection:CreateLabel("🟣 Item = Purple | 🟠 Hide Spot = Orange")
-
-    -- Notify Tab
-    local NotifyTab = Window:CreateTab("🔔 Notify", 4483362458)
-    
-    local NotifySection = NotifyTab:CreateSection("Notification Settings")
-    
-    local NotifyToggle = NotifySection:CreateToggle({
-        Name = "🚨 Auto Notify Entity",
-        CurrentValue = true,
-        Flag = "Notify",
-        Callback = function(Value)
-            notifyEnabled = Value
-        end,
-    })
-
-    -- Auto Functions
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if autoProximity then
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v:IsA("ProximityPrompt") and v.Enabled then
-                    pcall(function()
-                        fireproximityprompt(v)
-                    end)
-                end
+        Callback = function(v)
+            if v then
+                enableNoclip()
+            else
+                disableNoclip()
             end
         end
-        
-        if autoLoot then
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v.Name == "DrawerContainer" or v.Name == "Drawer" then
-                    local prompt = v:FindFirstChildOfClass("ProximityPrompt")
-                    if prompt then
-                        pcall(function()
-                            fireproximityprompt(prompt)
-                        end)
+    })
+    
+    MainTab:CreateButton({
+        Name = "🔄 Respawn Character",
+        Callback = function()
+            if player.Character then
+                player.Character:BreakJoints()
+            end
+        end
+    })
+    
+    MainTab:CreateButton({
+        Name = "🚪 Teleport to Latest Room",
+        Callback = function()
+            local currentRooms = workspace:FindFirstChild("CurrentRooms")
+            if currentRooms and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local latestRoom = nil
+                local highestNumber = 0
+                
+                for _, room in pairs(currentRooms:GetChildren()) do
+                    local roomNumber = tonumber(room.Name)
+                    if roomNumber and roomNumber > highestNumber then
+                        highestNumber = roomNumber
+                        latestRoom = room
+                    end
+                end
+                
+                if latestRoom then
+                    local roomPos = latestRoom:FindFirstChildWhichIsA("BasePart")
+                    if roomPos then
+                        player.Character.HumanoidRootPart.CFrame = CFrame.new(roomPos.Position + Vector3.new(0, 5, 0))
                     end
                 end
             end
         end
-        
-        if noclipEnabled then
-            pcall(function()
-                for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end)
+    })
+    
+    -- Fixed ESP Features Tab
+    ESPTab:CreateLabel("✨ FIXED ESP SYSTEM - Size tetap, outline terang!")
+    
+    ESPTab:CreateToggle({
+        Name = "🚪 Door ESP (Green Outline)",
+        CurrentValue = false,
+        Flag = "DoorESP",
+        Callback = function(v)
+            doorEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateDoorESP()
+            end
         end
-        
-        if godMode then
-            pcall(function()
-                if humanoid.Health < humanoid.MaxHealth then
-                    humanoid.Health = humanoid.MaxHealth
-                end
-            end)
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "🗝️ Key ESP (Yellow Outline) - FIXED",
+        CurrentValue = false,
+        Flag = "KeyESP",
+        Callback = function(v)
+            keyEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateKeyESP()
+            end
         end
-    end)
-
-    -- ESP Functions
-    local function createESP(obj, color)
-        if not espEnabled then return end
-        
-        pcall(function()
-            local highlight = Instance.new("Highlight")
-            highlight.Parent = obj
-            highlight.OutlineColor = color
-            highlight.FillTransparency = 1
-            highlight.OutlineTransparency = 0
-        end)
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📦 Item ESP (Red Outline) - Collectable Only",
+        CurrentValue = false,
+        Flag = "ItemESP",
+        Callback = function(v)
+            itemEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateItemESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "📚 Book ESP (Brown Outline) - Figure Books",
+        CurrentValue = false,
+        Flag = "BookESP",
+        Callback = function(v)
+            bookEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateBookESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "👹 Entity ESP (All Monsters)",
+        CurrentValue = false,
+        Flag = "EntityESP",
+        Callback = function(v)
+            entityEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updateEntityESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateToggle({
+        Name = "👤 Player ESP",
+        CurrentValue = false,
+        Flag = "PlayerESP",
+        Callback = function(v)
+            playerEspEnabled = v
+            if not v then 
+                clearAllESP() 
+            else
+                updatePlayerESP()
+            end
+        end
+    })
+    
+    ESPTab:CreateButton({
+        Name = "🔄 Refresh All ESP",
+        Callback = function()
+            clearAllESP()
+            if doorEspEnabled then updateDoorESP() end
+            if keyEspEnabled then updateKeyESP() end
+            if itemEspEnabled then updateItemESP() end
+            if bookEspEnabled then updateBookESP() end
+            if entityEspEnabled then updateEntityESP() end
+            if playerEspEnabled then updatePlayerESP() end
+        end
+    })
+    
+    ESPTab:CreateButton({
+        Name = "🗑️ Clear All ESP",
+        Callback = function()
+            doorEspEnabled = false
+            keyEspEnabled = false
+            entityEspEnabled = false
+            playerEspEnabled = false
+            bookEspEnabled = false
+            itemEspEnabled = false
+            clearAllESP()
+        end
+    })
+    
+    ESPTab:CreateParagraph({
+        Title = "🎯 ESP Features", 
+        Content = "✅ Billboard size tetap saat zoom in/out\n✅ Bright outline dengan warna berbeda\n✅ Distance indicator real-time\n✅ Auto remove ESP objek jauh\n✅ Smart detection algorithms\n✅ Performance optimized"
+    })
+    
+    -- Automation Tab
+    AutoTab:CreateToggle({
+        Name = "📦 Smart Auto Collect Items",
+        CurrentValue = false,
+        Flag = "AutoCollect",
+        Callback = function(v)
+            if v then
+                enableAutoCollect()
+            else
+                disableAutoCollect()
+            end
+        end
+    })
+    
+    AutoTab:CreateToggle({
+        Name = "🔓 Auto Unlock Doors",
+        CurrentValue = false,
+        Flag = "AutoUnlock",
+        Callback = function(v)
+            if v then
+                enableAutoUnlock()
+            else
+                disableAutoUnlock()
+            end
+        end
+    })
+    
+    AutoTab:CreateToggle({
+        Name = "💊 Infinite Vitamins Effect",
+        CurrentValue = false,
+        Flag = "InfVitamins",
+        Callback = function(v)
+            if v then
+                enableInfVitamins()
+            else
+                disableInfVitamins()
+            end
+        end
+    })
+    
+    AutoTab:CreateSection("Auto Collect Settings")
+    
+    for itemName, _ in pairs(autoCollectSettings) do
+        AutoTab:CreateToggle({
+            Name = "Collect " .. itemName,
+            CurrentValue = true,
+            Flag = "Collect" .. itemName,
+            Callback = function(v)
+                autoCollectSettings[itemName] = v
+            end
+        })
     end
-
-    workspace.ChildAdded:Connect(function(child)
-        if espEnabled then
-            pcall(function()
-                if child.Name == "Key" then
-                    createESP(child, Color3.fromRGB(0, 0, 255)) -- Blue
-                elseif child.Name:match("Door") then
-                    createESP(child, Color3.fromRGB(0, 255, 0)) -- Green
-                elseif child.Name:match("Item") then
-                    createESP(child, Color3.fromRGB(128, 0, 128)) -- Purple
-                elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
-                    createESP(child, Color3.fromRGB(255, 165, 0)) -- Orange
-                end
-            end)
+    
+    -- Notifications Tab
+    NotifTab:CreateToggle({
+        Name = "🚨 Rush/Ambush Notifications",
+        CurrentValue = false,
+        Flag = "RushNotif",
+        Callback = function(v)
+            rushNotifEnabled = v
+            setupEntityNotifications()
         end
-    end)
-
-    -- Entity Notifications
-    workspace.ChildAdded:Connect(function(child)
-        if notifyEnabled then
-            local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
-            for _, entity in pairs(entities) do
-                if child.Name == entity then
-                    Rayfield:Notify({
-                        Title = "🚨 Entity Detected!",
-                        Content = entity .. " has spawned!",
-                        Duration = 5,
-                        Image = 4483362458,
-                    })
+    })
+    
+    NotifTab:CreateToggle({
+        Name = "👹 All Entity Notifications",
+        CurrentValue = false,
+        Flag = "AllEntityNotif",
+        Callback = function(v)
+            allEntityNotifications = v
+            setupEntityNotifications()
+        end
+    })
+    
+    NotifTab:CreateButton({
+        Name = "🧪 Test Notification System",
+        Callback = function()
+            createAdvancedNotification(
+                "🧪 Test Notification",
+                "This is a test of the advanced notification system with sound effects!",
+                Color3.fromRGB(0, 255, 0),
+                3,
+                true
+            )
+        end
+    })
+    
+    NotifTab:CreateParagraph({
+        Title = "📋 Notification Features", 
+        Content = "• Advanced visual effects with gradients\n• Sound notifications for important events\n• Smart spam prevention\n• Customizable duration and colors\n• Slide-in animations"
+    })
+    
+    -- Miscellaneous Tab
+    MiscTab:CreateButton({
+        Name = "💾 Save Current Settings",
+        Callback = function()
+            local settings = {
+                speed = currentSpeed,
+                godMode = godModeEnabled,
+                noclip = noclipEnabled,
+                bypassAntiCheat = bypassAntiCheat,
+                doorESP = doorEspEnabled,
+                keyESP = keyEspEnabled,
+                entityESP = entityEspEnabled,
+                playerESP = playerEspEnabled,
+                bookESP = bookEspEnabled,
+                itemESP = itemEspEnabled,
+                autoCollect = autoCollectEnabled,
+                autoUnlock = autoUnlockEnabled,
+                infVitamins = infVitaminsEnabled,
+                rushNotif = rushNotifEnabled,
+                allEntityNotif = allEntityNotifications,
+                autoCollectSettings = autoCollectSettings
+            }
+            
+            writefile("WenerHub/Settings.json", game:GetService("HttpService"):JSONEncode(settings))
+            
+            createAdvancedNotification(
+                "💾 Settings Saved",
+                "All current settings have been saved successfully!",
+                Color3.fromRGB(0, 255, 0),
+                3,
+                false
+            )
+        end
+    })
+    
+    MiscTab:CreateButton({
+        Name = "📂 Load Saved Settings",
+        Callback = function()
+            local success, settings = pcall(function()
+                return game:GetService("HttpService"):JSONDecode(readfile("WenerHub/Settings.json"))
+            end)
+            
+            if success and settings then
+                if settings.speed then setSpeed(settings.speed) end
+                if settings.godMode then 
+                    if settings.godMode then enableGodMode() else disableGodMode() end
                 end
+                if settings.noclip then
+                    if settings.noclip then enableNoclip() else disableNoclip() end
+                end
+                
+                createAdvancedNotification(
+                    "📂 Settings Loaded",
+                    "Saved settings have been loaded and applied successfully!",
+                    Color3.fromRGB(0, 255, 0),
+                    3,
+                    false
+                )
+            else
+                createAdvancedNotification(
+                    "❌ Load Failed",
+                    "No saved settings found or file is corrupted.",
+                    Color3.fromRGB(255, 0, 0),
+                    3,
+                    false
+                )
             end
         end
-    end)
+    })
+    
+    MiscTab:CreateButton({
+        Name = "🔄 Reconnect to Server",
+        Callback = function()
+            TeleportService:Teleport(game.PlaceId, player)
+        end
+    })
+    
+    MiscTab:CreateButton({
+        Name = "📋 Copy Discord Link",
+        Callback = function()
+            setclipboard("https://discord.gg/wanerhub")
+            createAdvancedNotification(
+                "📋 Copied!",
+                "Discord link has been copied to clipboard!",
+                Color3.fromRGB(0, 255, 255),
+                3,
+                false
+            )
+        end
+    })
+    
+    MiscTab:CreateParagraph({
+        Title = "🔧 System Information", 
+        Content = "• Auto Execute: ✅ CONFIGURED\n• Auto Reconnect: ✅ ACTIVE\n• Fixed ESP: ✅ OPERATIONAL\n• Performance: ✅ OPTIMIZED\n• Memory Usage: ✅ MINIMAL"
+    })
+    
+    -- Final notification
+    Rayfield:Notify({
+        Title = "🚀 WENER HUB v4.0 LOADED - ESP FIXED!",
+        Content = "Welcome " .. player.DisplayName .. "!\nAll systems operational with FIXED ESP!",
+        Duration = 5,
+        Image = 4483362458,
+    })
+    
+    print("✅ WENER HUB v4.0 ULTIMATE WITH FIXED ESP LOADED!")
+    print("🚀 All systems operational and ready to use!")
+    print("👁️ ESP System: FIXED - Size tetap, outline terang!")
+    print("👑 Owner Status: " .. (isOwner and "ACTIVE" or "INACTIVE"))
+    print("🔑 Key System: 2-HOUR EXPIRY ACTIVE")
+    print("📡 Auto Reconnect: ACTIVE")
+    print("🚀 Auto Execute: CONFIGURED")
+end)
 
-    createNotification("Success!", "Script loaded successfully!", 3, Color3.fromRGB(100, 255, 100))
-end
+-- Auto refresh ESP every 10 seconds
+task.spawn(function()
+    while true do
+        wait(10)
+        if doorEspEnabled or keyEspEnabled or entityEspEnabled or playerEspEnabled or bookEspEnabled or itemEspEnabled then
+            clearAllESP()
+            if doorEspEnabled then updateDoorESP() end
+            if keyEspEnabled then updateKeyESP() end
+            if itemEspEnabled then updateItemESP() end
+            if bookEspEnabled then updateBookESP() end
+            if entityEspEnabled then updateEntityESP() end
+            if playerEspEnabled then updatePlayerESP() end
+        end
+    end
+end)
+
+print("✅ WENER HUB v4.0 CORE SYSTEMS INITIALIZED!")
+print("🎮 All features integrated and working!")
+print("👁️ ESP System: COMPLETELY FIXED!")
+print("🔑 Key expires every 2 hours - fully functional!")
+print("=" .. string.rep("=", 60) .. "=")
+print("WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP")
+print("Created by: winnertupiq52")
+print("All systems ready and operational! 🚀")
+print("=" .. string.rep("=", 60) .. "=")
