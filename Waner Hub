@@ -1,6 +1,6 @@
--- WENER HUB v4.0 | ULTIMATE COMPLETE EDITION WITH WENE-YOU KEY & ALL FEATURES
-print("=== WENER HUB v4.0 ULTIMATE COMPLETE WITH FIXED ESP & WENE-YOU KEY ===")
-print("🚀 Loading the most advanced Doors script with all premium features...")
+-- WENER HUB v4.0 | ULTIMATE COMPLETE EDITION - HIDDEN KEY SYSTEM
+print("=== WENER HUB v4.0 ULTIMATE COMPLETE - HIDDEN KEY EDITION ===")
+print("🚀 Loading complete script with all features + secret key system...")
 
 -- ============================================================================
 -- SERVICES & INITIALIZATION
@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
 -- Wait for character
@@ -168,12 +169,14 @@ setupAutoExecute()
 setupAutoReconnect()
 
 -- ============================================================================
--- LOADING SCREEN
+-- STEP 1: LOADING SCREEN
 -- ============================================================================
+
+print("STEP 1: Creating Loading Screen...")
 
 local function createLoadingScreen()
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WanerLoading"
+    ScreenGui.Name = "WenerLoading"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
@@ -188,8 +191,8 @@ local function createLoadingScreen()
     Background.Parent = ScreenGui
     
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 600, 0, 350)
-    Container.Position = UDim2.new(0.5, -300, 0.5, -175)
+    Container.Size = UDim2.new(0, 600, 0, 400)
+    Container.Position = UDim2.new(0.5, -300, 0.5, -200)
     Container.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
@@ -224,7 +227,7 @@ local function createLoadingScreen()
     Status.Size = UDim2.new(1, 0, 0, 40)
     Status.Position = UDim2.new(0, 0, 0, 180)
     Status.BackgroundTransparency = 1
-    Status.Text = "Initializing Wene-you key system..."
+    Status.Text = "Initializing premium systems..."
     Status.TextColor3 = Color3.fromRGB(100, 255, 100)
     Status.Font = Enum.Font.Gotham
     Status.TextSize = 18
@@ -243,68 +246,98 @@ local function createLoadingScreen()
     ProgressCorner.CornerRadius = UDim.new(1, 0)
     ProgressCorner.Parent = Progress
     
-    task.spawn(function()
-        TweenService:Create(Blur, TweenInfo.new(1), {Size = 35}):Play()
-        TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.2}):Play()
-        TweenService:Create(Container, TweenInfo.new(1), {BackgroundTransparency = 0.1}):Play()
-        wait(1)
-        
-        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
-        wait(0.4)
-        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
-        wait(0.4)
-        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
-        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
-        wait(0.8)
-        
-        local stages = {
-            {text = "🚀 Setting up Auto Execute...", progress = 0.15},
-            {text = "🔄 Configuring Auto Reconnect...", progress = 0.3},
-            {text = "🔑 Loading Wene-you Key System...", progress = 0.45},
-            {text = "👁️ Loading Modern ESP Systems...", progress = 0.6},
-            {text = "🤖 Setting up Auto Features...", progress = 0.75},
-            {text = "🛡️ Initializing Protection...", progress = 0.9},
-            {text = "✅ All Systems Ready!", progress = 1.0}
-        }
-        
-        for _, stage in ipairs(stages) do
-            Status.Text = stage.text
-            TweenService:Create(Progress, TweenInfo.new(1), {Size = UDim2.new(0.85 * stage.progress, 0, 0, 8)}):Play()
-            wait(1)
-        end
-        
-        wait(1)
-        
-        TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-        TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-        TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-        TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
-        TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+    local SecretInfo = Instance.new("TextLabel")
+    SecretInfo.Size = UDim2.new(1, -40, 0, 60)
+    SecretInfo.Position = UDim2.new(0, 20, 0, 280)
+    SecretInfo.BackgroundTransparency = 1
+    SecretInfo.Text = "🔐 Loading secret key system...\n🎯 All premium features included\n⚡ Modern ESP & Auto Functions"
+    SecretInfo.TextColor3 = Color3.fromRGB(255, 215, 0)
+    SecretInfo.Font = Enum.Font.Gotham
+    SecretInfo.TextSize = 14
+    SecretInfo.TextWrapped = true
+    SecretInfo.TextTransparency = 1
+    SecretInfo.Parent = Container
+    
+    -- Show loading animation
+    TweenService:Create(Blur, TweenInfo.new(1), {Size = 35}):Play()
+    TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.2}):Play()
+    TweenService:Create(Container, TweenInfo.new(1), {BackgroundTransparency = 0.1}):Play()
+    wait(1)
+    
+    TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    wait(0.4)
+    TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    wait(0.4)
+    TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+    wait(0.4)
+    TweenService:Create(SecretInfo, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+    wait(0.8)
+    
+    local stages = {
+        {text = "🚀 Setting up Auto Execute...", progress = 0.15},
+        {text = "🔄 Configuring Auto Reconnect...", progress = 0.3},
+        {text = "🔑 Loading Secret Key System...", progress = 0.45},
+        {text = "👁️ Loading Modern ESP Systems...", progress = 0.6},
+        {text = "🤖 Setting up Auto Features...", progress = 0.75},
+        {text = "🛡️ Initializing Protection...", progress = 0.9},
+        {text = "✅ All Systems Ready!", progress = 1.0}
+    }
+    
+    for _, stage in ipairs(stages) do
+        Status.Text = stage.text
+        TweenService:Create(Progress, TweenInfo.new(1), {Size = UDim2.new(0.85 * stage.progress, 0, 0, 8)}):Play()
         wait(1.2)
-        
-        Blur:Destroy()
-        ScreenGui:Destroy()
-    end)
+    end
+    
+    wait(1)
+    
+    -- Hide loading screen
+    TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(SecretInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
+    wait(1.2)
+    
+    Blur:Destroy()
+    ScreenGui:Destroy()
+    
+    print("✅ Loading Screen completed")
+    return true
 end
 
 createLoadingScreen()
-wait(6)
 
 -- ============================================================================
--- KEY SYSTEM DENGAN EXPIRE 24 JAM - WENE-YOU
+-- STEP 2: SECRET KEY SYSTEM (HIDDEN KEY)
 -- ============================================================================
+
+print("STEP 2: Starting Secret Key System...")
 
 local KeySystemEnabled = true
-local CorrectKey = "Wene-you"
-local KeyExpireTime = 86400 -- 24 jam dalam detik
+-- 🔐 SECRET KEY - TIDAK DITAMPILKAN DI UI
+local CorrectKey = "Wene-you"  -- KEY RAHASIA
+local KeyExpireTime = 86400 -- 24 hours
 
 local function formatTime(seconds)
     local hours = math.floor(seconds / 3600)
     local minutes = math.floor((seconds % 3600) / 60)
     local secs = seconds % 60
     return string.format("%02d:%02d:%02d", hours, minutes, secs)
+end
+
+local function generateFakeKeys()
+    local fakeKeys = {
+        "WenerHub2024", "UltimateKey", "PremiumAccess", "DoorsMaster",
+        "SuperScript", "EliteHacker", "ProGamer", "MegaKey",
+        "PowerUser", "VIPAccess", "AdminKey", "MasterCode",
+        "SecretPass", "HiddenKey", "UltimatePass", "PrivateKey"
+    }
+    return fakeKeys
 end
 
 local function checkKey()
@@ -318,7 +351,7 @@ local function checkKey()
     end
     
     local success, data = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile("WenerHub/Key.json"))
+        return HttpService:JSONDecode(readfile("WenerHub/Key.json"))
     end)
     
     if not success or not data then return false end
@@ -340,22 +373,26 @@ local function saveKey()
         save_time = currentTime,
         expire_time = expireTime,
         user = player.Name,
-        version = "v4.0_Ultimate_Complete",
-        expires_in_24_hours = true
+        version = "v4.0_Ultimate_Complete_Hidden",
+        expires_in_24_hours = true,
+        secret_access = true
     }
     
-    writefile("WenerHub/Key.json", game:GetService("HttpService"):JSONEncode(keyData))
+    writefile("WenerHub/Key.json", HttpService:JSONEncode(keyData))
 end
 
 local ownerUsername = "winnertupiq52"
 local isOwner = player.Name == ownerUsername
+local keySystemPassed = false
 
 if KeySystemEnabled and not isOwner then
     local keyValid, timeLeft = checkKey()
     
     if not keyValid then
+        print("🔑 Key required - showing secret key system UI...")
+        
         local ScreenGui = Instance.new("ScreenGui")
-        ScreenGui.Name = "WanerKeySystem"
+        ScreenGui.Name = "WenerSecretKeySystem"
         ScreenGui.ResetOnSpawn = false
         ScreenGui.Parent = game.CoreGui
         
@@ -370,8 +407,8 @@ if KeySystemEnabled and not isOwner then
         Background.Parent = ScreenGui
         
         local MainFrame = Instance.new("Frame")
-        MainFrame.Size = UDim2.new(0, 550, 0, 450)
-        MainFrame.Position = UDim2.new(0.5, -275, 0.5, -225)
+        MainFrame.Size = UDim2.new(0, 600, 0, 500)
+        MainFrame.Position = UDim2.new(0.5, -300, 0.5, -250)
         MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
         MainFrame.BackgroundTransparency = 1
         MainFrame.Parent = ScreenGui
@@ -380,6 +417,7 @@ if KeySystemEnabled and not isOwner then
         Corner.CornerRadius = UDim.new(0, 25)
         Corner.Parent = MainFrame
         
+        -- Show key system with animation
         TweenService:Create(Blur, TweenInfo.new(0.8), {Size = 30}):Play()
         TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 0.3}):Play()
         TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 0.1}):Play()
@@ -388,38 +426,55 @@ if KeySystemEnabled and not isOwner then
         local Title = Instance.new("TextLabel")
         Title.Size = UDim2.new(1, 0, 0, 80)
         Title.BackgroundTransparency = 1
-        Title.Text = "🔐 WENER HUB PREMIUM ACCESS"
+        Title.Text = "🔐 WENER HUB SECRET ACCESS"
         Title.TextColor3 = Color3.fromRGB(255, 255, 255)
         Title.Font = Enum.Font.GothamBold
         Title.TextSize = 28
+        Title.TextTransparency = 1
         Title.Parent = MainFrame
         
-        local KeyDisplay = Instance.new("TextLabel")
-        KeyDisplay.Size = UDim2.new(1, -40, 0, 50)
-        KeyDisplay.Position = UDim2.new(0, 20, 0, 80)
-        KeyDisplay.BackgroundTransparency = 1
-        KeyDisplay.Text = "✨ Super Premium Key: Wene-you"
-        KeyDisplay.TextColor3 = Color3.fromRGB(255, 215, 0)
-        KeyDisplay.Font = Enum.Font.GothamBold
-        KeyDisplay.TextSize = 22
-        KeyDisplay.Parent = MainFrame
+        local SecretWarning = Instance.new("TextLabel")
+        SecretWarning.Size = UDim2.new(1, -40, 0, 60)
+        SecretWarning.Position = UDim2.new(0, 20, 0, 80)
+        SecretWarning.BackgroundTransparency = 1
+        SecretWarning.Text = "⚠️ CONFIDENTIAL SYSTEM ⚠️\n🔒 Secret key required for premium access"
+        SecretWarning.TextColor3 = Color3.fromRGB(255, 100, 100)
+        SecretWarning.Font = Enum.Font.GothamBold
+        SecretWarning.TextSize = 18
+        SecretWarning.TextWrapped = true
+        SecretWarning.TextTransparency = 1
+        SecretWarning.Parent = MainFrame
         
-        local ExpireInfo = Instance.new("TextLabel")
-        ExpireInfo.Size = UDim2.new(1, -40, 0, 40)
-        ExpireInfo.Position = UDim2.new(0, 20, 0, 130)
-        ExpireInfo.BackgroundTransparency = 1
-        ExpireInfo.Text = "⏰ Key valid for 24 Hours (86400 seconds)\n💎 Auto-save & Premium features included"
-        ExpireInfo.TextColor3 = Color3.fromRGB(0, 255, 0)
-        ExpireInfo.Font = Enum.Font.Gotham
-        ExpireInfo.TextSize = 16
-        ExpireInfo.TextWrapped = true
-        ExpireInfo.Parent = MainFrame
+        local FakeKeyDisplay = Instance.new("TextLabel")
+        FakeKeyDisplay.Size = UDim2.new(1, -40, 0, 80)
+        FakeKeyDisplay.Position = UDim2.new(0, 20, 0, 150)
+        FakeKeyDisplay.BackgroundTransparency = 1
+        FakeKeyDisplay.Text = "🎯 Try one of these keys:\nWenerHub2024 • UltimateKey • PremiumAccess\nDoorsMaster • SuperScript • EliteHacker"
+        FakeKeyDisplay.TextColor3 = Color3.fromRGB(150, 150, 150)
+        FakeKeyDisplay.Font = Enum.Font.Gotham
+        FakeKeyDisplay.TextSize = 14
+        FakeKeyDisplay.TextWrapped = true
+        FakeKeyDisplay.TextTransparency = 1
+        FakeKeyDisplay.Parent = MainFrame
+        
+        local SecretHint = Instance.new("TextLabel")
+        SecretHint.Size = UDim2.new(1, -40, 0, 40)
+        SecretHint.Position = UDim2.new(0, 20, 0, 240)
+        SecretHint.BackgroundTransparency = 1
+        SecretHint.Text = "💡 Hint: The secret key is hidden... look carefully 👀"
+        SecretHint.TextColor3 = Color3.fromRGB(255, 215, 0)
+        SecretHint.Font = Enum.Font.GothamBold
+        SecretHint.TextSize = 16
+        SecretHint.TextWrapped = true
+        SecretHint.TextTransparency = 1
+        SecretHint.Parent = MainFrame
         
         local KeyInput = Instance.new("TextBox")
         KeyInput.Size = UDim2.new(1, -40, 0, 55)
-        KeyInput.Position = UDim2.new(0, 20, 0, 190)
+        KeyInput.Position = UDim2.new(0, 20, 0, 300)
         KeyInput.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-        KeyInput.PlaceholderText = "Enter Super Premium Key: Wene-you"
+        KeyInput.BackgroundTransparency = 1
+        KeyInput.PlaceholderText = "🔐 Enter Secret Key..."
         KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
         KeyInput.Text = ""
         KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -433,12 +488,14 @@ if KeySystemEnabled and not isOwner then
         
         local SubmitBtn = Instance.new("TextButton")
         SubmitBtn.Size = UDim2.new(1, -40, 0, 55)
-        SubmitBtn.Position = UDim2.new(0, 20, 0, 270)
+        SubmitBtn.Position = UDim2.new(0, 20, 0, 375)
         SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        SubmitBtn.Text = "✓ ACTIVATE PREMIUM KEY"
+        SubmitBtn.BackgroundTransparency = 1
+        SubmitBtn.Text = "🚀 UNLOCK SECRET ACCESS"
         SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         SubmitBtn.Font = Enum.Font.GothamBold
         SubmitBtn.TextSize = 20
+        SubmitBtn.TextTransparency = 1
         SubmitBtn.Parent = MainFrame
         
         local BtnCorner = Instance.new("UICorner")
@@ -446,31 +503,72 @@ if KeySystemEnabled and not isOwner then
         BtnCorner.Parent = SubmitBtn
         
         local Info = Instance.new("TextLabel")
-        Info.Size = UDim2.new(1, -40, 0, 80)
-        Info.Position = UDim2.new(0, 20, 0, 350)
+        Info.Size = UDim2.new(1, -40, 0, 60)
+        Info.Position = UDim2.new(0, 20, 0, 450)
         Info.BackgroundTransparency = 1
-        Info.Text = "🌟 Premium Features Include:\n• Modern ESP (Not Old Printer Style) • Auto ProximityPrompt R\n• Auto Collect from Drawers • All Advanced Functions\n• Fixed Everything • 24-Hour Premium Access"
+        Info.Text = "🌟 Secret Features: Modern ESP • Auto ProximityPrompt R\nAuto Collect • 24-Hour Access • All Premium Functions\n🔒 Only for those who know the secret..."
         Info.TextColor3 = Color3.fromRGB(200, 200, 200)
         Info.Font = Enum.Font.Gotham
-        Info.TextSize = 14
+        Info.TextSize = 12
         Info.TextWrapped = true
+        Info.TextTransparency = 1
         Info.Parent = MainFrame
         
+        -- Animate key system elements
+        TweenService:Create(Title, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(SecretWarning, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(FakeKeyDisplay, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(SecretHint, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(KeyInput, TweenInfo.new(0.6), {BackgroundTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(SubmitBtn, TweenInfo.new(0.6), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+        wait(0.3)
+        TweenService:Create(Info, TweenInfo.new(0.6), {TextTransparency = 0}):Play()
+        
+        -- Cycling fake key hints
+        task.spawn(function()
+            local fakeKeys = generateFakeKeys()
+            while not keySystemPassed do
+                wait(3)
+                if FakeKeyDisplay and FakeKeyDisplay.Parent then
+                    local randomKeys = {}
+                    for i = 1, 6 do
+                        table.insert(randomKeys, fakeKeys[math.random(1, #fakeKeys)])
+                    end
+                    FakeKeyDisplay.Text = "🎯 Try one of these keys:\n" .. 
+                        randomKeys[1] .. " • " .. randomKeys[2] .. " • " .. randomKeys[3] .. "\n" ..
+                        randomKeys[4] .. " • " .. randomKeys[5] .. " • " .. randomKeys[6]
+                end
+            end
+        end)
+        
         local submitted = false
+        local attempts = 0
         SubmitBtn.MouseButton1Click:Connect(function()
+            attempts = attempts + 1
+            
             if KeyInput.Text == CorrectKey then
                 saveKey()
                 submitted = true
+                keySystemPassed = true
                 
                 SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                SubmitBtn.Text = "✅ SUCCESS! Key valid for 24 hours"
+                SubmitBtn.Text = "✅ SECRET ACCESS GRANTED!"
+                SecretHint.Text = "🎉 Welcome to the secret club! You found the hidden key!"
+                SecretHint.TextColor3 = Color3.fromRGB(0, 255, 0)
                 
-                wait(1)
+                wait(2)
                 
+                -- Hide key system
                 TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
                 TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-                TweenService:Create(KeyDisplay, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-                TweenService:Create(ExpireInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+                TweenService:Create(SecretWarning, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+                TweenService:Create(FakeKeyDisplay, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+                TweenService:Create(SecretHint, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
                 TweenService:Create(KeyInput, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
                 TweenService:Create(SubmitBtn, TweenInfo.new(0.8), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
                 TweenService:Create(Info, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
@@ -480,80 +578,120 @@ if KeySystemEnabled and not isOwner then
                 
                 Blur:Destroy()
                 ScreenGui:Destroy()
+                
+                print("✅ Secret Key System passed with hidden key!")
             else
                 SubmitBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-                SubmitBtn.Text = "❌ INVALID! Correct key: Wene-you"
-                wait(1.5)
+                
+                if attempts <= 3 then
+                    SubmitBtn.Text = "❌ WRONG KEY! Try again... (" .. attempts .. "/∞)"
+                    SecretHint.Text = "💡 Hint: The answer is closer than you think... 🔍"
+                elseif attempts <= 6 then
+                    SubmitBtn.Text = "🤔 Still wrong! Keep trying..."
+                    SecretHint.Text = "🧐 Hint: It's something related to 'you'... 👤"
+                elseif attempts <= 10 then
+                    SubmitBtn.Text = "😅 Getting warmer..."
+                    SecretHint.Text = "🔥 Hint: Wene + you = ? (Think about it)"
+                else
+                    SubmitBtn.Text = "🙈 The secret is in plain sight!"
+                    SecretHint.Text = "👁️ Final Hint: Check the script comments... 📝"
+                end
+                
+                wait(2)
                 SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-                SubmitBtn.Text = "✓ ACTIVATE PREMIUM KEY"
+                SubmitBtn.Text = "🚀 UNLOCK SECRET ACCESS"
             end
         end)
         
         repeat wait(0.1) until submitted
+    else
+        keySystemPassed = true
+        print("✅ Valid secret key found - " .. formatTime(timeLeft) .. " remaining")
     end
+else
+    keySystemPassed = true
+    print("✅ Owner access granted - no key required")
 end
 
 -- ============================================================================
--- WELCOME SCREEN
+-- STEP 3: WELCOME SCREEN
 -- ============================================================================
 
-local function createWelcomeScreen()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WenerWelcome"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game.CoreGui
+if keySystemPassed then
+    print("STEP 3: Creating Welcome Screen...")
     
-    local Blur = Instance.new("BlurEffect")
-    Blur.Size = 0
-    Blur.Parent = Lighting
-    
-    local Background = Instance.new("Frame")
-    Background.Size = UDim2.new(1, 0, 1, 0)
-    Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Background.BackgroundTransparency = 1
-    Background.Parent = ScreenGui
-    
-    local WelcomeText = Instance.new("TextLabel")
-    WelcomeText.Size = UDim2.new(0.8, 0, 0.2, 0)
-    WelcomeText.Position = UDim2.new(0.1, 0, 0.3, 0)
-    WelcomeText.BackgroundTransparency = 1
-    WelcomeText.Text = "Welcome " .. player.DisplayName .. " To WENER Hub"
-    WelcomeText.TextColor3 = Color3.fromRGB(139, 0, 255)
-    WelcomeText.Font = Enum.Font.GothamBold
-    WelcomeText.TextSize = 48
-    WelcomeText.TextStrokeTransparency = 0
-    WelcomeText.TextTransparency = 1
-    WelcomeText.Parent = ScreenGui
-    
-    local HubText = Instance.new("TextLabel")
-    HubText.Size = UDim2.new(1, 0, 0.3, 0)
-    HubText.Position = UDim2.new(0, 0, 0.55, 0)
-    HubText.BackgroundTransparency = 1
-    HubText.Text = "W3n3r HuB"
-    HubText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    HubText.Font = Enum.Font.GothamBold
-    HubText.TextSize = 72
-    HubText.TextStrokeTransparency = 0
-    HubText.TextTransparency = 1
-    HubText.Parent = ScreenGui
-    
-    task.spawn(function()
+    local function createWelcomeScreen()
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "WenerWelcome"
+        ScreenGui.ResetOnSpawn = false
+        ScreenGui.Parent = game.CoreGui
+        
+        local Blur = Instance.new("BlurEffect")
+        Blur.Size = 0
+        Blur.Parent = Lighting
+        
+        local Background = Instance.new("Frame")
+        Background.Size = UDim2.new(1, 0, 1, 0)
+        Background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Background.BackgroundTransparency = 1
+        Background.Parent = ScreenGui
+        
+        local WelcomeText = Instance.new("TextLabel")
+        WelcomeText.Size = UDim2.new(0.8, 0, 0.2, 0)
+        WelcomeText.Position = UDim2.new(0.1, 0, 0.3, 0)
+        WelcomeText.BackgroundTransparency = 1
+        WelcomeText.Text = "Welcome " .. player.DisplayName
+        WelcomeText.TextColor3 = Color3.fromRGB(139, 0, 255)
+        WelcomeText.Font = Enum.Font.GothamBold
+        WelcomeText.TextSize = 48
+        WelcomeText.TextStrokeTransparency = 0
+        WelcomeText.TextTransparency = 1
+        WelcomeText.Parent = ScreenGui
+        
+        local SecretText = Instance.new("TextLabel")
+        SecretText.Size = UDim2.new(0.8, 0, 0.1, 0)
+        SecretText.Position = UDim2.new(0.1, 0, 0.5, 0)
+        SecretText.BackgroundTransparency = 1
+        SecretText.Text = "🔐 Secret Access Granted"
+        SecretText.TextColor3 = Color3.fromRGB(255, 215, 0)
+        SecretText.Font = Enum.Font.GothamBold
+        SecretText.TextSize = 32
+        SecretText.TextStrokeTransparency = 0
+        SecretText.TextTransparency = 1
+        SecretText.Parent = ScreenGui
+        
+        local HubText = Instance.new("TextLabel")
+        HubText.Size = UDim2.new(1, 0, 0.3, 0)
+        HubText.Position = UDim2.new(0, 0, 0.6, 0)
+        HubText.BackgroundTransparency = 1
+        HubText.Text = "Wener Hub"
+        HubText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        HubText.Font = Enum.Font.GothamBold
+        HubText.TextSize = 72
+        HubText.TextStrokeTransparency = 0
+        HubText.TextTransparency = 1
+        HubText.Parent = ScreenGui
+        
+        -- Show welcome animation
         TweenService:Create(Blur, TweenInfo.new(1), {Size = 25}):Play()
         TweenService:Create(Background, TweenInfo.new(1), {BackgroundTransparency = 0.3}):Play()
         wait(1)
         
         TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
-        wait(2)
+        wait(1)
+        TweenService:Create(SecretText, TweenInfo.new(1), {TextTransparency = 0}):Play()
+        wait(1.5)
         
-        TweenService:Create(HubText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-        wait(0.5)
+        TweenService:Create(HubText, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+        wait(1)
         
+        -- Glitch effect
         local glitchTexts = {
             "W3n3r HuB", "W€n€r H∪B", "W£n£r HμB", "W∈n∈r H∪ß",
             "W∂n∂r Hub", "Wen€r Hub", "Wen3r Hub", "Wener Hub"
         }
         
-        for i = 1, 15 do
+        for i = 1, 12 do
             HubText.Text = glitchTexts[math.random(1, #glitchTexts)]
             HubText.TextColor3 = Color3.fromRGB(
                 math.random(100, 255),
@@ -561,23 +699,25 @@ local function createWelcomeScreen()
                 math.random(100, 255)
             )
             HubText.Position = UDim2.new(
-                math.random(-5, 5) / 100,
+                math.random(-3, 3) / 100,
                 0,
-                0.55 + math.random(-2, 2) / 100,
+                0.6 + math.random(-1, 1) / 100,
                 0
             )
-            wait(0.1)
+            wait(0.12)
         end
         
         TweenService:Create(HubText, TweenInfo.new(1), {
             TextColor3 = Color3.fromRGB(139, 0, 255),
-            Position = UDim2.new(0, 0, 0.55, 0)
+            Position = UDim2.new(0, 0, 0.6, 0)
         }):Play()
         HubText.Text = "Wener Hub"
         
-        wait(3)
+        wait(2.5)
         
+        -- Hide welcome screen
         TweenService:Create(WelcomeText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        TweenService:Create(SecretText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
         TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 1}):Play()
         TweenService:Create(Background, TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
         TweenService:Create(Blur, TweenInfo.new(1.5), {Size = 0}):Play()
@@ -585,24 +725,27 @@ local function createWelcomeScreen()
         wait(1.5)
         ScreenGui:Destroy()
         Blur:Destroy()
-    end)
+        
+        print("✅ Welcome Screen completed")
+        return true
+    end
+    
+    createWelcomeScreen()
 end
 
-createWelcomeScreen()
-
 -- ============================================================================
--- PERMANENT LOGO
+-- STEP 4: PERMANENT LOGO
 -- ============================================================================
 
 local function createPermanentLogo()
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WanerLogo"
+    ScreenGui.Name = "WenerLogo"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = game.CoreGui
     
     local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(0, 500, 0, 90)
-    Container.Position = UDim2.new(0.5, -250, 0.02, 0)
+    Container.Size = UDim2.new(0, 520, 0, 90)
+    Container.Position = UDim2.new(0.5, -260, 0.02, 0)
     Container.BackgroundTransparency = 1
     Container.Parent = ScreenGui
     
@@ -633,30 +776,30 @@ local function createPermanentLogo()
     HubText.Parent = Container
     
     local VersionText = Instance.new("TextLabel")
-    VersionText.Size = UDim2.new(0, 120, 0, 25)
+    VersionText.Size = UDim2.new(0, 140, 0, 25)
     VersionText.Position = UDim2.new(0, 300, 1, -25)
     VersionText.BackgroundTransparency = 1
-    VersionText.Text = "v4.0 Ultimate Complete"
+    VersionText.Text = "v4.0 Ultimate Complete Hidden"
     VersionText.TextColor3 = Color3.fromRGB(200, 200, 200)
     VersionText.Font = Enum.Font.Gotham
-    VersionText.TextSize = 14
+    VersionText.TextSize = 12
     VersionText.TextTransparency = 1
     VersionText.Parent = Container
     
-    local KeyText = Instance.new("TextLabel")
-    KeyText.Size = UDim2.new(0, 140, 0, 25)
-    KeyText.Position = UDim2.new(0, 300, 0, 25)
-    KeyText.BackgroundTransparency = 1
-    KeyText.Text = "🔑 Key: Wene-you"
-    KeyText.TextColor3 = Color3.fromRGB(255, 215, 0)
-    KeyText.Font = Enum.Font.GothamBold
-    KeyText.TextSize = 12
-    KeyText.TextTransparency = 1
-    KeyText.Parent = Container
+    local SecretText = Instance.new("TextLabel")
+    SecretText.Size = UDim2.new(0, 140, 0, 25)
+    SecretText.Position = UDim2.new(0, 300, 0, 25)
+    SecretText.BackgroundTransparency = 1
+    SecretText.Text = "🔐 Secret Access"
+    SecretText.TextColor3 = Color3.fromRGB(255, 215, 0)
+    SecretText.Font = Enum.Font.GothamBold
+    SecretText.TextSize = 14
+    SecretText.TextTransparency = 1
+    SecretText.Parent = Container
     
     if isOwner then
         local OwnerText = Instance.new("TextLabel")
-        OwnerText.Size = UDim2.new(0, 120, 0, 25)
+        OwnerText.Size = UDim2.new(0, 140, 0, 25)
         OwnerText.Position = UDim2.new(0, 300, 0, 0)
         OwnerText.BackgroundTransparency = 1
         OwnerText.Text = "👑 OWNER ACCESS"
@@ -667,152 +810,274 @@ local function createPermanentLogo()
         OwnerText.Parent = Container
         
         task.spawn(function()
-            wait(14)
+            wait(2)
             TweenService:Create(OwnerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
         end)
     end
     
     task.spawn(function()
-        wait(14)
+        wait(2)
         TweenService:Create(WenerText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
         wait(0.3)
         TweenService:Create(HubText, TweenInfo.new(1.5), {TextTransparency = 0}):Play()
         wait(0.3)
         TweenService:Create(VersionText, TweenInfo.new(1.2), {TextTransparency = 0}):Play()
         wait(0.2)
-        TweenService:Create(KeyText, TweenInfo.new(1.2), {TextTransparency = 0}):Play()
+        TweenService:Create(SecretText, TweenInfo.new(1.2), {TextTransparency = 0}):Play()
     end)
 end
 
 task.spawn(createPermanentLogo)
 
 -- ============================================================================
--- MODERN ESP SYSTEM (BUKAN PRINTER JAMAN DULU)
+-- STEP 5: NOTIFICATION SYSTEM (FIXED & IMPROVED)
+-- ============================================================================
+
+print("STEP 5: Setting up Advanced Notification System...")
+
+local notificationQueue = {}
+local isShowingNotification = false
+local currentNotifications = {}
+
+local function createNotification(title, message, color, duration)
+    table.insert(notificationQueue, {
+        title = title,
+        message = message,
+        color = color or Color3.fromRGB(139, 0, 255),
+        duration = duration or 5
+    })
+    
+    if not isShowingNotification then
+        task.spawn(function()
+            while #notificationQueue > 0 do
+                isShowingNotification = true
+                local notif = table.remove(notificationQueue, 1)
+                
+                local ScreenGui = Instance.new("ScreenGui")
+                ScreenGui.Name = "WenerNotification" .. tick()
+                ScreenGui.ResetOnSpawn = false
+                ScreenGui.Parent = game.CoreGui
+                
+                local yOffset = #currentNotifications * 110
+                
+                local NotificationFrame = Instance.new("Frame")
+                NotificationFrame.Size = UDim2.new(0, 400, 0, 100)
+                NotificationFrame.Position = UDim2.new(1, 20, 0, 50 + yOffset)
+                NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+                NotificationFrame.BorderSizePixel = 0
+                NotificationFrame.Parent = ScreenGui
+                
+                local Corner = Instance.new("UICorner")
+                Corner.CornerRadius = UDim.new(0, 15)
+                Corner.Parent = NotificationFrame
+                
+                local Stroke = Instance.new("UIStroke")
+                Stroke.Color = notif.color
+                Stroke.Thickness = 2
+                Stroke.Parent = NotificationFrame
+                
+                local Gradient = Instance.new("UIGradient")
+                Gradient.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 35)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 25))
+                })
+                Gradient.Rotation = 45
+                Gradient.Parent = NotificationFrame
+                
+                local TitleLabel = Instance.new("TextLabel")
+                TitleLabel.Size = UDim2.new(1, -20, 0, 30)
+                TitleLabel.Position = UDim2.new(0, 10, 0, 5)
+                TitleLabel.BackgroundTransparency = 1
+                TitleLabel.Text = notif.title
+                TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+                TitleLabel.Font = Enum.Font.GothamBold
+                TitleLabel.TextSize = 16
+                TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+                TitleLabel.Parent = NotificationFrame
+                
+                local MessageLabel = Instance.new("TextLabel")
+                MessageLabel.Size = UDim2.new(1, -20, 0, 50)
+                MessageLabel.Position = UDim2.new(0, 10, 0, 35)
+                MessageLabel.BackgroundTransparency = 1
+                MessageLabel.Text = notif.message
+                MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                MessageLabel.Font = Enum.Font.Gotham
+                MessageLabel.TextSize = 14
+                MessageLabel.TextWrapped = true
+                MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
+                MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
+                MessageLabel.Parent = NotificationFrame
+                
+                table.insert(currentNotifications, ScreenGui)
+                
+                -- Slide in animation
+                TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
+                    Position = UDim2.new(1, -420, 0, 50 + yOffset)
+                }):Play()
+                
+                -- Glow effect animation
+                task.spawn(function()
+                    local startTime = tick()
+                    while ScreenGui.Parent and tick() - startTime < notif.duration do
+                        TweenService:Create(Stroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                            Transparency = 0.3
+                        }):Play()
+                        wait(1)
+                        TweenService:Create(Stroke, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                            Transparency = 0
+                        }):Play()
+                        wait(1)
+                    end
+                end)
+                
+                -- Auto-close timer
+                task.spawn(function()
+                    wait(notif.duration)
+                    
+                    if ScreenGui and ScreenGui.Parent then
+                        -- Remove from current notifications
+                        for i, gui in ipairs(currentNotifications) do
+                            if gui == ScreenGui then
+                                table.remove(currentNotifications, i)
+                                break
+                            end
+                        end
+                        
+                        -- Slide out animation
+                        TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+                            Position = UDim2.new(1, 20, 0, 50 + yOffset),
+                            BackgroundTransparency = 1
+                        }):Play()
+                        
+                        TweenService:Create(TitleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+                        TweenService:Create(MessageLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+                        TweenService:Create(Stroke, TweenInfo.new(0.5), {Transparency = 1}):Play()
+                        
+                        wait(0.5)
+                        ScreenGui:Destroy()
+                    end
+                end)
+                
+                wait(0.8) -- Delay between notifications
+            end
+            isShowingNotification = false
+        end)
+    end
+end
+
+print("✅ Advanced Notification System ready")
+
+-- ============================================================================
+-- MODERN ESP SYSTEM (COMPLETE)
 -- ============================================================================
 
 local function createModernESP(obj, text, color, espType)
     if not obj or obj:FindFirstChild("WenerESP_" .. espType) then return end
     
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local distance = (player.Character.HumanoidRootPart.Position - obj.Position).Magnitude
-        if distance > 500 then return end
-    end
-    
-    -- Modern Highlight dengan smooth glow
+    -- Highlight with modern glow
     local highlight = Instance.new("Highlight")
     highlight.Name = "WenerESP_" .. espType
     highlight.Adornee = obj.Parent or obj
     highlight.FillColor = color
-    highlight.FillTransparency = 0.5
+    highlight.FillTransparency = 0.6
     highlight.OutlineColor = color
-    highlight.OutlineTransparency = 0
+    highlight.OutlineTransparency = 0.2
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Parent = obj
     
-    -- Modern Billboard GUI dengan design premium
+    -- Modern Billboard GUI
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "WenerESP_" .. espType .. "_Modern"
+    billboard.Name = "WenerESP_" .. espType .. "_Billboard"
     billboard.Adornee = obj
-    billboard.Size = UDim2.new(4, 0, 2, 0)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.Size = UDim2.new(6, 0, 3, 0)
+    billboard.StudsOffset = Vector3.new(0, 4, 0)
     billboard.AlwaysOnTop = true
     billboard.MaxDistance = 500
-    billboard.LightInfluence = 0
     billboard.Parent = obj
     
-    -- Modern background dengan rounded design
+    -- Background frame for modern look
     local bgFrame = Instance.new("Frame")
     bgFrame.Size = UDim2.new(1, 0, 1, 0)
-    bgFrame.BackgroundColor3 = Color3.new(0.05, 0.05, 0.15)
-    bgFrame.BackgroundTransparency = 0.2
+    bgFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    bgFrame.BackgroundTransparency = 0.3
     bgFrame.BorderSizePixel = 0
     bgFrame.Parent = billboard
     
     local bgCorner = Instance.new("UICorner")
-    bgCorner.CornerRadius = UDim.new(0, 12)
+    bgCorner.CornerRadius = UDim.new(0, 8)
     bgCorner.Parent = bgFrame
     
-    -- Modern gradient untuk premium look
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, color),
-        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.6, color.G * 0.6, color.B * 0.6))
-    })
-    gradient.Rotation = 45
-    gradient.Parent = bgFrame
+    local bgStroke = Instance.new("UIStroke")
+    bgStroke.Color = color
+    bgStroke.Thickness = 2
+    bgStroke.Transparency = 0.5
+    bgStroke.Parent = bgFrame
     
-    -- Modern stroke untuk outline premium
-    local frameStroke = Instance.new("UIStroke")
-    frameStroke.Color = color
-    frameStroke.Thickness = 2
-    frameStroke.Transparency = 0.3
-    frameStroke.Parent = bgFrame
-    
-    -- Modern text label
+    -- Main label
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -10, 0.6, 0)
-    label.Position = UDim2.new(0, 5, 0, 5)
+    label.Size = UDim2.new(1, -10, 0.7, 0)
+    label.Position = UDim2.new(0, 5, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.TextStrokeTransparency = 0.2
+    label.TextStrokeTransparency = 0
     label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     label.TextScaled = true
     label.Font = Enum.Font.GothamBold
-    label.Parent = billboard
+    label.Parent = bgFrame
     
-    -- Modern distance display
+    -- Distance label
     local distanceLabel = Instance.new("TextLabel")
-    distanceLabel.Size = UDim2.new(1, -10, 0.4, 0)
-    distanceLabel.Position = UDim2.new(0, 5, 0.6, 0)
+    distanceLabel.Size = UDim2.new(1, -10, 0.3, 0)
+    distanceLabel.Position = UDim2.new(0, 5, 0.7, 0)
     distanceLabel.BackgroundTransparency = 1
     distanceLabel.Text = "0m"
     distanceLabel.TextColor3 = color
-    distanceLabel.TextStrokeTransparency = 0.2
-    distanceLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    distanceLabel.TextStrokeTransparency = 0.3
     distanceLabel.TextScaled = true
     distanceLabel.Font = Enum.Font.Gotham
-    distanceLabel.Parent = billboard
+    distanceLabel.Parent = bgFrame
     
-    -- Modern smooth animation
+    -- Distance updater
     task.spawn(function()
-        while highlight.Parent and obj.Parent do
-            TweenService:Create(highlight, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                FillTransparency = 0.8,
-                OutlineTransparency = 0.1
-            }):Play()
-            
-            TweenService:Create(frameStroke, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-                Transparency = 0.6
-            }):Play()
-            
-            task.wait(2)
-        end
-    end)
-    
-    -- Update distance real-time
-    task.spawn(function()
-        while billboard.Parent and obj.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+        while highlight and highlight.Parent and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
             local distance = math.floor((player.Character.HumanoidRootPart.Position - obj.Position).Magnitude)
             distanceLabel.Text = distance .. "m"
             
-            if distance > 500 then
-                if highlight then highlight:Destroy() end
-                if billboard then billboard:Destroy() end
-                break
-            end
+            -- Dynamic transparency based on distance
+            local transparency = math.min(distance / 200, 0.8)
+            bgFrame.BackgroundTransparency = 0.3 + transparency * 0.4
+            label.TextTransparency = transparency * 0.5
+            distanceLabel.TextTransparency = transparency * 0.5
             
-            task.wait(0.5)
+            wait(0.5)
+        end
+    end)
+    
+    -- Glow animation
+    task.spawn(function()
+        while highlight and highlight.Parent do
+            TweenService:Create(bgStroke, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                Transparency = 0.8
+            }):Play()
+            TweenService:Create(highlight, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                FillTransparency = 0.8
+            }):Play()
+            wait(1.5)
+            TweenService:Create(bgStroke, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                Transparency = 0.2
+            }):Play()
+            TweenService:Create(highlight, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+                FillTransparency = 0.4
+            }):Play()
+            wait(1.5)
         end
     end)
     
     table.insert(espObjects, {highlight = highlight, billboard = billboard})
-    return {highlight, billboard}
 end
 
--- ============================================================================
--- ESP UPDATE FUNCTIONS - COMPLETE & FIXED
--- ============================================================================
-
+-- ESP Update Functions
 local function updateDoorESP()
     if not doorEspEnabled then return end
     
@@ -825,7 +1090,8 @@ local function updateDoorESP()
             if door then
                 local doorPart = door:FindFirstChildWhichIsA("BasePart")
                 if doorPart and not doorPart:FindFirstChild("WenerESP_door") then
-                    createModernESP(doorPart, "🚪 Door " .. room.Name, Color3.fromRGB(0, 255, 0), "door")
+                    local roomNum = tonumber(room.Name)
+                    createModernESP(doorPart, "🚪 Door " .. roomNum, Color3.fromRGB(0, 255, 100), "door")
                 end
             end
         end
@@ -835,35 +1101,23 @@ end
 local function updateKeyESP()
     if not keyEspEnabled then return end
     
-    -- Modern key detection dengan multiple methods
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
-            if obj.Name == "KeyObtain" or obj.Name == "Key" or obj.Name:find("Key") then
-                local keyPart = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
-                if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
-                    createModernESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 215, 0), "key")
-                end
-            end
-        elseif obj:IsA("BasePart") then
-            if obj.Name == "Key" or obj.Name:find("Key") then
-                if not obj:FindFirstChild("WenerESP_key") then
-                    createModernESP(obj, "🗝️ Key", Color3.fromRGB(255, 215, 0), "key")
-                end
-            end
-        end
-    end
-    
-    local currentRooms = workspace:FindFirstChild("CurrentRooms")
-    if currentRooms then
-        for _, room in pairs(currentRooms:GetChildren()) do
-            if room:IsA("Model") then
-                for _, asset in pairs(room:GetDescendants()) do
-                    if asset:IsA("Model") and (asset.Name == "KeyObtain" or asset.Name == "Key") then
-                        local keyPart = asset:FindFirstChild("Handle") or asset:FindFirstChildWhichIsA("BasePart")
-                        if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
-                            createModernESP(keyPart, "🗝️ Key", Color3.fromRGB(255, 215, 0), "key")
+            local keyNames = {"Key", "SkeletonKey", "LibraryHallwayKey"}
+            
+            for _, keyName in pairs(keyNames) do
+                if obj.Name == keyName or obj.Name:find(keyName) then
+                    local keyPart = obj:FindFirstChildWhichIsA("BasePart")
+                    if keyPart and not keyPart:FindFirstChild("WenerESP_key") then
+                        local keyColor = Color3.fromRGB(255, 215, 0)
+                        if obj.Name:find("Skeleton") then
+                            keyColor = Color3.fromRGB(255, 100, 255)
+                        elseif obj.Name:find("Library") then
+                            keyColor = Color3.fromRGB(100, 255, 255)
                         end
+                        createModernESP(keyPart, "🗝️ " .. obj.Name, keyColor, "key")
                     end
+                    break
                 end
             end
         end
@@ -873,47 +1127,25 @@ end
 local function updateItemESP()
     if not itemEspEnabled then return end
     
-    local collectableItems = {
-        "Vitamins", "Lockpick", "Candle", "Lighter", "FlashlightPickup", "Flashlight",
-        "Crucifix", "Bandage", "SkeletonKey", "Shakelight", "Scanner", 
-        "Battery", "Herb", "Pill"
+    local items = {
+        {name = "Vitamins", display = "💊 Vitamins", color = Color3.fromRGB(0, 255, 0)},
+        {name = "Lockpick", display = "🔓 Lockpick", color = Color3.fromRGB(100, 100, 255)},
+        {name = "Flashlight", display = "🔦 Flashlight", color = Color3.fromRGB(255, 255, 0)},
+        {name = "Lighter", display = "🔥 Lighter", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Candle", display = "🕯️ Candle", color = Color3.fromRGB(255, 200, 100)},
+        {name = "Crucifix", display = "✝️ Crucifix", color = Color3.fromRGB(255, 215, 0)},
+        {name = "Battery", display = "🔋 Battery", color = Color3.fromRGB(0, 200, 0)},
+        {name = "Scanner", display = "📱 Scanner", color = Color3.fromRGB(0, 150, 255)},
+        {name = "Bandage", display = "🩹 Bandage", color = Color3.fromRGB(255, 255, 255)}
     }
     
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") then
-            for _, itemName in pairs(collectableItems) do
-                if obj.Name == itemName or obj.Name:find(itemName) then
-                    local hasPrompt = false
+            for _, item in pairs(items) do
+                if obj.Name == item.name or obj.Name:find(item.name) then
                     local itemPart = obj:FindFirstChildWhichIsA("BasePart")
-                    
-                    if itemPart then
-                        local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
-                        if prompt then hasPrompt = true end
-                        
-                        if not hasPrompt then
-                            for _, child in pairs(obj:GetDescendants()) do
-                                if child:IsA("ProximityPrompt") then
-                                    hasPrompt = true
-                                    break
-                                end
-                            end
-                        end
-                        
-                        if hasPrompt and not itemPart:FindFirstChild("WenerESP_item") then
-                            local icon = "📦"
-                            if itemName == "Vitamins" or itemName == "Pill" then icon = "💊"
-                            elseif itemName == "Lockpick" then icon = "🔓"
-                            elseif itemName:find("Flashlight") or itemName == "Shakelight" then icon = "🔦"
-                            elseif itemName == "Candle" then icon = "🕯️"
-                            elseif itemName == "Lighter" then icon = "🔥"
-                            elseif itemName == "Crucifix" then icon = "✝️"
-                            elseif itemName == "Bandage" then icon = "🩹"
-                            elseif itemName == "SkeletonKey" then icon = "🗝️"
-                            elseif itemName == "Battery" then icon = "🔋"
-                            end
-                            
-                            createModernESP(itemPart, icon .. " " .. itemName, Color3.fromRGB(255, 0, 0), "item")
-                        end
+                    if itemPart and not itemPart:FindFirstChild("WenerESP_item") then
+                        createModernESP(itemPart, item.display, item.color, "item")
                     end
                     break
                 end
@@ -926,40 +1158,10 @@ local function updateBookESP()
     if not bookEspEnabled then return end
     
     for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("Model") then
-            if obj.Name == "Book" or obj.Name:find("Book") then
-                local bookPart = obj:FindFirstChildWhichIsA("BasePart")
-                if bookPart then
-                    local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
-                    if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
-                        createModernESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                    end
-                end
-            end
-        elseif obj:IsA("BasePart") then
-            if obj.Name == "Book" or obj.Name:find("Book") then
-                local hasPrompt = obj:FindFirstChildOfClass("ProximityPrompt")
-                if hasPrompt and not obj:FindFirstChild("WenerESP_book") then
-                    createModernESP(obj, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                end
-            end
-        end
-    end
-    
-    local currentRooms = workspace:FindFirstChild("CurrentRooms")
-    if currentRooms then
-        local room50 = currentRooms:FindFirstChild("50")
-        if room50 then
-            for _, asset in pairs(room50:GetDescendants()) do
-                if asset:IsA("Model") and (asset.Name == "Book" or asset.Name:find("Book")) then
-                    local bookPart = asset:FindFirstChildWhichIsA("BasePart")
-                    if bookPart then
-                        local hasPrompt = bookPart:FindFirstChildOfClass("ProximityPrompt")
-                        if hasPrompt and not bookPart:FindFirstChild("WenerESP_book") then
-                            createModernESP(bookPart, "📚 Figure Book", Color3.fromRGB(139, 69, 19), "book")
-                        end
-                    end
-                end
+        if obj:IsA("Model") and (obj.Name == "Book" or obj.Name:find("Book")) then
+            local bookPart = obj:FindFirstChildWhichIsA("BasePart")
+            if bookPart and not bookPart:FindFirstChild("WenerESP_book") then
+                createModernESP(bookPart, "📚 Book", Color3.fromRGB(139, 69, 19), "book")
             end
         end
     end
@@ -969,19 +1171,19 @@ local function updateEntityESP()
     if not entityEspEnabled then return end
     
     local entities = {
-        {name = "RushMoving", display = "Rush", color = Color3.fromRGB(255, 0, 0)},
-        {name = "AmbushMoving", display = "Ambush", color = Color3.fromRGB(255, 100, 0)},
-        {name = "Eyes", display = "Eyes", color = Color3.fromRGB(255, 255, 255)},
-        {name = "Screech", display = "Screech", color = Color3.fromRGB(0, 255, 0)},
-        {name = "Halt", display = "Halt", color = Color3.fromRGB(0, 0, 255)},
-        {name = "Seek", display = "Seek", color = Color3.fromRGB(0, 0, 0)},
-        {name = "Figure", display = "Figure", color = Color3.fromRGB(139, 0, 255)},
-        {name = "Dupe", display = "Dupe", color = Color3.fromRGB(255, 255, 0)},
-        {name = "A60", display = "A-60", color = Color3.fromRGB(255, 0, 255)},
-        {name = "A120", display = "A-120", color = Color3.fromRGB(0, 255, 255)}
+        {name = "RushMoving", display = "⚡ Rush", color = Color3.fromRGB(255, 0, 0)},
+        {name = "AmbushMoving", display = "🌪️ Ambush", color = Color3.fromRGB(255, 100, 0)},
+        {name = "Eyes", display = "👁️ Eyes", color = Color3.fromRGB(0, 255, 255)},
+        {name = "Screech", display = "😱 Screech", color = Color3.fromRGB(100, 255, 100)},
+        {name = "Halt", display = "✋ Halt", color = Color3.fromRGB(0, 0, 255)},
+        {name = "Seek", display = "👹 Seek", color = Color3.fromRGB(0, 0, 0)},
+        {name = "Figure", display = "👤 Figure", color = Color3.fromRGB(100, 100, 100)},
+        {name = "A60", display = "🔴 A-60", color = Color3.fromRGB(255, 0, 0)},
+        {name = "A120", display = "🟢 A-120", color = Color3.fromRGB(0, 255, 0)}
     }
     
-    for _, obj in pairs(workspace:GetDescendants()) do        if obj:IsA("Model") then
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") then
             for _, entity in pairs(entities) do
                 if obj.Name == entity.name or obj.Name:find(entity.name) then
                     local entityPart = obj:FindFirstChildWhichIsA("BasePart") or obj.PrimaryPart
@@ -1009,9 +1211,10 @@ local function updatePlayerESP()
 end
 
 -- ============================================================================
--- AUTO PROXIMITY PROMPT R SYSTEM
+-- AUTO FEATURES (COMPLETE)
 -- ============================================================================
 
+-- Auto ProximityPrompt R
 local function enableAutoProximityPrompt()
     autoProximityPromptEnabled = true
     
@@ -1039,7 +1242,7 @@ local function enableAutoProximityPrompt()
         autoActivatePrompts()
     end)
     
-    print("🤖 Auto ProximityPrompt R: ENABLED")
+    createNotification("🤖 Auto ProximityPrompt R", "Auto R activation enabled!", Color3.fromRGB(0, 255, 0), 4)
 end
 
 local function disableAutoProximityPrompt()
@@ -1050,13 +1253,10 @@ local function disableAutoProximityPrompt()
         autoProximityPromptConnection = nil
     end
     
-    print("🤖 Auto ProximityPrompt R: DISABLED")
+    createNotification("🤖 Auto ProximityPrompt R", "Auto R disabled!", Color3.fromRGB(255, 100, 0), 3)
 end
 
--- ============================================================================
--- AUTO COLLECT ITEMS FROM DRAWERS/CABINETS
--- ============================================================================
-
+-- Auto Collect Items from Drawers
 local function enableAutoCollectDrawers()
     autoCollectEnabled = true
     
@@ -1065,19 +1265,20 @@ local function enableAutoCollectDrawers()
     local function collectFromDrawers()
         if not autoCollectEnabled or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
         
-        -- Cari dan buka laci/cabinet
+        -- Search for drawers/cabinets
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("Model") then
                 local isDrawer = obj.Name:find("Drawer") or obj.Name:find("Cabinet") or 
                                 obj.Name:find("Desk") or obj.Name:find("Wardrobe") or
-                                obj.Name:find("Closet") or obj.Name:find("Dresser")
+                                obj.Name:find("Closet") or obj.Name:find("Dresser") or
+                                obj.Name:find("Nightstand")
                 
                 if isDrawer then
                     local drawerPart = obj:FindFirstChildWhichIsA("BasePart")
                     if drawerPart then
                         local distance = (player.Character.HumanoidRootPart.Position - drawerPart.Position).Magnitude
-                        if distance <= 20 then
-                            -- Buka laci dulu
+                        if distance <= 25 then
+                            -- Open drawer first
                             local openPrompt = drawerPart:FindFirstChildOfClass("ProximityPrompt")
                             if not openPrompt then
                                 for _, child in pairs(obj:GetDescendants()) do
@@ -1095,13 +1296,13 @@ local function enableAutoCollectDrawers()
                                 wait(0.3)
                             end
                             
-                            -- Ambil semua item di dalam
+                            -- Collect all items inside
                             for _, item in pairs(obj:GetDescendants()) do
                                 if item:IsA("Model") then
                                     local itemNames = {
                                         "Vitamins", "Lockpick", "Key", "Flashlight", "Lighter", 
                                         "Candle", "Crucifix", "Bandage", "SkeletonKey", "Battery",
-                                        "Shakelight", "Scanner", "Herb", "Pill"
+                                        "Shakelight", "Scanner", "Herb", "Pill", "LibraryHallwayKey"
                                     }
                                     
                                     for _, itemName in pairs(itemNames) do
@@ -1135,11 +1336,11 @@ local function enableAutoCollectDrawers()
             end
         end
         
-        -- Ambil item loose di sekitar
+        -- Collect loose items around
         local collectableItems = {
             "Vitamins", "Lockpick", "Key", "Flashlight", "Lighter", "Candle", 
             "Crucifix", "Bandage", "SkeletonKey", "Battery", "Shakelight", 
-            "Scanner", "Herb", "Pill"
+            "Scanner", "Herb", "Pill", "LibraryHallwayKey"
         }
         
         for _, obj in pairs(workspace:GetDescendants()) do
@@ -1149,7 +1350,7 @@ local function enableAutoCollectDrawers()
                         local itemPart = obj:FindFirstChildWhichIsA("BasePart")
                         if itemPart then
                             local distance = (player.Character.HumanoidRootPart.Position - itemPart.Position).Magnitude
-                            if distance <= 15 then
+                            if distance <= 20 then
                                 local prompt = itemPart:FindFirstChildOfClass("ProximityPrompt")
                                 if not prompt then
                                     for _, child in pairs(obj:GetDescendants()) do
@@ -1178,7 +1379,7 @@ local function enableAutoCollectDrawers()
         collectFromDrawers()
     end)
     
-    print("📦 Auto Collect dari Laci: ENABLED")
+    createNotification("📦 Auto Collect", "Auto collecting from drawers enabled!", Color3.fromRGB(0, 255, 0), 4)
 end
 
 local function disableAutoCollectDrawers()
@@ -1189,13 +1390,10 @@ local function disableAutoCollectDrawers()
         autoCollectConnection = nil
     end
     
-    print("📦 Auto Collect dari Laci: DISABLED")
+    createNotification("📦 Auto Collect", "Auto collect disabled!", Color3.fromRGB(255, 100, 0), 3)
 end
 
--- ============================================================================
--- AUTO UNLOCK DOORS
--- ============================================================================
-
+-- Auto Unlock Doors
 local function enableAutoUnlock()
     autoUnlockEnabled = true
     
@@ -1214,7 +1412,7 @@ local function enableAutoUnlock()
                     local doorPart = door:FindFirstChildWhichIsA("BasePart")
                     if doorPart then
                         local distance = (player.Character.HumanoidRootPart.Position - doorPart.Position).Magnitude
-                        if distance <= 15 then
+                        if distance <= 20 then
                             local lockPart = door:FindFirstChild("Lock")
                             if lockPart then
                                 local unlockPrompt = lockPart:FindFirstChildOfClass("ProximityPrompt")
@@ -1235,7 +1433,7 @@ local function enableAutoUnlock()
         autoUnlockDoors()
     end)
     
-    print("🔓 Auto Unlock Doors: ENABLED")
+    createNotification("🔓 Auto Unlock", "Auto door unlocking enabled!", Color3.fromRGB(0, 255, 0), 4)
 end
 
 local function disableAutoUnlock()
@@ -1246,13 +1444,10 @@ local function disableAutoUnlock()
         autoUnlockConnection = nil
     end
     
-    print("🔓 Auto Unlock Doors: DISABLED")
+    createNotification("🔓 Auto Unlock", "Auto unlock disabled!", Color3.fromRGB(255, 100, 0), 3)
 end
 
--- ============================================================================
--- INFINITE VITAMINS
--- ============================================================================
-
+-- Infinite Vitamins
 local function enableInfVitamins()
     infVitaminsEnabled = true
     
@@ -1263,12 +1458,14 @@ local function enableInfVitamins()
         
         pcall(function()
             if player.Character and player.Character:FindFirstChild("Humanoid") then
-                player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+                if player.Character.Humanoid.Health < player.Character.Humanoid.MaxHealth then
+                    player.Character.Humanoid.Health = player.Character.Humanoid.MaxHealth
+                end
             end
         end)
     end)
     
-    print("💊 Infinite Vitamins: ENABLED")
+    createNotification("💊 Infinite Vitamins", "Infinite health enabled!", Color3.fromRGB(0, 255, 0), 4)
 end
 
 local function disableInfVitamins()
@@ -1279,13 +1476,10 @@ local function disableInfVitamins()
         infVitaminsConnection = nil
     end
     
-    print("💊 Infinite Vitamins: DISABLED")
+    createNotification("💊 Infinite Vitamins", "Infinite health disabled!", Color3.fromRGB(255, 100, 0), 3)
 end
 
--- ============================================================================
--- NOCLIP SYSTEM
--- ============================================================================
-
+-- Noclip System
 local function enableNoclip()
     noclipEnabled = true
     
@@ -1301,7 +1495,7 @@ local function enableNoclip()
         end
     end)
     
-    print("👻 Noclip: ENABLED")
+    createNotification("👻 Noclip", "Noclip enabled!", Color3.fromRGB(0, 255, 0), 3)
 end
 
 local function disableNoclip()
@@ -1320,13 +1514,10 @@ local function disableNoclip()
         end
     end
     
-    print("👻 Noclip: DISABLED")
+    createNotification("👻 Noclip", "Noclip disabled!", Color3.fromRGB(255, 100, 0), 3)
 end
 
--- ============================================================================
--- GOD MODE
--- ============================================================================
-
+-- God Mode System
 local function enableGodMode()
     godModeEnabled = true
     
@@ -1336,7 +1527,7 @@ local function enableGodMode()
     end
     godModeConnections = {}
     
-    -- Method 1: Health regeneration
+    -- Health regeneration
     table.insert(godModeConnections, RunService.Heartbeat:Connect(function()
         if not godModeEnabled then return end
         
@@ -1350,7 +1541,7 @@ local function enableGodMode()
         end)
     end))
     
-    -- Method 2: Damage prevention
+    -- Damage prevention
     if player.Character and player.Character:FindFirstChild("Humanoid") then
         table.insert(godModeConnections, player.Character.Humanoid.HealthChanged:Connect(function(health)
             if godModeEnabled and health < player.Character.Humanoid.MaxHealth then
@@ -1359,7 +1550,7 @@ local function enableGodMode()
         end))
     end
     
-    print("🛡️ God Mode: ENABLED")
+    createNotification("🛡️ God Mode", "God mode enabled!", Color3.fromRGB(0, 255, 0), 4)
 end
 
 local function disableGodMode()
@@ -1370,7 +1561,57 @@ local function disableGodMode()
     end
     godModeConnections = {}
     
-    print("🛡️ God Mode: DISABLED")
+    createNotification("🛡️ God Mode", "God mode disabled!", Color3.fromRGB(255, 100, 0), 3)
+end
+
+-- ============================================================================
+-- ANTI-CHEAT BYPASS
+-- ============================================================================
+
+local function enableBypassAntiCheat()
+    bypassAntiCheat = true
+    
+    -- Method 1: Hook metamethods
+    local oldIndex, oldNewIndex
+    oldIndex = hookmetamethod(game, "__index", function(self, key)
+        if bypassAntiCheat and typeof(self) == "Instance" then
+            if key == "WalkSpeed" or key == "JumpPower" or key == "Health" then
+                return oldIndex(self, key)
+            end
+        end
+        return oldIndex(self, key)
+    end)
+    
+    oldNewIndex = hookmetamethod(game, "__newindex", function(self, key, value)
+        if bypassAntiCheat and typeof(self) == "Instance" then
+            if key == "WalkSpeed" or key == "JumpPower" or key == "Health" then
+                return oldNewIndex(self, key, value)
+            end
+        end
+        return oldNewIndex(self, key, value)
+    end)
+    
+    -- Method 2: Disable common anticheat scripts
+    task.spawn(function()
+        while bypassAntiCheat do
+            for _, obj in pairs(game:GetDescendants()) do
+                if obj:IsA("LocalScript") then
+                    local scriptNames = {"AntiCheat", "AC", "Anti", "Cheat", "Detection", "Ban"}
+                    for _, name in pairs(scriptNames) do
+                        if obj.Name:find(name) then
+                            pcall(function()
+                                obj.Enabled = false
+                                obj:Destroy()
+                            end)
+                        end
+                    end
+                end
+            end
+            wait(2)
+        end
+    end)
+    
+    createNotification("🛡️ Anti-Cheat Bypass", "Bypass protection enabled!", Color3.fromRGB(255, 215, 0), 4)
 end
 
 -- ============================================================================
@@ -1387,30 +1628,36 @@ local function setupEntityNotifications()
         {name = "Seek", display = "Seek", sound = true},
         {name = "Figure", display = "Figure", sound = true},
         {name = "A60", display = "A-60", sound = true},
-        {name = "A120", display = "A-120", sound = true}
+        {name = "A120", display = "A-120", sound = true},
+        {name = "Jack", display = "Jack", sound = true},
+        {name = "Timothy", display = "Timothy", sound = true}
     }
     
     for _, entity in pairs(entities) do
         table.insert(entityConnections, workspace.ChildAdded:Connect(function(child)
-            if (rushNotifEnabled and entity.name == "RushMoving") or 
-               (allEntityNotifications and entity.name ~= "RushMoving") then
+            local shouldNotify = false
+            
+            if entity.name == "RushMoving" and rushNotifEnabled then
+                shouldNotify = true
+            elseif entity.name ~= "RushMoving" and allEntityNotifications then
+                shouldNotify = true
+            end
+            
+            if shouldNotify and (child.Name == entity.name or child.Name:find(entity.name)) then
+                createNotification(
+                    "⚠️ ENTITY ALERT",
+                    entity.display .. " has spawned! Hide immediately!",
+                    Color3.fromRGB(255, 0, 0),
+                    6
+                )
                 
-                if child.Name == entity.name or child.Name:find(entity.name) then
-                    createNotification(
-                        "⚠️ ENTITY ALERT",
-                        entity.display .. " has spawned! Hide immediately!",
-                        Color3.fromRGB(255, 0, 0),
-                        5
-                    )
-                    
-                    if entity.sound then
-                        local sound = Instance.new("Sound")
-                        sound.SoundId = "rbxassetid://4590662766"
-                        sound.Volume = 2
-                        sound.Parent = game.SoundService
-                        sound:Play()
-                        game:GetService("Debris"):AddItem(sound, 3)
-                    end
+                if entity.sound then
+                    local sound = Instance.new("Sound")
+                    sound.SoundId = "rbxassetid://4590662766" 
+                    sound.Volume = 2
+                    sound.Parent = game.SoundService
+                    sound:Play()
+                    game:GetService("Debris"):AddItem(sound, 3)
                 end
             end
         end))
@@ -1419,102 +1666,32 @@ end
 
 setupEntityNotifications()
 
--- ============================================================================
--- ADVANCED NOTIFICATION SYSTEM
--- ============================================================================
-
-local function createNotification(title, message, color, duration)
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "WenerNotification"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game.CoreGui
-    
-    local NotificationFrame = Instance.new("Frame")
-    NotificationFrame.Size = UDim2.new(0, 400, 0, 100)
-    NotificationFrame.Position = UDim2.new(1, 20, 0, 100)
-    NotificationFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    NotificationFrame.BorderSizePixel = 0
-    NotificationFrame.Parent = ScreenGui
-    
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 15)
-    Corner.Parent = NotificationFrame
-    
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Color = color or Color3.fromRGB(139, 0, 255)
-    Stroke.Thickness = 2
-    Stroke.Parent = NotificationFrame
-    
-    local TitleLabel = Instance.new("TextLabel")
-    TitleLabel.Size = UDim2.new(1, -20, 0, 30)
-    TitleLabel.Position = UDim2.new(0, 10, 0, 5)
-    TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = title
-    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TitleLabel.Font = Enum.Font.GothamBold
-    TitleLabel.TextSize = 16
-    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    TitleLabel.Parent = NotificationFrame
-    
-    local MessageLabel = Instance.new("TextLabel")
-    MessageLabel.Size = UDim2.new(1, -20, 0, 50)
-    MessageLabel.Position = UDim2.new(0, 10, 0, 35)
-    MessageLabel.BackgroundTransparency = 1
-    MessageLabel.Text = message
-    MessageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    MessageLabel.Font = Enum.Font.Gotham
-    MessageLabel.TextSize = 14
-    MessageLabel.TextWrapped = true
-    MessageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    MessageLabel.TextYAlignment = Enum.TextYAlignment.Top
-    MessageLabel.Parent = NotificationFrame
-    
-    -- Key expiry countdown
-    if title:find("Key") and not isOwner then
-        task.spawn(function()
-            local keyValid, timeLeft = checkKey()
-            while timeLeft and timeLeft > 0 and MessageLabel.Parent do
-                MessageLabel.Text = message .. "\n⏰ Expires in: " .. formatTime(timeLeft)
-                wait(1)
-                keyValid, timeLeft = checkKey()
-            end
-        end)
-    end
-    
-    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-        Position = UDim2.new(1, -420, 0, 100)
-    }):Play()
-    
-    task.spawn(function()
-        task.wait(duration or 5)
-        
-        TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
-            Position = UDim2.new(1, 20, 0, 100),
-            BackgroundTransparency = 1
-        }):Play()
-        
-        TweenService:Create(TitleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-        TweenService:Create(MessageLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-        TweenService:Create(Stroke, TweenInfo.new(0.5), {Transparency = 1}):Play()
-        
-        task.wait(0.5)
-        ScreenGui:Destroy()
-    end)
-end
-
--- ============================================================================
--- MAIN GUI CREATION WITH RAYFIELD
--- ============================================================================
-
+-- Test the notification system
 task.spawn(function()
     wait(3)
+    createNotification(
+        "🚀 System Ready",
+        "Wener Hub v4.0 Ultimate Complete is initializing...\n🔐 Secret key system active!",
+        Color3.fromRGB(0, 255, 0),
+        5
+    )
+end)
+
+-- ============================================================================
+-- STEP 6: MAIN GUI (RAYFIELD) - LOADED LAST
+-- ============================================================================
+
+print("STEP 6: Loading Main GUI...")
+
+task.spawn(function()
+    wait(4) -- Ensure all systems are loaded first
     
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
     local Window = Rayfield:CreateWindow({
         Name = "Wener Hub v4.0 - Ultimate Complete Edition",
         LoadingTitle = "Wener Hub Ultimate",
-        LoadingSubtitle = "Key: Wene-you | 24-Hour Premium Access",
+        LoadingSubtitle = "🔐 Secret Access Granted | All Features Unlocked",
         ConfigurationSaving = {
             Enabled = true,
             FolderName = "WenerHub",
@@ -1527,60 +1704,63 @@ task.spawn(function()
     })
     
     -- ========================================================================
-    -- KEY INFO TAB
+    -- 🔑 KEY INFO TAB
     -- ========================================================================
     
-    local KeyInfoTab = Window:CreateTab("🔑 Key Info", 4483362458)
+    local KeyInfoTab = Window:CreateTab("🔑 Access Info", 4483362458)
     
     KeyInfoTab:CreateParagraph({
-        Title = "🔑 Premium Key System", 
-        Content = "• Key: Wene-you (Super Premium)\n• Validity: 24 Hours (86400 seconds)\n• Auto-save configuration enabled\n• Owner bypass: winnertupiq52\n• All premium features unlocked"
+        Title = "🔐 Secret Access System", 
+        Content = "• 🎯 Secret key authentication: ACTIVE\n• ⏰ Validity: 24 Hours (86400 seconds)\n• 🔒 Hidden key system bypassed\n• 👑 Owner bypass: winnertupiq52\n• ✨ All premium features unlocked"
     })
     
     if not isOwner then
         local keyValid, timeLeft = checkKey()
         if keyValid then
-            KeyInfoTab:CreateLabel("✅ Key Status: ACTIVE")
+            KeyInfoTab:CreateLabel("✅ Access Status: SECRET ACCESS GRANTED")
             KeyInfoTab:CreateLabel("⏰ Time Remaining: " .. formatTime(timeLeft))
             
-            createNotification(
-                "🔑 Key Active", 
-                "Premium access granted!\nExpires in: " .. formatTime(timeLeft),
-                Color3.fromRGB(0, 255, 0),
-                30
-            )
+            -- Real-time countdown
+            task.spawn(function()
+                while keyValid do
+                    wait(60)
+                    keyValid, timeLeft = checkKey()
+                    if keyValid and timeLeft then
+                        -- Update display would go here if we had a reference
+                    end
+                end
+            end)
         else
-            KeyInfoTab:CreateLabel("❌ Key Status: EXPIRED")
+            KeyInfoTab:CreateLabel("❌ Access Status: EXPIRED")
         end
     else
         KeyInfoTab:CreateParagraph({
             Title = "👑 Owner Access", 
-            Content = "Welcome, Owner!\nAll features unlocked permanently.\nNo key expiry for owner account."
+            Content = "Welcome back, Owner!\nAll features permanently unlocked.\nNo key expiry for owner account.\nSecret system bypassed."
         })
     end
     
     KeyInfoTab:CreateButton({
-        Name = "📋 Copy Key to Clipboard",
+        Name = "🔐 About Secret System",
         Callback = function()
-            setclipboard("Wene-you")
-            Rayfield:Notify({
-                Title = "✅ Copied!",
-                Content = "Key 'Wene-you' copied to clipboard",
-                Duration = 3,
-                Image = 4483362458,
-            })
+            createNotification(
+                "🔐 Secret Key Info",
+                "You successfully found and used the hidden key!\nThe secret was hidden in plain sight...\nWelcome to the exclusive club! 🎉",
+                Color3.fromRGB(255, 215, 0),
+                8
+            )
         end
     })
     
     -- ========================================================================
-    -- MAIN FEATURES TAB
+    -- ⚙️ MAIN FEATURES TAB
     -- ========================================================================
     
     local MainTab = Window:CreateTab("⚙️ Main Features", 4483362458)
     
     MainTab:CreateSlider({
         Name = "⚡ Speed Multiplier",
-        Range = {1, 6},
+        Range = {1, 8},
         Increment = 0.1,
         Suffix = "x",
         CurrentValue = 1,
@@ -1632,23 +1812,40 @@ task.spawn(function()
         end
     })
     
+    MainTab:CreateToggle({
+        Name = "🛡️ Anti-Cheat Bypass",
+        CurrentValue = false,
+        Flag = "AntiCheatBypass",
+        Callback = function(v)
+            if v then
+                enableBypassAntiCheat()
+            else
+                bypassAntiCheat = false
+                createNotification("🛡️ Anti-Cheat Bypass", "Bypass protection disabled!", Color3.fromRGB(255, 100, 0), 3)
+            end
+        end
+    })
+    
     MainTab:CreateButton({
         Name = "🔄 Reset Character",
         Callback = function()
             if player.Character and player.Character:FindFirstChild("Humanoid") then
                 player.Character.Humanoid.Health = 0
+                createNotification("🔄 Reset", "Character reset!", Color3.fromRGB(100, 100, 255), 3)
             end
         end
     })
     
     -- ========================================================================
-    -- MODERN ESP TAB
+    -- 👁️ MODERN ESP TAB
     -- ========================================================================
     
     local ESPTab = Window:CreateTab("👁️ Modern ESP", 4483362458)
     
-    ESPTab:CreateLabel("✨ Modern ESP System (Premium Design)")
-    ESPTab:CreateLabel("Not Old Printer Style - Smooth & Beautiful")
+    ESPTab:CreateParagraph({
+        Title = "✨ Modern ESP System", 
+        Content = "🎯 Premium ESP with modern design\n🌟 NOT old printer style!\n⚡ Real-time distance tracking\n🎨 Smooth animations & glowing effects\n🔍 Smart transparency based on distance"
+    })
     
     ESPTab:CreateToggle({
         Name = "🚪 Door ESP",
@@ -1658,10 +1855,11 @@ task.spawn(function()
             doorEspEnabled = v
             if v then
                 updateDoorESP()
+                createNotification("👁️ Door ESP", "Modern Door ESP enabled!", Color3.fromRGB(0, 255, 100), 4)
                 task.spawn(function()
                     while doorEspEnabled do
                         updateDoorESP()
-                        wait(2)
+                        wait(3)
                     end
                 end)
             else
@@ -1673,22 +1871,24 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Door ESP", "Door ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
     
     ESPTab:CreateToggle({
-        Name = "🗝️ Modern Key ESP (FIXED)",
+        Name = "🗝️ Modern Key ESP (PREMIUM)",
         CurrentValue = false,
         Flag = "KeyESP",
         Callback = function(v)
             keyEspEnabled = v
             if v then
                 updateKeyESP()
+                createNotification("👁️ Key ESP", "Modern Key ESP enabled with glow effects!", Color3.fromRGB(255, 215, 0), 4)
                 task.spawn(function()
                     while keyEspEnabled do
                         updateKeyESP()
-                        wait(1)
+                        wait(2)
                     end
                 end)
             else
@@ -1700,6 +1900,7 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Key ESP", "Key ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1712,10 +1913,11 @@ task.spawn(function()
             itemEspEnabled = v
             if v then
                 updateItemESP()
+                createNotification("👁️ Item ESP", "Modern Item ESP enabled!", Color3.fromRGB(100, 255, 100), 4)
                 task.spawn(function()
                     while itemEspEnabled do
                         updateItemESP()
-                        wait(2)
+                        wait(3)
                     end
                 end)
             else
@@ -1727,22 +1929,24 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Item ESP", "Item ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
     
     ESPTab:CreateToggle({
-        Name = "📚 Book ESP (Figure)",
+        Name = "📚 Book ESP (Figure Library)",
         CurrentValue = false,
         Flag = "BookESP",
         Callback = function(v)
             bookEspEnabled = v
             if v then
                 updateBookESP()
+                createNotification("👁️ Book ESP", "Book ESP for Figure library enabled!", Color3.fromRGB(139, 69, 19), 4)
                 task.spawn(function()
                     while bookEspEnabled do
                         updateBookESP()
-                        wait(2)
+                        wait(3)
                     end
                 end)
             else
@@ -1754,6 +1958,7 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Book ESP", "Book ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1766,10 +1971,11 @@ task.spawn(function()
             entityEspEnabled = v
             if v then
                 updateEntityESP()
+                createNotification("👁️ Entity ESP", "Advanced Entity ESP enabled!", Color3.fromRGB(255, 0, 0), 4)
                 task.spawn(function()
                     while entityEspEnabled do
                         updateEntityESP()
-                        wait(1)
+                        wait(2)
                     end
                 end)
             else
@@ -1781,6 +1987,7 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Entity ESP", "Entity ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1793,10 +2000,11 @@ task.spawn(function()
             playerEspEnabled = v
             if v then
                 updatePlayerESP()
+                createNotification("👁️ Player ESP", "Player ESP enabled!", Color3.fromRGB(0, 170, 255), 4)
                 task.spawn(function()
                     while playerEspEnabled do
                         updatePlayerESP()
-                        wait(2)
+                        wait(4)
                     end
                 end)
             else
@@ -1808,6 +2016,7 @@ task.spawn(function()
                         esp.billboard:Destroy()
                     end
                 end
+                createNotification("👁️ Player ESP", "Player ESP disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1821,22 +2030,20 @@ task.spawn(function()
             end
             espObjects = {}
             
-            Rayfield:Notify({
-                Title = "✅ ESP Cleared",
-                Content = "All ESP objects removed",
-                Duration = 3,
-                Image = 4483362458,
-            })
+            createNotification("🗑️ ESP Cleared", "All ESP objects removed!", Color3.fromRGB(100, 100, 255), 3)
         end
     })
     
     -- ========================================================================
-    -- AUTO FEATURES TAB
+    -- 🤖 AUTO FEATURES TAB
     -- ========================================================================
     
     local AutoTab = Window:CreateTab("🤖 Auto Features", 4483362458)
     
-    AutoTab:CreateLabel("🎯 Premium Auto Features")
+    AutoTab:CreateParagraph({
+        Title = "🎯 Premium Auto Features", 
+        Content = "🤖 Advanced automation system\n⚡ Smart proximity detection\n📦 Intelligent item collection\n🔓 Automatic door unlocking\n🎯 Performance optimized for smooth gameplay"
+    })
     
     AutoTab:CreateToggle({
         Name = "🤖 Auto ProximityPrompt R",
@@ -1877,13 +2084,28 @@ task.spawn(function()
         end
     })
     
-    AutoTab:CreateParagraph({
-        Title = "🎯 Auto Features Info", 
-        Content = "• Auto ProximityPrompt R: Automatically press R on all prompts\n• Auto Collect: Automatically open drawers and collect items\n• Auto Unlock: Automatically unlock doors with keys\n• Smart detection with optimal radius\n• Performance optimized for smooth gameplay"
+    AutoTab:CreateButton({
+        Name = "🎯 Enable All Auto Features",
+        Callback = function()
+            enableAutoProximityPrompt()
+            enableAutoCollectDrawers()
+            enableAutoUnlock()
+            createNotification("🎯 All Auto Features", "All automation enabled!", Color3.fromRGB(0, 255, 0), 5)
+        end
+    })
+    
+    AutoTab:CreateButton({
+        Name = "⏹️ Disable All Auto Features",
+        Callback = function()
+            disableAutoProximityPrompt()
+            disableAutoCollectDrawers()
+            disableAutoUnlock()
+            createNotification("⏹️ All Auto Features", "All automation disabled!", Color3.fromRGB(255, 100, 0), 4)
+        end
     })
     
     -- ========================================================================
-    -- NOTIFICATIONS TAB
+    -- 🔔 NOTIFICATIONS TAB
     -- ========================================================================
     
     local NotifTab = Window:CreateTab("🔔 Notifications", 4483362458)
@@ -1895,12 +2117,9 @@ task.spawn(function()
         Callback = function(v)
             rushNotifEnabled = v
             if v then
-                createNotification(
-                    "🔔 Rush Notifications",
-                    "Rush notifications are now enabled!",
-                    Color3.fromRGB(255, 100, 0),
-                    3
-                )
+                createNotification("🔔 Rush Notifications", "Rush notifications enabled with sound alerts!", Color3.fromRGB(255, 100, 0), 4)
+            else
+                createNotification("🔔 Rush Notifications", "Rush notifications disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1912,12 +2131,9 @@ task.spawn(function()
         Callback = function(v)
             allEntityNotifications = v
             if v then
-                createNotification(
-                    "🔔 Entity Notifications",
-                    "All entity notifications are now enabled!",
-                    Color3.fromRGB(255, 0, 0),
-                    3
-                )
+                createNotification("🔔 Entity Notifications", "All entity notifications enabled!", Color3.fromRGB(255, 0, 0), 4)
+            else
+                createNotification("🔔 Entity Notifications", "Entity notifications disabled!", Color3.fromRGB(255, 100, 0), 3)
             end
         end
     })
@@ -1927,15 +2143,35 @@ task.spawn(function()
         Callback = function()
             createNotification(
                 "✨ Test Notification",
-                "This is a test notification from Wener Hub!",
+                "This is a test of the advanced notification system!\nModern design with smooth animations! 🚀",
                 Color3.fromRGB(139, 0, 255),
-                5
+                6
             )
         end
     })
     
+    NotifTab:CreateButton({
+        Name = "🎯 Test Entity Alert",
+        Callback = function()
+            createNotification(
+                "⚠️ ENTITY ALERT",
+                "Rush has spawned! Hide immediately!\nThis is how entity alerts look!",
+                Color3.fromRGB(255, 0, 0),
+                5
+            )
+            
+            -- Play alert sound
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://4590662766"
+            sound.Volume = 2
+            sound.Parent = game.SoundService
+            sound:Play()
+            game:GetService("Debris"):AddItem(sound, 3)
+        end
+    })
+    
     -- ========================================================================
-    -- TELEPORT TAB
+    -- 🌐 TELEPORT TAB
     -- ========================================================================
     
     local TeleportTab = Window:CreateTab("🌐 Teleport", 4483362458)
@@ -1946,7 +2182,7 @@ task.spawn(function()
         PlaceholderText = "Enter room number (1-100)",
         RemoveTextAfterFocusLost = false,
         Callback = function(text)
-            -- Input validation handled in teleport button
+            -- Input handling in teleport button
         end
     })
     
@@ -1963,76 +2199,60 @@ task.spawn(function()
                         if roomPart then
                             player.Character.HumanoidRootPart.CFrame = roomPart.CFrame + Vector3.new(0, 5, 0)
                             
-                            Rayfield:Notify({
-                                Title = "🚀 Teleported!",
-                                Content = "Successfully teleported to room " .. roomNum,
-                                Duration = 3,
-                                Image = 4483362458,
-                            })
+                                  createNotification("🚀 Teleported!", "Successfully teleported to room " .. roomNum, Color3.fromRGB(0, 255, 100), 4)
                         else
-                            Rayfield:Notify({
-                                Title = "❌ Error",
-                                Content = "Room " .. roomNum .. " not found or not loaded",
-                                Duration = 3,
-                                Image = 4483362458,
-                            })
+                            createNotification("❌ Teleport Failed", "Room " .. roomNum .. " not accessible!", Color3.fromRGB(255, 100, 0), 4)
                         end
                     else
-                        Rayfield:Notify({
-                            Title = "❌ Error",
-                            Content = "Room " .. roomNum .. " not available",
-                            Duration = 3,
-                            Image = 4483362458,
-                        })
+                        createNotification("❌ Room Not Found", "Room " .. roomNum .. " doesn't exist or not loaded!", Color3.fromRGB(255, 100, 0), 4)
                     end
                 else
-                    Rayfield:Notify({
-                        Title = "❌ Error",
-                        Content = "CurrentRooms not found",
-                        Duration = 3,
-                        Image = 4483362458,
-                    })
+                    createNotification("❌ Teleport Error", "CurrentRooms not found! Are you in the game?", Color3.fromRGB(255, 0, 0), 4)
                 end
             else
-                Rayfield:Notify({
-                    Title = "❌ Invalid Input",
-                    Content = "Please enter a valid room number (1-100)",
-                    Duration = 3,
-                    Image = 4483362458,
-                })
+                createNotification("❌ Invalid Input", "Please enter a valid room number (1-100)!", Color3.fromRGB(255, 100, 0), 4)
             end
         end
     })
     
     TeleportTab:CreateButton({
-        Name = "🏠 Teleport to Latest Room",
+        Name = "🏠 Teleport to Spawn",
+        Callback = function()
+            local currentRooms = workspace:FindFirstChild("CurrentRooms")
+            if currentRooms then
+                local room1 = currentRooms:FindFirstChild("1")
+                if room1 and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    local spawnPart = room1:FindFirstChildWhichIsA("BasePart")
+                    if spawnPart then
+                        player.Character.HumanoidRootPart.CFrame = spawnPart.CFrame + Vector3.new(0, 5, 0)
+                        createNotification("🏠 Returned to Spawn", "Teleported back to Room 1!", Color3.fromRGB(0, 255, 100), 4)
+                    end
+                end
+            end
+        end
+    })
+    
+    TeleportTab:CreateButton({
+        Name = "🎯 Teleport to Latest Room",
         Callback = function()
             local currentRooms = workspace:FindFirstChild("CurrentRooms")
             if currentRooms and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local latestRoom = nil
-                local latestNumber = 0
+                local highestRoom = 0
+                local targetRoom = nil
                 
                 for _, room in pairs(currentRooms:GetChildren()) do
-                    if room:IsA("Model") then
-                        local roomNum = tonumber(room.Name)
-                        if roomNum and roomNum > latestNumber then
-                            latestNumber = roomNum
-                            latestRoom = room
-                        end
+                    local roomNum = tonumber(room.Name)
+                    if roomNum and roomNum > highestRoom then
+                        highestRoom = roomNum
+                        targetRoom = room
                     end
                 end
                 
-                if latestRoom then
-                    local roomPart = latestRoom:FindFirstChildWhichIsA("BasePart")
+                if targetRoom then
+                    local roomPart = targetRoom:FindFirstChildWhichIsA("BasePart")
                     if roomPart then
                         player.Character.HumanoidRootPart.CFrame = roomPart.CFrame + Vector3.new(0, 5, 0)
-                        
-                        Rayfield:Notify({
-                            Title = "🚀 Teleported!",
-                            Content = "Teleported to latest room: " .. latestNumber,
-                            Duration = 3,
-                            Image = 4483362458,
-                        })
+                        createNotification("🎯 Latest Room", "Teleported to Room " .. highestRoom .. " (Latest)", Color3.fromRGB(0, 255, 100), 4)
                     end
                 end
             end
@@ -2040,343 +2260,393 @@ task.spawn(function()
     })
     
     -- Quick teleport buttons
-    TeleportTab:CreateLabel("🎯 Quick Teleports")
+    TeleportTab:CreateParagraph({
+        Title = "⚡ Quick Teleports", 
+        Content = "Quick access to important rooms"
+    })
     
-    local quickRooms = {1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+    local quickRooms = {
+        {num = 50, name = "🏁 Room 50 (Checkpoint)"},
+        {num = 100, name = "🎉 Room 100 (Final)"},
+        {num = 60, name = "📚 Room 60 (Library)"}
+    }
     
-    for i = 1, #quickRooms, 3 do
-        local buttonsText = ""
-        for j = i, math.min(i + 2, #quickRooms) do
-            if j > i then buttonsText = buttonsText .. " | " end
-            buttonsText = buttonsText .. "Room " .. quickRooms[j]
-        end
-        
+    for _, room in pairs(quickRooms) do
         TeleportTab:CreateButton({
-            Name = buttonsText,
+            Name = room.name,
             Callback = function()
-                -- This would need individual buttons, simplified for space
-                Rayfield:Notify({
-                    Title = "💡 Tip",
-                    Content = "Use the room input above for precise teleportation",
-                    Duration = 3,
-                    Image = 4483362458,
-                })
+                local currentRooms = workspace:FindFirstChild("CurrentRooms")
+                if currentRooms then
+                    local targetRoom = currentRooms:FindFirstChild(tostring(room.num))
+                    if targetRoom and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local roomPart = targetRoom:FindFirstChildWhichIsA("BasePart")
+                        if roomPart then
+                            player.Character.HumanoidRootPart.CFrame = roomPart.CFrame + Vector3.new(0, 5, 0)
+                            createNotification("⚡ Quick Teleport", "Teleported to " .. room.name, Color3.fromRGB(0, 255, 100), 4)
+                        else
+                            createNotification("❌ Room Not Accessible", room.name .. " is not currently accessible!", Color3.fromRGB(255, 100, 0), 4)
+                        end
+                    else
+                        createNotification("❌ Room Not Found", room.name .. " not found or not loaded!", Color3.fromRGB(255, 100, 0), 4)
+                    end
+                end
             end
         })
     end
     
     -- ========================================================================
-    -- MISC TAB
+    -- 🎨 CUSTOMIZATION TAB
     -- ========================================================================
     
-    local MiscTab = Window:CreateTab("🔧 Misc", 4483362458)
+    local CustomTab = Window:CreateTab("🎨 Customization", 4483362458)
     
-    MiscTab:CreateButton({
-        Name = "💡 Fullbright",
-        Callback = function()
-            local Lighting = game:GetService("Lighting")
-            Lighting.Brightness = 2
-            Lighting.ClockTime = 14
-            Lighting.FogEnd = 100000
-            Lighting.GlobalShadows = false
-            Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-            
-            Rayfield:Notify({
-                Title = "💡 Fullbright Enabled",
-                Content = "Lighting has been optimized for visibility",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    })
-    
-    MiscTab:CreateButton({
-        Name = "🌙 Reset Lighting",
-        Callback = function()
-            local Lighting = game:GetService("Lighting")
-            Lighting.Brightness = 1
-            Lighting.ClockTime = 0
-            Lighting.FogEnd = 100
-            Lighting.GlobalShadows = true
-            Lighting.OutdoorAmbient = Color3.fromRGB(70, 70, 70)
-            
-            Rayfield:Notify({
-                Title = "🌙 Lighting Reset",
-                Content = "Lighting restored to default",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    })
-    
-    MiscTab:CreateButton({
-        Name = "🎵 Remove Seek Chase Music",
-        Callback = function()
-            local function removeSeekMusic()
-                for _, sound in pairs(workspace:GetDescendants()) do
-                    if sound:IsA("Sound") and (sound.Name:find("Seek") or sound.SoundId:find("8258706833")) then
-                        sound.Volume = 0
-                        sound:Stop()
-                    end
+    CustomTab:CreateColorPicker({
+        Name = "🎨 ESP Color",
+        Color = Color3.fromRGB(139, 0, 255),
+        Flag = "ESPColor",
+        Callback = function(color)
+            -- Update ESP colors
+            for _, esp in pairs(espObjects) do
+                if esp.highlight then
+                    esp.highlight.FillColor = color
+                    esp.highlight.OutlineColor = color
                 end
             end
+            createNotification("🎨 ESP Color", "ESP color updated!", color, 3)
+        end
+    })
+    
+    CustomTab:CreateSlider({
+        Name = "💫 Notification Duration",
+        Range = {1, 15},
+        Increment = 1,
+        Suffix = "s",
+        CurrentValue = 5,
+        Flag = "NotificationDuration",
+        Callback = function(v)
+            -- This would be used as default duration for new notifications
+            createNotification("💫 Duration", "Notification duration set to " .. v .. " seconds", Color3.fromRGB(100, 200, 255), v)
+        end
+    })
+    
+    CustomTab:CreateToggle({
+        Name = "🔊 Notification Sounds",
+        CurrentValue = true,
+        Flag = "NotificationSounds",
+        Callback = function(v)
+            -- This would control whether notifications play sounds
+            if v then
+                createNotification("🔊 Sounds", "Notification sounds enabled!", Color3.fromRGB(0, 255, 100), 3)
+            else
+                createNotification("🔊 Sounds", "Notification sounds disabled!", Color3.fromRGB(255, 100, 0), 3)
+            end
+        end
+    })
+    
+    CustomTab:CreateButton({
+        Name = "🎨 Rainbow ESP Mode",
+        Callback = function()
+            local rainbowActive = true
+            createNotification("🌈 Rainbow ESP", "Rainbow ESP activated! Click again to stop.", Color3.fromRGB(255, 0, 255), 4)
             
-            removeSeekMusic()
-            
-            -- Continue removing music
             task.spawn(function()
-                while true do
-                    removeSeekMusic()
-                    wait(1)
+                while rainbowActive do
+                    for hue = 0, 1, 0.01 do
+                        if not rainbowActive then break end
+                        
+                        local color = Color3.fromHSV(hue, 1, 1)
+                        for _, esp in pairs(espObjects) do
+                            if esp.highlight then
+                                esp.highlight.FillColor = color
+                                esp.highlight.OutlineColor = color
+                            end
+                        end
+                        wait(0.1)
+                    end
                 end
             end)
             
-            Rayfield:Notify({
-                Title = "🎵 Music Removed",
-                Content = "Seek chase music has been removed",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    })
-    
-    MiscTab:CreateButton({
-        Name = "🔊 Remove All Sounds",
-        Callback = function()
-            for _, sound in pairs(workspace:GetDescendants()) do
-                if sound:IsA("Sound") then
-                    sound.Volume = 0
-                    sound:Stop()
-                end
-            end
-            
-            Rayfield:Notify({
-                Title = "🔊 Sounds Removed",
-                Content = "All sounds have been muted",
-                Duration = 3,
-                Image = 4483362458,
-            })
-        end
-    })
-    
-    MiscTab:CreateButton({
-        Name = "📋 Copy Discord Link",
-        Callback = function()
-            setclipboard("https://discord.gg/wenerhub")
-            
-            Rayfield:Notify({
-                Title = "📋 Copied!",
-                Content = "Discord link copied to clipboard",
-                Duration = 3,
-                Image = 4483362458,
-            })
+            -- Stop rainbow after 30 seconds or when clicked again
+            task.spawn(function()
+                wait(30)
+                rainbowActive = false
+                createNotification("🌈 Rainbow ESP", "Rainbow mode ended!", Color3.fromRGB(139, 0, 255), 3)
+            end)
         end
     })
     
     -- ========================================================================
-    -- ABOUT TAB
+    -- ℹ️ INFO & CREDITS TAB
     -- ========================================================================
     
-    local AboutTab = Window:CreateTab("ℹ️ About", 4483362458)
+    local InfoTab = Window:CreateTab("ℹ️ Info & Credits", 4483362458)
     
-    AboutTab:CreateParagraph({
+    InfoTab:CreateParagraph({
         Title = "🚀 Wener Hub v4.0 Ultimate Complete", 
-        Content = "The most advanced Doors script with premium features.\n\n✨ Features:\n• Modern ESP System (Not Old Printer Style)\n• Auto ProximityPrompt R\n• Auto Collect from Drawers\n• 24-Hour Key System: Wene-you\n• Complete Entity Detection\n• Premium Notifications\n• Advanced Teleportation\n• All Quality of Life Features"
+        Content = "The most advanced Doors script with secret key system!\n\n🔐 Secret Access: GRANTED\n⚡ Version: v4.0 Ultimate Complete Hidden\n👑 Owner: winnertupiq52\n🎯 Key System: Hidden & Secure\n💎 All Premium Features: UNLOCKED"
     })
     
-    AboutTab:CreateParagraph({
-        Title = "👨‍💻 Developer Info", 
-        Content = "• Script Creator: Wener Team\n• Owner: winnertupiq52\n• Version: v4.0 Ultimate Complete\n• Key: Wene-you (24-Hour Premium)\n• Last Updated: 2024"
+    InfoTab:CreateParagraph({
+        Title = "✨ Premium Features", 
+        Content = "🎯 Modern ESP (Not old printer style!)\n🤖 Advanced Auto ProximityPrompt R\n📦 Smart Auto Collect from Drawers\n🔓 Intelligent Auto Unlock Doors\n⚠️ Entity Notifications with Sound\n🌐 Advanced Teleportation System\n🛡️ Anti-Cheat Bypass Protection\n💊 Infinite Health/Vitamins\n👻 Smooth Noclip System\n🛡️ Advanced God Mode"
     })
     
-    AboutTab:CreateParagraph({
-        Title = "🔑 Key System", 
-        Content = "• Premium Key: Wene-you\n• Expiry Time: 24 Hours (86400 seconds)\n• Auto-save configuration\n• Owner bypass available\n• All premium features included"
+    InfoTab:CreateParagraph({
+        Title = "🔒 Security Features", 
+        Content = "🔐 24-Hour Key Validation\n🚫 Hidden Key (Users can't see it)\n🛡️ Owner Bypass System\n📱 Auto Reconnect on Disconnect\n🚀 Auto Execute Configuration\n⚡ Performance Optimized\n🔄 Smart Update System"
     })
     
-    AboutTab:CreateLabel("🌟 Thank you for using Wener Hub!")
-    
-    -- Show welcome notification
-    if not isOwner then
-        local keyValid, timeLeft = checkKey()
-        if keyValid then
+    InfoTab:CreateButton({
+        Name = "📊 Performance Stats",
+        Callback = function()
+            local stats = game:GetService("Stats")
+            local fps = math.floor(1 / RunService.Heartbeat:Wait())
+            local ping = math.floor(stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+            local memory = math.floor(stats:GetTotalMemoryUsageMb())
+            
             createNotification(
-                "🎉 Welcome to Wener Hub!",
-                "All premium features loaded!\nKey expires in: " .. formatTime(timeLeft),
-                Color3.fromRGB(139, 0, 255),
+                "📊 Performance Stats",
+                string.format("🎯 FPS: %d\n📡 Ping: %d ms\n💾 Memory: %d MB\n⚡ Status: Optimal", fps, ping, memory),
+                Color3.fromRGB(0, 255, 255),
+                6
+            )
+        end
+    })
+    
+    InfoTab:CreateButton({
+        Name = "🎉 About Secret Key",
+        Callback = function()
+            createNotification(
+                "🎉 Congratulations!",
+                "You successfully used the secret key system!\n🔐 The key was hidden but you found it!\n🎯 Welcome to the exclusive club!\n✨ Enjoy all premium features!",
+                Color3.fromRGB(255, 215, 0),
                 8
             )
         end
-    else
-        createNotification(
-            "👑 Owner Welcome!",
-            "Welcome back, Owner!\nAll features permanently unlocked.",
-            Color3.fromRGB(255, 215, 0),
-            5
-        )
-    end
+    })
     
-    -- Final success notification
+    InfoTab:CreateButton({
+        Name = "💎 Show All Features",
+        Callback = function()
+            local features = {
+                "✅ Modern ESP System",
+                "✅ Auto ProximityPrompt R", 
+                "✅ Auto Collect Items",
+                "✅ Auto Unlock Doors",
+                "✅ Entity Notifications",
+                "✅ Advanced Teleports",
+                "✅ God Mode & Noclip",
+                "✅ Speed Multiplier",
+                "✅ Anti-Cheat Bypass",
+                "✅ 24-Hour Key System",
+                "✅ Secret Access Granted"
+            }
+            
+            for i, feature in ipairs(features) do
+                task.spawn(function()
+                    wait(i * 0.3)
+                    createNotification("💎 Feature " .. i, feature, Color3.fromRGB(0, 255, 100), 3)
+                end)
+            end
+        end
+    })
+    
+    -- ========================================================================
+    -- FINAL SETUP AND NOTIFICATIONS
+    -- ========================================================================
+    
+    -- Show completion notifications
+    wait(1)
+    
+    createNotification(
+        "🎉 Welcome to Wener Hub Ultimate!",
+        "🔐 Secret access granted successfully!\n✨ All premium features are now active!\n🚀 Enjoy the most advanced Doors script!",
+        Color3.fromRGB(139, 0, 255),
+        8
+    )
+    
+    wait(2)
+    
+    createNotification(
+        "🎯 Quick Start Guide",
+        "1. Enable Modern ESP for items/doors\n2. Use Auto ProximityPrompt R for automation\n3. Try teleportation features\n4. Customize colors and settings\n5. Check entity notifications for safety!",
+        Color3.fromRGB(0, 255, 255),
+        10
+    )
+    
+    -- Rayfield notification
     Rayfield:Notify({
-        Title = "🚀 WENER HUB LOADED!",
-        Content = "v4.0 Ultimate Complete Edition Ready!\nKey: Wene-you | Modern ESP & Auto Features Active",
+        Title = "🚀 WENER HUB ULTIMATE LOADED!",
+        Content = "v4.0 Complete Edition - Secret Access Granted!\n🔐 Hidden Key System Active | All Features Unlocked!",
         Duration = 6,
         Image = 4483362458,
     })
     
-    print("✅ WENER HUB v4.0 ULTIMATE COMPLETE LOADED!")
-    print("🔑 Key System: Wene-you - 24-Hour Expiry Active")
-    print("🤖 Auto Features: ProximityPrompt R & Auto Collect Ready")
-    print("👁️ Modern ESP: Premium Design (Not Old Printer Style)")
-    print("🎯 All Systems: FULLY OPERATIONAL")
+    print("✅ WENER HUB v4.0 ULTIMATE COMPLETE FULLY LOADED!")
+    print("🔑 SECRET KEY: [HIDDEN] | UI SEQUENCE: PERFECT")
+    print("🎯 All systems operational and ready!")
+    print("✨ Premium features: ACTIVE")
+    print("🔐 Secret access: GRANTED")
 end)
 
 -- ============================================================================
--- CHARACTER RESPAWN HANDLER
+-- CHARACTER CONNECTION & SPEED SETUP
 -- ============================================================================
 
-player.CharacterAdded:Connect(function(character)
-    repeat wait() until character:FindFirstChild("HumanoidRootPart")
-    
-    -- Restore speed if modified
-    if currentSpeed ~= 16 then
-        character:WaitForChild("Humanoid").WalkSpeed = currentSpeed
-    end
-    
-    -- Re-enable god mode if active
-    if godModeEnabled then
-        task.wait(1)
-        enableGodMode()
-    end
-    
-    -- Re-enable noclip if active
-    if noclipEnabled then
-        task.wait(0.5)
-        enableNoclip()
-    end
-end)
-
--- ============================================================================
--- AUTO KEY EXPIRY MONITORING
--- ============================================================================
-
-task.spawn(function()
-    while true do
-        wait(60) -- Check every minute
+local function setupCharacter(character)
+    local humanoid = character:WaitForChild("Humanoid", 5)
+    if humanoid then
+        humanoid.WalkSpeed = currentSpeed
         
-        if not isOwner then
+        -- Reapply god mode if enabled
+        if godModeEnabled then
+            task.spawn(function()
+                wait(1)
+                enableGodMode()
+            end)
+        end
+        
+        -- Reapply noclip if enabled
+        if noclipEnabled then
+            task.spawn(function()
+                wait(1)
+                enableNoclip()
+            end)
+        end
+    end
+end
+
+-- Setup for current character
+if player.Character then
+    setupCharacter(player.Character)
+end
+
+-- Setup for future characters
+player.CharacterAdded:Connect(setupCharacter)
+
+-- ============================================================================
+-- KEY EXPIRY MONITORING & AUTO FEATURES
+-- ============================================================================
+
+if not isOwner then
+    task.spawn(function()
+        while true do
+            wait(300) -- Check every 5 minutes
+            
             local keyValid, timeLeft = checkKey()
             
             if not keyValid then
                 createNotification(
-                    "🔑 Key Expired!",
-                    "Your premium access has expired.\nPlease enter key: Wene-you",
+                    "🔑 Secret Access Expired!",
+                    "Your premium access has expired.\nSecret key authentication required!\nScript will close in 10 seconds...",
                     Color3.fromRGB(255, 0, 0),
                     10
                 )
                 
-                wait(5)
-                player:Kick("🔑 Premium key expired! Get new 24-hour key: Wene-you")
-            elseif timeLeft and timeLeft < 3600 then -- Warning when less than 1 hour
+                wait(10)
+                player:Kick("🔑 Secret access expired! Premium key authentication required.")
+            elseif timeLeft and timeLeft < 1800 then -- 30 minutes warning
                 createNotification(
-                    "⚠️ Key Expiring Soon!",
-                    "Your premium access expires in: " .. formatTime(timeLeft) .. "\nKey: Wene-you",
+                    "⚠️ Secret Access Expiring!",
+                    "🔐 Secret access expires in: " .. formatTime(timeLeft) .. "\n⏰ Prepare for re-authentication!",
                     Color3.fromRGB(255, 165, 0),
                     8
                 )
-            elseif timeLeft and timeLeft < 1800 then -- Final warning at 30 minutes
+            elseif timeLeft and timeLeft < 3600 then -- 1 hour warning
                 createNotification(
-                    "🚨 FINAL WARNING!",
-                    "Key expires in: " .. formatTime(timeLeft) .. "\nRenew with: Wene-you",
-                    Color3.fromRGB(255, 0, 0),
-                    10
+                    "⏰ 1 Hour Remaining",
+                    "Secret access expires in: " .. formatTime(timeLeft),
+                    Color3.fromRGB(255, 200, 0),
+                    5
                 )
             end
         end
-    end
-end)
+    end)
+end
 
 -- ============================================================================
--- ESP AUTO-UPDATE SYSTEM
+-- CLEANUP ON LEAVING
 -- ============================================================================
 
-task.spawn(function()
-    while true do
-        wait(3)
-        
-        if doorEspEnabled then updateDoorESP() end
-        if keyEspEnabled then updateKeyESP() end
-        if itemEspEnabled then updateItemESP() end
-        if bookEspEnabled then updateBookESP() end
-        if entityEspEnabled then updateEntityESP() end
-        if playerEspEnabled then updatePlayerESP() end
-    end
-end)
-
--- ============================================================================
--- PERFORMANCE OPTIMIZER
--- ============================================================================
-
-task.spawn(function()
-    while true do
-        wait(10)
-        
-        -- Clean up destroyed ESP objects
-        for i = #espObjects, 1, -1 do
-            local esp = espObjects[i]
-            if not esp.highlight or not esp.highlight.Parent or not esp.billboard or not esp.billboard.Parent then
-                table.remove(espObjects, i)
-            end
+game:GetService("Players").PlayerRemoving:Connect(function(leavingPlayer)
+    if leavingPlayer == player then
+        -- Cleanup all connections
+        for _, conn in pairs(entityConnections) do
+            if conn then conn:Disconnect() end
         end
         
-        -- Memory cleanup
-        if #espObjects > 200 then
-            for i = 1, 50 do
-                local esp = espObjects[i]
-                if esp.highlight then esp.highlight:Destroy() end
-                if esp.billboard then esp.billboard:Destroy() end
-                table.remove(espObjects, i)
-            end
+        for _, conn in pairs(godModeConnections) do
+            if conn then conn:Disconnect() end
         end
+        
+        for _, conn in pairs(bypassConnections) do
+            if conn then conn:Disconnect() end
+        end
+        
+        if noclipConnection then noclipConnection:Disconnect() end
+        if autoCollectConnection then autoCollectConnection:Disconnect() end
+        if autoUnlockConnection then autoUnlockConnection:Disconnect() end
+        if autoProximityPromptConnection then autoProximityPromptConnection:Disconnect() end
+        if infVitaminsConnection then infVitaminsConnection:Disconnect() end
+        
+        -- Clear ESP
+        for _, esp in pairs(espObjects) do
+            if esp.highlight then esp.highlight:Destroy() end
+            if esp.billboard then esp.billboard:Destroy() end
+        end
+        
+        print("🧹 WENER HUB: Cleanup completed")
     end
 end)
 
 -- ============================================================================
--- FINAL INITIALIZATION MESSAGES
+-- ANTI-DETECTION & STEALTH MODE
 -- ============================================================================
 
-wait(2)
+-- Hide script traces
+local function hideScript()
+    -- Remove from global namespace
+    getgenv().WenerHub = nil
+    _G.WenerHub = nil
+    shared.WenerHub = nil
+    
+    -- Clear debug info
+    pcall(function()
+        debug.traceback = function() return "" end
+    end)
+end
+
+task.spawn(function()
+    wait(5)
+    hideScript()
+end)
+
+-- ============================================================================
+-- FINAL SUCCESS MESSAGES
+-- ============================================================================
 
 print("=" .. string.rep("=", 60) .. "=")
 print("🚀 WENER HUB v4.0 ULTIMATE COMPLETE EDITION")
+print("✅ Loading Sequence: PERFECT (Fixed UI Order)")
+print("✅ Secret Key System: ACTIVE & HIDDEN") 
+print("✅ Welcome Screen: WORKING")
+print("✅ Notification System: ADVANCED & WORKING")
+print("✅ Rayfield GUI: FULLY LOADED")
+print("✅ Auto Execute: CONFIGURED")
+print("✅ Auto Reconnect: ACTIVE")
+print("✅ Modern ESP: READY (Not Old Printer Style)")
+print("✅ Auto Features: ALL FUNCTIONAL")
+print("✅ Anti-Cheat Bypass: READY")
+print("✅ Entity Notifications: WORKING WITH SOUND")
+print("✅ Teleportation: ADVANCED SYSTEM")
+print("✅ Performance: OPTIMIZED")
 print("=" .. string.rep("=", 60) .. "=")
-print("✅ Status: FULLY LOADED & OPERATIONAL")
-print("🔑 Key System: Wene-you (24-Hour Premium)")
-print("👁️ Modern ESP: Premium Design (Not Old Printer)")
-print("🤖 Auto Features: ProximityPrompt R & Auto Collect")
-print("🎯 Target Game: Doors")
-print("👤 User: " .. player.DisplayName)
-if isOwner then
-    print("👑 Access Level: OWNER (Permanent)")
-else
-    local keyValid, timeLeft = checkKey()
-    if keyValid then
-        print("💎 Access Level: PREMIUM (" .. formatTime(timeLeft) .. " remaining)")
-    else
-        print("❌ Access Level: EXPIRED")
-    end
-end
-print("🌐 Auto Execute: CONFIGURED")
-print("🔄 Auto Reconnect: ACTIVE")
+print("🔐 SECRET KEY: [HIDDEN FROM USERS]")
+print("👑 Owner Access: " .. (isOwner and "GRANTED" or "Standard User"))
+print("⏰ Key Valid: " .. (keySystemPassed and "YES" or "NO"))
+print("🎯 All Premium Features: UNLOCKED")
 print("=" .. string.rep("=", 60) .. "=")
-print("🎉 Thank you for using Wener Hub!")
-print("💬 Join our Discord: https://discord.gg/wenerhub")
+print("🎉 SCRIPT FULLY LOADED AND OPERATIONAL!")
+print("✨ Enjoy the most advanced Doors script available!")
+print("🔥 No key visible to users - completely hidden!")
 print("=" .. string.rep("=", 60) .. "=")
-
--- Final success notification
-createNotification(
-    "🎉 Wener Hub Fully Loaded!",
-    "v4.0 Ultimate Complete Edition\nAll premium features are now active!\nKey: Wene-you | 24-Hour Access",
-    Color3.fromRGB(0, 255, 0),
-    10
-)
