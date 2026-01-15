@@ -1988,8 +1988,7 @@ local function createMainGUI()
         createButton(settingsFrame, "🗝️ Refresh Key Status", Color3.fromRGB(139, 0, 255), function()
             local valid, timeLeft = checkKey()
             if valid then
-                createNotification("🗝️ Key Status", "Secret key valid - " .. formatTime(timeLeft) .. " remaining
-", Color3.fromRGB(0, 255, 0), 5)
+                createNotification("🗝️ Key Status", "Secret key valid - " .. formatTime(timeLeft) .. " remaining)
             else
                 createNotification("🗝️ Key Status", "Secret key expired or invalid", Color3.fromRGB(255, 100, 100), 5)
             end
