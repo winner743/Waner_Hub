@@ -1,144 +1,293 @@
-if _G.msdoors_isloading then
-    print(" O SCRIPT JÁ ESTÁ CARREGANDO!!! ")
-    return
+-- Load Obsidian Library
+local Obsidian = loadstring(game:HttpGet("https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/obsidian.lua"))()
+
+-- Key System
+local validKeys = {
+    ["Wene-you"] = true,
+    ["Wene-123"] = true,
+    ["Wene-anti"] = true,
+    ["Wene-police"] = true
+}
+
+local keyExpiry = "KeyExpiry_Doors"
+local keyUsed = "KeyUsed_Doors"
+
+local function checkKey()
+    local savedKey = game:GetService("HttpService"):JSONDecode(readfile(keyUsed) or '""')
+    local expiry = tonumber(readfile(keyExpiry) or "0")
+    
+    if savedKey ~= "" and validKeys[savedKey] and os.time() < expiry then
+        return true
+    end
+    return false
 end
 
-_G.msdoors_version = "01.11.25"
+local function saveKey(key)
+    writefile(keyUsed, game:GetService("HttpService"):JSONEncode(key))
+    writefile(keyExpiry, tostring(os.time() + 86400)) -- 24 jam
+end
 
-if shared.loaded then
-    warn("[Msdoors] • Script já está carregado!")
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Script já carregado!",
-        Image = "rbxassetid://95869322194132",
-        Text = "o script já está carregado!",
-        Duration = 5
+if not checkKey() then
+    local keyInput = Obsidian:CreateKeySystem({
+        Title = "Doors Script - Key System",
+        Description = "Masukkan key untuk akses script",
+        Keys = {"Wene-you", "Wene-123", "Wene-anti", "Wene-police"}
     })
-    return
+    
+    keyInput.OnKeyEnter = function(key)
+        if validKeys[key] then
+            saveKey(key)
+            Obsidian:Notify("Key Valid!", "Expired dalam 24 jam", 5)
+            return true
+        else
+            Obsidian:Notify("Key Invalid!", "Coba lagi", 3)
+            return false
+        end
+    end
 end
 
-local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://8486683243"
-sound.Volume = 3
-sound.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-sound:Play()
-sound.Ended:Connect(function()
-    sound:Destroy()
+-- Main Window
+local Window = Obsidian:CreateWindow({
+    Title = "Doors Script",
+    Size = UDim2.new(0, 500, 0, 400)
+})
+
+-- Variables
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local autoProximity = false
+local autoLoot = false
+local godMode = false
+local speedEnabled = false
+local noclipEnabled = false
+local espEnabled = false
+local notifyEnabled = true
+
+local speedValue = 16
+local originalSpeed = humanoid.WalkSpeed
+
+-- Info Tab
+local InfoTab = Window:CreateTab("Info")
+
+local InfoSection = InfoTab:CreateSection("Player Info")
+
+InfoSection:CreateLabel("Avatar:")
+InfoSection:CreateImage({
+    Image = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=150&height=150",
+    Size = UDim2.new(0, 100, 0, 100)
+})
+
+InfoSection:CreateLabel("Username: "..player.Name)
+InfoSection:CreateLabel("Display Name: "..player.DisplayName)
+
+local expiryTime = tonumber(readfile(keyExpiry) or "0")
+local hoursLeft = math.floor((expiryTime - os.time()) / 3600)
+InfoSection:CreateLabel("Key Expired: "..hoursLeft.." jam lagi")
+
+-- Auto Tab
+local AutoTab = Window:CreateTab("Auto")
+
+local AutoSection = AutoTab:CreateSection("Auto Features")
+
+AutoSection:CreateToggle({
+    Name = "Auto ProximityPrompt (R)",
+    Default = false,
+    Callback = function(value)
+        autoProximity = value
+    end
+})
+
+AutoSection:CreateToggle({
+    Name = "Auto Ambil Barang di Laci",
+    Default = false,
+    Callback = function(value)
+        autoLoot = value
+    end
+})
+
+-- Bypass Tab
+local BypassTab = Window:CreateTab("Bypass")
+
+local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
+
+BypassSection:CreateToggle({
+    Name = "God Mode Bypass",
+    Default = false,
+    Callback = function(value)
+        godMode = value
+        if godMode then
+            humanoid.Health = humanoid.MaxHealth
+            humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+                if godMode and humanoid.Health < humanoid.MaxHealth then
+                    humanoid.Health = humanoid.MaxHealth
+                end
+            end)
+        end
+    end
+})
+
+BypassSection:CreateSlider({
+    Name = "Speed Bypass",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Callback = function(value)
+        speedValue = value
+        if speedEnabled then
+            humanoid.WalkSpeed = speedValue
+        end
+    end
+})
+
+BypassSection:CreateToggle({
+    Name = "Enable Speed",
+    Default = false,
+    Callback = function(value)
+        speedEnabled = value
+        if speedEnabled then
+            humanoid.WalkSpeed = speedValue
+        else
+            humanoid.WalkSpeed = originalSpeed
+        end
+    end
+})
+
+BypassSection:CreateToggle({
+    Name = "Noclip Bypass",
+    Default = false,
+    Callback = function(value)
+        noclipEnabled = value
+    end
+})
+
+-- Main Menu Tab
+local MainTab = Window:CreateTab("Main Menu")
+
+local MainSection = MainTab:CreateSection("Main Features")
+
+MainSection:CreateSlider({
+    Name = "Speed",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Callback = function(value)
+        humanoid.WalkSpeed = value
+    end
+})
+
+MainSection:CreateToggle({
+    Name = "God Mode",
+    Default = false,
+    Callback = function(value)
+        if value then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end
+})
+
+MainSection:CreateToggle({
+    Name = "Noclip",
+    Default = false,
+    Callback = function(value)
+        noclipEnabled = value
+    end
+})
+
+-- ESP Tab
+local ESPTab = Window:CreateTab("ESP")
+
+local ESPSection = ESPTab:CreateSection("ESP Features")
+
+ESPSection:CreateToggle({
+    Name = "Enable ESP",
+    Default = false,
+    Callback = function(value)
+        espEnabled = value
+    end
+})
+
+-- Notify Tab
+local NotifyTab = Window:CreateTab("Notify")
+
+local NotifySection = NotifyTab:CreateSection("Notification Settings")
+
+NotifySection:CreateToggle({
+    Name = "Auto Notify Entity",
+    Default = true,
+    Callback = function(value)
+        notifyEnabled = value
+    end
+})
+
+-- Auto Proximity Logic
+game:GetService("RunService").RenderStepped:Connect(function()
+    if autoProximity then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and v.Enabled then
+                fireproximityprompt(v)
+            end
+        end
+    end
+    
+    if autoLoot then
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "DrawerContainer" or v.Name == "Drawer" then
+                local prompt = v:FindFirstChildOfClass("ProximityPrompt")
+                if prompt then
+                    fireproximityprompt(prompt)
+                end
+            end
+        end
+    end
+    
+    if noclipEnabled then
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
 end)
 
-local Services = {
-    ReplicatedStorage = game:GetService("ReplicatedStorage"),
-    StarterGui = game:GetService("StarterGui"),
-    Players = game:GetService("Players"),
-    HttpService = game:GetService("HttpService")
-}
-
-local player = Services.Players.LocalPlayer
-local placeId = game.PlaceId
-
-local function safeCall(func, ...)
-    local success, result = pcall(func, ...)
-    return success and result or nil
-end
-
-local SCRIPT_URL = "https://raw.msdoors.xyz/"
-local SUPPORTED_GAMES = {
-    [6516141723] = "Doors-lobby",
-    [6839171747] = "Doors-hotel",
-    [2440500124] = "Doors-hotel",
-    [87716067947993] = "Doors-hotel",
-    [10549820578] = "Doors-hotel",
-    [110258689672367] = "Doors-hotel",
-    [189707] = "NaturalDisaster-game",
-    [12137249458] = "Campos-FFA"
-}
-
-local function notify(title, message)
-    pcall(function()
-        Services.StarterGui:SetCore("SendNotification", {
-            Title = "Msdoors | " .. title,
-            Image = "rbxassetid://95869322194132",
-            Text = message,
-            Duration = 5
-        })
-    end)
-    print("[Msdoors] " .. title .. ": " .. message)
-end
-
-local function loadScript(url)
-    local httpMethods = {
-        function() return game:HttpGet(url) end,
-        function() 
-            if typeof(http_request) == "function" then
-                local response = http_request({Url = url, Method = "GET"})
-                return response.Body
-            end
-        end,
-        function() 
-            if typeof(request) == "function" then
-                local response = request({Url = url, Method = "GET"})
-                return response.Body
-            end
-        end,
-        function()
-            if typeof(syn) == "table" and typeof(syn.request) == "function" then
-                local response = syn.request({Url = url, Method = "GET"})
-                return response.Body
-            end
-        end
-    }
+-- ESP Logic
+local function createESP(obj, color)
+    if not espEnabled then return end
     
-    local response = nil
-    for _, method in pairs(httpMethods) do
-        local success, result = pcall(method)
-        if success and result then
-            response = result
-            break
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = obj
+    highlight.OutlineColor = color
+    highlight.FillTransparency = 1
+    highlight.OutlineTransparency = 0
+    
+    return highlight
+end
+
+workspace.ChildAdded:Connect(function(child)
+    if espEnabled then
+        if child.Name == "Key" then
+            createESP(child, Color3.fromRGB(0, 0, 255)) -- Biru
+        elseif child.Name:match("Door") then
+            createESP(child, Color3.fromRGB(0, 255, 0)) -- Hijau
+        elseif child.Name:match("Item") then
+            createESP(child, Color3.fromRGB(128, 0, 128)) -- Ungu
+        elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
+            createESP(child, Color3.fromRGB(255, 165, 0)) -- Oren
         end
     end
-    
-    if not response then
-        notify("Erro", "Unable to download script")
-        return false
-    end
-    
-    local success, error = pcall(function()
-        local func = loadstring(response)
-        if func then
-            func()
-        else
-            error("Failed to load script")
+end)
+
+-- Entity Notify
+workspace.ChildAdded:Connect(function(child)
+    if notifyEnabled then
+        local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
+        for _, entity in pairs(entities) do
+            if child.Name == entity then
+                Obsidian:Notify("Entity Detected!", entity.." telah muncul!", 5)
+            end
         end
-    end)
-    
-    if not success then
-        notify("Erro", "Failed to execute script")
-        return false
     end
-    
-    return true
-end
+end)
 
-local function startMsdoors()
-    local currentGame = game.PlaceId
-    _G.msdoors_isloading = true
-
-    local scriptName = SUPPORTED_GAMES[currentGame]
-    if not scriptName then
-        shared.loaded = false
-        notify("Aviso", "Game not supported")
-        _G.msdoors_isloading = false
-        print("[ Msdoors ] » Script não está mais carregando. ")
-        return
-    end
-
-    local success = loadScript(SCRIPT_URL .. scriptName)
-    
-    if success then
-        notify("Sucesso", "Script executed successfully!")
-    else
-    end
-    
-    _G.msdoors_isloading = false
-end
-
-startMsdoors()
+Obsidian:Notify("Script Loaded!", "Doors Script berhasil dimuat", 3)
