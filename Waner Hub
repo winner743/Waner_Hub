@@ -109,6 +109,153 @@ local function createNotification(title, message, duration, color)
     end)
 end
 
+-- Loading Screen Function
+local function createLoadingScreen()
+    local loadingGui = Instance.new("ScreenGui")
+    loadingGui.Name = "LoadingScreen"
+    loadingGui.Parent = playerGui
+    loadingGui.ResetOnSpawn = false
+    
+    -- Background
+    local bgFrame = Instance.new("Frame")
+    bgFrame.Size = UDim2.new(1, 0, 1, 0)
+    bgFrame.Position = UDim2.new(0, 0, 0, 0)
+    bgFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    bgFrame.BorderSizePixel = 0
+    bgFrame.Parent = loadingGui
+    
+    -- Animated Background
+    local animBg = Instance.new("Frame")
+    animBg.Size = UDim2.new(1, 0, 1, 0)
+    animBg.Position = UDim2.new(0, 0, 0, 0)
+    animBg.BackgroundTransparency = 0.7
+    animBg.Parent = bgFrame
+    
+    local bgGradient = Instance.new("UIGradient")
+    bgGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 100, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 200))
+    }
+    bgGradient.Rotation = 0
+    bgGradient.Parent = animBg
+    
+    -- Animate background
+    spawn(function()
+        while loadingGui.Parent do
+            for i = 0, 360, 3 do
+                if not loadingGui.Parent then break end
+                bgGradient.Rotation = i
+                wait(0.05)
+            end
+        end
+    end)
+    
+    -- Logo/Title
+    local logoFrame = Instance.new("Frame")
+    logoFrame.Size = UDim2.new(0, 400, 0, 100)
+    logoFrame.Position = UDim2.new(0.5, -200, 0.4, -50)
+    logoFrame.BackgroundTransparency = 1
+    logoFrame.Parent = bgFrame
+    
+    local logoText = Instance.new("TextLabel")
+    logoText.Size = UDim2.new(1, 0, 1, 0)
+    logoText.Position = UDim2.new(0, 0, 0, 0)
+    logoText.BackgroundTransparency = 1
+    logoText.Text = "🚪 DOORS SCRIPT"
+    logoText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    logoText.TextScaled = true
+    logoText.Font = Enum.Font.GothamBold
+    logoText.Parent = logoFrame
+    
+    local logoStroke = Instance.new("UIStroke")
+    logoStroke.Color = Color3.fromRGB(100, 200, 255)
+    logoStroke.Thickness = 3
+    logoStroke.Parent = logoText
+    
+    -- Loading Bar Background
+    local loadBarBg = Instance.new("Frame")
+    loadBarBg.Size = UDim2.new(0, 300, 0, 8)
+    loadBarBg.Position = UDim2.new(0.5, -150, 0.6, 0)
+    loadBarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    loadBarBg.BorderSizePixel = 0
+    loadBarBg.Parent = bgFrame
+    
+    local loadBarCorner = Instance.new("UICorner")
+    loadBarCorner.CornerRadius = UDim.new(0, 10)
+    loadBarCorner.Parent = loadBarBg
+    
+    -- Loading Bar
+    local loadBar = Instance.new("Frame")
+    loadBar.Size = UDim2.new(0, 0, 1, 0)
+    loadBar.Position = UDim2.new(0, 0, 0, 0)
+    loadBar.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    loadBar.BorderSizePixel = 0
+    loadBar.Parent = loadBarBg
+    
+    local loadBarCorner2 = Instance.new("UICorner")
+    loadBarCorner2.CornerRadius = UDim.new(0, 10)
+    loadBarCorner2.Parent = loadBar
+    
+    -- Loading Text
+    local loadText = Instance.new("TextLabel")
+    loadText.Size = UDim2.new(0, 300, 0, 30)
+    loadText.Position = UDim2.new(0.5, -150, 0.65, 0)
+    loadText.BackgroundTransparency = 1
+    loadText.Text = "Loading..."
+    loadText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    loadText.TextScaled = true
+    loadText.Font = Enum.Font.Gotham
+    loadText.Parent = bgFrame
+    
+    -- Loading Animation
+    local loadingTexts = {"Loading...", "Initializing...", "Setting up...", "Almost ready..."}
+    local currentText = 1
+    
+    spawn(function()
+        while loadingGui.Parent do
+            loadText.Text = loadingTexts[currentText]
+            currentText = currentText + 1
+            if currentText > #loadingTexts then
+                currentText = 1
+            end
+            wait(0.5)
+        end
+    end)
+    
+    -- Progress bar animation
+    local progressTween = TweenService:Create(loadBar, TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(1, 0, 1, 0)
+    })
+    progressTween:Play()
+    
+    -- Wait 3 seconds then fade out
+    progressTween.Completed:Connect(function()
+        wait(0.5)
+        
+        -- Fade out animation
+        local fadeOut = TweenService:Create(bgFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            BackgroundTransparency = 1
+        })
+        
+        for _, obj in pairs(loadingGui:GetDescendants()) do
+            if obj:IsA("GuiObject") and obj ~= bgFrame then
+                local fade = TweenService:Create(obj, TweenInfo.new(0.8), {
+                    BackgroundTransparency = 1,
+                    TextTransparency = 1
+                })
+                fade:Play()
+            end
+        end
+        
+        fadeOut:Play()
+        fadeOut.Completed:Connect(function()
+            loadingGui:Destroy()
+            loadMainScript()
+        end)
+    end)
+end
+
 -- Custom Key UI
 if not checkKey() then
     local keyGui = Instance.new("ScreenGui")
@@ -126,8 +273,8 @@ if not checkKey() then
     
     -- Main Frame
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 450, 0, 550)
-    mainFrame.Position = UDim2.new(0.5, -225, 0.5, -275)
+    mainFrame.Size = UDim2.new(0, 450, 0, 450)
+    mainFrame.Position = UDim2.new(0.5, -225, 0.5, -225)
     mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = keyGui
@@ -240,52 +387,71 @@ if not checkKey() then
     submitCorner.CornerRadius = UDim.new(0, 10)
     submitCorner.Parent = submitButton
     
-    -- Valid Keys Display
-    local keysFrame = Instance.new("Frame")
-    keysFrame.Size = UDim2.new(1, -60, 0, 200)
-    keysFrame.Position = UDim2.new(0, 30, 0, 290)
-    keysFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-    keysFrame.BorderSizePixel = 0
-    keysFrame.Parent = mainFrame
+    -- Info Frame (tanpa kasih tau key)
+    local infoFrame = Instance.new("Frame")
+    infoFrame.Size = UDim2.new(1, -60, 0, 120)
+    infoFrame.Position = UDim2.new(0, 30, 0, 290)
+    infoFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    infoFrame.BorderSizePixel = 0
+    infoFrame.Parent = mainFrame
     
-    local keysCorner = Instance.new("UICorner")
-    keysCorner.CornerRadius = UDim.new(0, 10)
-    keysCorner.Parent = keysFrame
+    local infoCorner = Instance.new("UICorner")
+    infoCorner.CornerRadius = UDim.new(0, 10)
+    infoCorner.Parent = infoFrame
     
-    local keysStroke = Instance.new("UIStroke")
-    keysStroke.Color = Color3.fromRGB(50, 50, 60)
-    keysStroke.Thickness = 1
-    keysStroke.Parent = keysFrame
+    local infoStroke = Instance.new("UIStroke")
+    infoStroke.Color = Color3.fromRGB(50, 50, 60)
+    infoStroke.Thickness = 1
+    infoStroke.Parent = infoFrame
     
-    local keysTitle = Instance.new("TextLabel")
-    keysTitle.Size = UDim2.new(1, -20, 0, 30)
-    keysTitle.Position = UDim2.new(0, 10, 0, 10)
-    keysTitle.BackgroundTransparency = 1
-    keysTitle.Text = "🔑 Valid Keys:"
-    keysTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    keysTitle.TextScaled = true
-    keysTitle.Font = Enum.Font.GothamBold
-    keysTitle.TextXAlignment = Enum.TextXAlignment.Left
-    keysTitle.Parent = keysFrame
+    local infoTitle = Instance.new("TextLabel")
+    infoTitle.Size = UDim2.new(1, -20, 0, 30)
+    infoTitle.Position = UDim2.new(0, 10, 0, 10)
+    infoTitle.BackgroundTransparency = 1
+    infoTitle.Text = "ℹ️ Information:"
+    infoTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    infoTitle.TextScaled = true
+    infoTitle.Font = Enum.Font.GothamBold
+    infoTitle.TextXAlignment = Enum.TextXAlignment.Left
+    infoTitle.Parent = infoFrame
     
-    local keysList = {"• Wene-you", "• Wene-123", "• Wene-anti", "• Wene-police"}
-    for i, keyText in ipairs(keysList) do
-        local keyLabel = Instance.new("TextLabel")
-        keyLabel.Size = UDim2.new(1, -20, 0, 25)
-        keyLabel.Position = UDim2.new(0, 10, 0, 30 + (i * 30))
-        keyLabel.BackgroundTransparency = 1
-        keyLabel.Text = keyText
-        keyLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
-        keyLabel.TextScaled = true
-        keyLabel.Font = Enum.Font.Gotham
-        keyLabel.TextXAlignment = Enum.TextXAlignment.Left
-        keyLabel.Parent = keysFrame
-    end
+    local info1 = Instance.new("TextLabel")
+    info1.Size = UDim2.new(1, -20, 0, 20)
+    info1.Position = UDim2.new(0, 10, 0, 45)
+    info1.BackgroundTransparency = 1
+    info1.Text = "• Get keys from the developer"
+    info1.TextColor3 = Color3.fromRGB(150, 255, 150)
+    info1.TextScaled = true
+    info1.Font = Enum.Font.Gotham
+    info1.TextXAlignment = Enum.TextXAlignment.Left
+    info1.Parent = infoFrame
+    
+    local info2 = Instance.new("TextLabel")
+    info2.Size = UDim2.new(1, -20, 0, 20)
+    info2.Position = UDim2.new(0, 10, 0, 70)
+    info2.BackgroundTransparency = 1
+    info2.Text = "• Keys are valid for 24 hours"
+    info2.TextColor3 = Color3.fromRGB(150, 255, 150)
+    info2.TextScaled = true
+    info2.Font = Enum.Font.Gotham
+    info2.TextXAlignment = Enum.TextXAlignment.Left
+    info2.Parent = infoFrame
+    
+    local info3 = Instance.new("TextLabel")
+    info3.Size = UDim2.new(1, -20, 0, 20)
+    info3.Position = UDim2.new(0, 10, 0, 95)
+    info3.BackgroundTransparency = 1
+    info3.Text = "• Premium features included"
+    info3.TextColor3 = Color3.fromRGB(150, 255, 150)
+    info3.TextScaled = true
+    info3.Font = Enum.Font.Gotham
+    info3.TextXAlignment = Enum.TextXAlignment.Left
+    info3.Parent = infoFrame
     
     -- Status Label
     local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, -40, 0, 30)
-    statusLabel.Position = UDim2.new(0, 20, 0, 510)
+    statusLabel.Size = UDim2.new(1, -40, 0, 20)
+    statusLabel.Position = UDim2.new(0, 20, 0, 420)
     statusLabel.BackgroundTransparency = 1
     statusLabel.Text = "Ready to verify..."
     statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -332,7 +498,6 @@ if not checkKey() then
             statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
             
             saveKey(key)
-            createNotification("Success!", "Key verified! Access granted for 24 hours", 3, Color3.fromRGB(100, 255, 100))
             
             -- Fade out animation
             local fadeOut = TweenService:Create(keyGui, TweenInfo.new(0.5), {BackgroundTransparency = 1})
@@ -347,7 +512,7 @@ if not checkKey() then
             
             fadeOut.Completed:Connect(function()
                 keyGui:Destroy()
-                loadMainScript()
+                createLoadingScreen() -- Show loading screen sebelum main script
             end)
         else
             statusLabel.Text = "❌ Invalid key! Please try again."
@@ -366,7 +531,7 @@ if not checkKey() then
             local resetTween = TweenService:Create(mainFrame, TweenInfo.new(0.1), {Position = originalPos})
             resetTween:Play()
             
-            createNotification("Error!", "Invalid key entered", 3, Color3.fromRGB(255, 100, 100))
+            keyInput.Text = "" -- Clear input setelah salah
         end
     end
     
@@ -381,22 +546,290 @@ if not checkKey() then
     -- Entrance Animation
     mainFrame.Position = UDim2.new(0.5, -225, 1, 0)
     local entranceAnim = TweenService:Create(mainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, -225, 0.5, -275)
+        Position = UDim2.new(0.5, -225, 0.5, -225)
     })
     entranceAnim:Play()
     
 else
-    loadMainScript()
+    createLoadingScreen() -- Kalau key sudah ada, langsung loading screen
 end
 
--- Main Script Function (Load Rayfield setelah key verified)
+-- Main Script Function (Load Rayfield setelah loading screen)
 function loadMainScript()
     -- Load Rayfield Library
     local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
-    -- [Rest of your main script code here...]
-    createNotification("Script Loaded!", "Doors Script is now ready to use", 3, Color3.fromRGB(100, 255, 100))
+    -- Main Window
+    local Window = Rayfield:CreateWindow({
+        Name = "🚪 Doors Script",
+        LoadingTitle = "Doors Script Loading...",
+        LoadingSubtitle = "Premium Version",
+    })
+
+    -- Variables
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    local autoProximity = false
+    local autoLoot = false
+    local godMode = false
+    local speedEnabled = false
+    local noclipEnabled = false
+    local espEnabled = false
+    local notifyEnabled = true
+
+    local speedValue = 16
+    local originalSpeed = humanoid.WalkSpeed
+
+    -- Info Tab
+    local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
     
-    -- Your main script code goes here
-    print("Main script loaded successfully!")
+    local InfoSection = InfoTab:CreateSection("Player Information")
+    
+    InfoSection:CreateLabel("👤 Username: " .. player.Name)
+    InfoSection:CreateLabel("📝 Display Name: " .. player.DisplayName)
+    InfoSection:CreateLabel("🆔 User ID: " .. player.UserId)
+    
+    local expiryTime = tonumber(readfile(keyExpiry) or "0")
+    local hoursLeft = math.max(0, math.floor((expiryTime - os.time()) / 3600))
+    InfoSection:CreateLabel("⏰ Key Expires: " .. hoursLeft .. " hours")
+
+    -- Auto Tab
+    local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
+    
+    local AutoSection = AutoTab:CreateSection("Auto Features")
+    
+    local AutoProximityToggle = AutoSection:CreateToggle({
+        Name = "🔄 Auto ProximityPrompt (R)",
+        CurrentValue = false,
+        Flag = "AutoProximity",
+        Callback = function(Value)
+            autoProximity = Value
+        end,
+    })
+    
+    local AutoLootToggle = AutoSection:CreateToggle({
+        Name = "📦 Auto Ambil Barang di Laci",
+        CurrentValue = false,
+        Flag = "AutoLoot",
+        Callback = function(Value)
+            autoLoot = Value
+        end,
+    })
+
+    -- Bypass Tab
+    local BypassTab = Window:CreateTab("🛡️ Bypass", 4483362458)
+    
+    local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
+    
+    local GodModeToggle = BypassSection:CreateToggle({
+        Name = "⚡ God Mode Bypass",
+        CurrentValue = false,
+        Flag = "GodMode",
+        Callback = function(Value)
+            godMode = Value
+            if godMode then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end,
+    })
+    
+    local SpeedSlider = BypassSection:CreateSlider({
+        Name = "🏃 Speed Bypass",
+        Range = {16, 100},
+        Increment = 1,
+        Suffix = " Speed",
+        CurrentValue = 16,
+        Flag = "SpeedValue",
+        Callback = function(Value)
+            speedValue = Value
+            if speedEnabled then
+                humanoid.WalkSpeed = speedValue
+            end
+        end,
+    })
+    
+    local SpeedToggle = BypassSection:CreateToggle({
+        Name = "✅ Enable Speed",
+        CurrentValue = false,
+        Flag = "SpeedEnabled",
+        Callback = function(Value)
+            speedEnabled = Value
+            if speedEnabled then
+                humanoid.WalkSpeed = speedValue
+            else
+                humanoid.WalkSpeed = originalSpeed
+            end
+        end,
+    })
+    
+    local NoclipToggle = BypassSection:CreateToggle({
+        Name = "👻 Noclip Bypass",
+        CurrentValue = false,
+        Flag = "Noclip",
+        Callback = function(Value)
+            noclipEnabled = Value
+        end,
+    })
+
+    -- Main Menu Tab
+    local MainTab = Window:CreateTab("🎮 Main Menu", 4483362458)
+    
+    local MainSection = MainTab:CreateSection("Main Features")
+    
+    local MainSpeedSlider = MainSection:CreateSlider({
+        Name = "🏃 Speed",
+        Range = {16, 100},
+        Increment = 1,
+        Suffix = " Speed",
+        CurrentValue = 16,
+        Flag = "MainSpeed",
+        Callback = function(Value)
+            humanoid.WalkSpeed = Value
+        end,
+    })
+    
+    local MainGodToggle = MainSection:CreateToggle({
+        Name = "⚡ God Mode",
+        CurrentValue = false,
+        Flag = "MainGod",
+        Callback = function(Value)
+            if Value then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end,
+    })
+    
+    local MainNoclipToggle = MainSection:CreateToggle({
+        Name = "👻 Noclip",
+        CurrentValue = false,
+        Flag = "MainNoclip",
+        Callback = function(Value)
+            noclipEnabled = Value
+        end,
+    })
+
+    -- ESP Tab
+    local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+    
+    local ESPSection = ESPTab:CreateSection("ESP Features")
+    
+    local ESPToggle = ESPSection:CreateToggle({
+        Name = "🔍 Enable ESP",
+        CurrentValue = false,
+        Flag = "ESP",
+        Callback = function(Value)
+            espEnabled = Value
+        end,
+    })
+    
+    ESPSection:CreateLabel("🔵 Key = Blue | 🟢 Door = Green")
+    ESPSection:CreateLabel("🟣 Item = Purple | 🟠 Hide Spot = Orange")
+
+    -- Notify Tab
+    local NotifyTab = Window:CreateTab("🔔 Notify", 4483362458)
+    
+    local NotifySection = NotifyTab:CreateSection("Notification Settings")
+    
+    local NotifyToggle = NotifySection:CreateToggle({
+        Name = "🚨 Auto Notify Entity",
+        CurrentValue = true,
+        Flag = "Notify",
+        Callback = function(Value)
+            notifyEnabled = Value
+        end,
+    })
+
+    -- Auto Functions
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if autoProximity then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") and v.Enabled then
+                    pcall(function()
+                        fireproximityprompt(v)
+                    end)
+                end
+            end
+        end
+        
+        if autoLoot then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "DrawerContainer" or v.Name == "Drawer" then
+                    local prompt = v:FindFirstChildOfClass("ProximityPrompt")
+                    if prompt then
+                        pcall(function()
+                            fireproximityprompt(prompt)
+                        end)
+                    end
+                end
+            end
+        end
+        
+        if noclipEnabled then
+            pcall(function()
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end)
+        end
+        
+        if godMode then
+            pcall(function()
+                if humanoid.Health < humanoid.MaxHealth then
+                    humanoid.Health = humanoid.MaxHealth
+                end
+            end)
+        end
+    end)
+
+    -- ESP Functions
+    local function createESP(obj, color)
+        if not espEnabled then return end
+        
+        pcall(function()
+            local highlight = Instance.new("Highlight")
+            highlight.Parent = obj
+            highlight.OutlineColor = color
+            highlight.FillTransparency = 1
+            highlight.OutlineTransparency = 0
+        end)
+    end
+
+    workspace.ChildAdded:Connect(function(child)
+        if espEnabled then
+            pcall(function()
+                if child.Name == "Key" then
+                    createESP(child, Color3.fromRGB(0, 0, 255)) -- Blue
+                elseif child.Name:match("Door") then
+                    createESP(child, Color3.fromRGB(0, 255, 0)) -- Green
+                elseif child.Name:match("Item") then
+                    createESP(child, Color3.fromRGB(128, 0, 128)) -- Purple
+                elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
+                    createESP(child, Color3.fromRGB(255, 165, 0)) -- Orange
+                end
+            end)
+        end
+    end)
+
+    -- Entity Notifications
+    workspace.ChildAdded:Connect(function(child)
+        if notifyEnabled then
+            local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
+            for _, entity in pairs(entities) do
+                if child.Name == entity then
+                    Rayfield:Notify({
+                        Title = "🚨 Entity Detected!",
+                        Content = entity .. " has spawned!",
+                        Duration = 5,
+                        Image = 4483362458,
+                    })
+                end
+            end
+        end
+    end)
+
+    createNotification("Success!", "Script loaded successfully!", 3, Color3.fromRGB(100, 255, 100))
 end
