@@ -1,5 +1,5 @@
--- Load Obsidian Library
-local Obsidian = loadstring(game:HttpGet("https://raw.githubusercontent.com/deividcomsono/Obsidian/refs/heads/main/obsidian.lua"))()
+-- Load Rayfield Library (Working Alternative to Obsidian)
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Key System
 local validKeys = {
@@ -13,281 +13,347 @@ local keyExpiry = "KeyExpiry_Doors"
 local keyUsed = "KeyUsed_Doors"
 
 local function checkKey()
-    local savedKey = game:GetService("HttpService"):JSONDecode(readfile(keyUsed) or '""')
-    local expiry = tonumber(readfile(keyExpiry) or "0")
+    local success, savedKey = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(readfile(keyExpiry) or '""')
+    end)
+    local success2, expiry = pcall(function()
+        return tonumber(readfile(keyExpiry) or "0")
+    end)
     
-    if savedKey ~= "" and validKeys[savedKey] and os.time() < expiry then
+    if success and success2 and savedKey ~= "" and validKeys[savedKey] and os.time() < expiry then
         return true
     end
     return false
 end
 
 local function saveKey(key)
-    writefile(keyUsed, game:GetService("HttpService"):JSONEncode(key))
-    writefile(keyExpiry, tostring(os.time() + 86400)) -- 24 jam
+    pcall(function()
+        writefile(keyUsed, game:GetService("HttpService"):JSONEncode(key))
+        writefile(keyExpiry, tostring(os.time() + 86400)) -- 24 jam
+    end)
 end
 
+-- Key System Window
 if not checkKey() then
-    local keyInput = Obsidian:CreateKeySystem({
-        Title = "Doors Script - Key System",
-        Description = "Masukkan key untuk akses script",
-        Keys = {"Wene-you", "Wene-123", "Wene-anti", "Wene-police"}
+    local KeyWindow = Rayfield:CreateWindow({
+        Name = "Doors Script - Key System",
+        LoadingTitle = "Loading Key System...",
+        LoadingSubtitle = "by YourName",
     })
     
-    keyInput.OnKeyEnter = function(key)
-        if validKeys[key] then
-            saveKey(key)
-            Obsidian:Notify("Key Valid!", "Expired dalam 24 jam", 5)
-            return true
-        else
-            Obsidian:Notify("Key Invalid!", "Coba lagi", 3)
-            return false
-        end
-    end
+    local KeyTab = KeyWindow:CreateTab("🔑 Key System", 4483362458)
+    
+    local KeySection = KeyTab:CreateSection("Enter Key")
+    
+    local KeyInput = KeySection:CreateInput({
+        Name = "Key Input",
+        PlaceholderText = "Enter your key here...",
+        RemoveTextAfterFocusLost = false,
+        Callback = function(Text)
+            if validKeys[Text] then
+                saveKey(Text)
+                Rayfield:Notify({
+                    Title = "Key Valid!",
+                    Content = "Access granted for 24 hours",
+                    Duration = 3,
+                    Image = 4483362458,
+                })
+                KeyWindow:Destroy()
+                wait(1)
+                loadMainScript()
+            else
+                Rayfield:Notify({
+                    Title = "Invalid Key!",
+                    Content = "Please try again",
+                    Duration = 3,
+                    Image = 4483362458,
+                })
+            end
+        end,
+    })
+    
+    KeySection:CreateLabel("Valid Keys: Wene-you, Wene-123, Wene-anti, Wene-police")
+else
+    loadMainScript()
 end
 
--- Main Window
-local Window = Obsidian:CreateWindow({
-    Title = "Doors Script",
-    Size = UDim2.new(0, 500, 0, 400)
-})
+function loadMainScript()
+    -- Main Window
+    local Window = Rayfield:CreateWindow({
+        Name = "🚪 Doors Script",
+        LoadingTitle = "Doors Script Loading...",
+        LoadingSubtitle = "by YourName",
+    })
 
--- Variables
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
+    -- Variables
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
 
-local autoProximity = false
-local autoLoot = false
-local godMode = false
-local speedEnabled = false
-local noclipEnabled = false
-local espEnabled = false
-local notifyEnabled = true
+    local autoProximity = false
+    local autoLoot = false
+    local godMode = false
+    local speedEnabled = false
+    local noclipEnabled = false
+    local espEnabled = false
+    local notifyEnabled = true
 
-local speedValue = 16
-local originalSpeed = humanoid.WalkSpeed
+    local speedValue = 16
+    local originalSpeed = humanoid.WalkSpeed
 
--- Info Tab
-local InfoTab = Window:CreateTab("Info")
+    -- Info Tab
+    local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
+    
+    local InfoSection = InfoTab:CreateSection("Player Information")
+    
+    InfoSection:CreateLabel("👤 Username: " .. player.Name)
+    InfoSection:CreateLabel("📝 Display Name: " .. player.DisplayName)
+    InfoSection:CreateLabel("🆔 User ID: " .. player.UserId)
+    
+    local expiryTime = tonumber(readfile(keyExpiry) or "0")
+    local hoursLeft = math.max(0, math.floor((expiryTime - os.time()) / 3600))
+    InfoSection:CreateLabel("⏰ Key Expires: " .. hoursLeft .. " hours")
 
-local InfoSection = InfoTab:CreateSection("Player Info")
+    -- Auto Tab
+    local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
+    
+    local AutoSection = AutoTab:CreateSection("Auto Features")
+    
+    local AutoProximityToggle = AutoSection:CreateToggle({
+        Name = "🔄 Auto ProximityPrompt (R)",
+        CurrentValue = false,
+        Flag = "AutoProximity",
+        Callback = function(Value)
+            autoProximity = Value
+        end,
+    })
+    
+    local AutoLootToggle = AutoSection:CreateToggle({
+        Name = "📦 Auto Ambil Barang di Laci",
+        CurrentValue = false,
+        Flag = "AutoLoot",
+        Callback = function(Value)
+            autoLoot = Value
+        end,
+    })
 
-InfoSection:CreateLabel("Avatar:")
-InfoSection:CreateImage({
-    Image = "https://www.roblox.com/headshot-thumbnail/image?userId="..player.UserId.."&width=150&height=150",
-    Size = UDim2.new(0, 100, 0, 100)
-})
+    -- Bypass Tab
+    local BypassTab = Window:CreateTab("🛡️ Bypass", 4483362458)
+    
+    local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
+    
+    local GodModeToggle = BypassSection:CreateToggle({
+        Name = "⚡ God Mode Bypass",
+        CurrentValue = false,
+        Flag = "GodMode",
+        Callback = function(Value)
+            godMode = Value
+            if godMode then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end,
+    })
+    
+    local SpeedSlider = BypassSection:CreateSlider({
+        Name = "🏃 Speed Bypass",
+        Range = {16, 100},
+        Increment = 1,
+        Suffix = " Speed",
+        CurrentValue = 16,
+        Flag = "SpeedValue",
+        Callback = function(Value)
+            speedValue = Value
+            if speedEnabled then
+                humanoid.WalkSpeed = speedValue
+            end
+        end,
+    })
+    
+    local SpeedToggle = BypassSection:CreateToggle({
+        Name = "✅ Enable Speed",
+        CurrentValue = false,
+        Flag = "SpeedEnabled",
+        Callback = function(Value)
+            speedEnabled = Value
+            if speedEnabled then
+                humanoid.WalkSpeed = speedValue
+            else
+                humanoid.WalkSpeed = originalSpeed
+            end
+        end,
+    })
+    
+    local NoclipToggle = BypassSection:CreateToggle({
+        Name = "👻 Noclip Bypass",
+        CurrentValue = false,
+        Flag = "Noclip",
+        Callback = function(Value)
+            noclipEnabled = Value
+        end,
+    })
 
-InfoSection:CreateLabel("Username: "..player.Name)
-InfoSection:CreateLabel("Display Name: "..player.DisplayName)
+    -- Main Menu Tab
+    local MainTab = Window:CreateTab("🎮 Main Menu", 4483362458)
+    
+    local MainSection = MainTab:CreateSection("Main Features")
+    
+    local MainSpeedSlider = MainSection:CreateSlider({
+        Name = "🏃 Speed",
+        Range = {16, 100},
+        Increment = 1,
+        Suffix = " Speed",
+        CurrentValue = 16,
+        Flag = "MainSpeed",
+        Callback = function(Value)
+            humanoid.WalkSpeed = Value
+        end,
+    })
+    
+    local MainGodToggle = MainSection:CreateToggle({
+        Name = "⚡ God Mode",
+        CurrentValue = false,
+        Flag = "MainGod",
+        Callback = function(Value)
+            if Value then
+                humanoid.Health = humanoid.MaxHealth
+            end
+        end,
+    })
+    
+    local MainNoclipToggle = MainSection:CreateToggle({
+        Name = "👻 Noclip",
+        CurrentValue = false,
+        Flag = "MainNoclip",
+        Callback = function(Value)
+            noclipEnabled = Value
+        end,
+    })
 
-local expiryTime = tonumber(readfile(keyExpiry) or "0")
-local hoursLeft = math.floor((expiryTime - os.time()) / 3600)
-InfoSection:CreateLabel("Key Expired: "..hoursLeft.." jam lagi")
+    -- ESP Tab
+    local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
+    
+    local ESPSection = ESPTab:CreateSection("ESP Features")
+    
+    local ESPToggle = ESPSection:CreateToggle({
+        Name = "🔍 Enable ESP",
+        CurrentValue = false,
+        Flag = "ESP",
+        Callback = function(Value)
+            espEnabled = Value
+        end,
+    })
+    
+    ESPSection:CreateLabel("🔵 Key = Blue | 🟢 Door = Green")
+    ESPSection:CreateLabel("🟣 Item = Purple | 🟠 Hide Spot = Orange")
 
--- Auto Tab
-local AutoTab = Window:CreateTab("Auto")
+    -- Notify Tab
+    local NotifyTab = Window:CreateTab("🔔 Notify", 4483362458)
+    
+    local NotifySection = NotifyTab:CreateSection("Notification Settings")
+    
+    local NotifyToggle = NotifySection:CreateToggle({
+        Name = "🚨 Auto Notify Entity",
+        CurrentValue = true,
+        Flag = "Notify",
+        Callback = function(Value)
+            notifyEnabled = Value
+        end,
+    })
 
-local AutoSection = AutoTab:CreateSection("Auto Features")
-
-AutoSection:CreateToggle({
-    Name = "Auto ProximityPrompt (R)",
-    Default = false,
-    Callback = function(value)
-        autoProximity = value
-    end
-})
-
-AutoSection:CreateToggle({
-    Name = "Auto Ambil Barang di Laci",
-    Default = false,
-    Callback = function(value)
-        autoLoot = value
-    end
-})
-
--- Bypass Tab
-local BypassTab = Window:CreateTab("Bypass")
-
-local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
-
-BypassSection:CreateToggle({
-    Name = "God Mode Bypass",
-    Default = false,
-    Callback = function(value)
-        godMode = value
+    -- Auto Functions
+    game:GetService("RunService").RenderStepped:Connect(function()
+        if autoProximity then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ProximityPrompt") and v.Enabled then
+                    pcall(function()
+                        fireproximityprompt(v)
+                    end)
+                end
+            end
+        end
+        
+        if autoLoot then
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "DrawerContainer" or v.Name == "Drawer" then
+                    local prompt = v:FindFirstChildOfClass("ProximityPrompt")
+                    if prompt then
+                        pcall(function()
+                            fireproximityprompt(prompt)
+                        end)
+                    end
+                end
+            end
+        end
+        
+        if noclipEnabled then
+            pcall(function()
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end)
+        end
+        
         if godMode then
-            humanoid.Health = humanoid.MaxHealth
-            humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-                if godMode and humanoid.Health < humanoid.MaxHealth then
+            pcall(function()
+                if humanoid.Health < humanoid.MaxHealth then
                     humanoid.Health = humanoid.MaxHealth
                 end
             end)
         end
-    end
-})
+    end)
 
-BypassSection:CreateSlider({
-    Name = "Speed Bypass",
-    Min = 16,
-    Max = 100,
-    Default = 16,
-    Callback = function(value)
-        speedValue = value
-        if speedEnabled then
-            humanoid.WalkSpeed = speedValue
+    -- ESP Functions
+    local function createESP(obj, color)
+        if not espEnabled then return end
+        
+        pcall(function()
+            local highlight = Instance.new("Highlight")
+            highlight.Parent = obj
+            highlight.OutlineColor = color
+            highlight.FillTransparency = 1
+            highlight.OutlineTransparency = 0
+        end)
+    end
+
+    workspace.ChildAdded:Connect(function(child)
+        if espEnabled then
+            pcall(function()
+                if child.Name == "Key" then
+                    createESP(child, Color3.fromRGB(0, 0, 255)) -- Blue
+                elseif child.Name:match("Door") then
+                    createESP(child, Color3.fromRGB(0, 255, 0)) -- Green
+                elseif child.Name:match("Item") then
+                    createESP(child, Color3.fromRGB(128, 0, 128)) -- Purple
+                elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
+                    createESP(child, Color3.fromRGB(255, 165, 0)) -- Orange
+                end
+            end)
         end
-    end
-})
+    end)
 
-BypassSection:CreateToggle({
-    Name = "Enable Speed",
-    Default = false,
-    Callback = function(value)
-        speedEnabled = value
-        if speedEnabled then
-            humanoid.WalkSpeed = speedValue
-        else
-            humanoid.WalkSpeed = originalSpeed
-        end
-    end
-})
-
-BypassSection:CreateToggle({
-    Name = "Noclip Bypass",
-    Default = false,
-    Callback = function(value)
-        noclipEnabled = value
-    end
-})
-
--- Main Menu Tab
-local MainTab = Window:CreateTab("Main Menu")
-
-local MainSection = MainTab:CreateSection("Main Features")
-
-MainSection:CreateSlider({
-    Name = "Speed",
-    Min = 16,
-    Max = 100,
-    Default = 16,
-    Callback = function(value)
-        humanoid.WalkSpeed = value
-    end
-})
-
-MainSection:CreateToggle({
-    Name = "God Mode",
-    Default = false,
-    Callback = function(value)
-        if value then
-            humanoid.Health = humanoid.MaxHealth
-        end
-    end
-})
-
-MainSection:CreateToggle({
-    Name = "Noclip",
-    Default = false,
-    Callback = function(value)
-        noclipEnabled = value
-    end
-})
-
--- ESP Tab
-local ESPTab = Window:CreateTab("ESP")
-
-local ESPSection = ESPTab:CreateSection("ESP Features")
-
-ESPSection:CreateToggle({
-    Name = "Enable ESP",
-    Default = false,
-    Callback = function(value)
-        espEnabled = value
-    end
-})
-
--- Notify Tab
-local NotifyTab = Window:CreateTab("Notify")
-
-local NotifySection = NotifyTab:CreateSection("Notification Settings")
-
-NotifySection:CreateToggle({
-    Name = "Auto Notify Entity",
-    Default = true,
-    Callback = function(value)
-        notifyEnabled = value
-    end
-})
-
--- Auto Proximity Logic
-game:GetService("RunService").RenderStepped:Connect(function()
-    if autoProximity then
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("ProximityPrompt") and v.Enabled then
-                fireproximityprompt(v)
-            end
-        end
-    end
-    
-    if autoLoot then
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "DrawerContainer" or v.Name == "Drawer" then
-                local prompt = v:FindFirstChildOfClass("ProximityPrompt")
-                if prompt then
-                    fireproximityprompt(prompt)
+    -- Entity Notifications
+    workspace.ChildAdded:Connect(function(child)
+        if notifyEnabled then
+            local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
+            for _, entity in pairs(entities) do
+                if child.Name == entity then
+                    Rayfield:Notify({
+                        Title = "🚨 Entity Detected!",
+                        Content = entity .. " has spawned!",
+                        Duration = 5,
+                        Image = 4483362458,
+                    })
                 end
             end
         end
-    end
-    
-    if noclipEnabled then
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end
-end)
+    end)
 
--- ESP Logic
-local function createESP(obj, color)
-    if not espEnabled then return end
-    
-    local highlight = Instance.new("Highlight")
-    highlight.Parent = obj
-    highlight.OutlineColor = color
-    highlight.FillTransparency = 1
-    highlight.OutlineTransparency = 0
-    
-    return highlight
+    Rayfield:Notify({
+        Title = "✅ Script Loaded!",
+        Content = "Doors Script successfully loaded",
+        Duration = 3,
+        Image = 4483362458,
+    })
 end
-
-workspace.ChildAdded:Connect(function(child)
-    if espEnabled then
-        if child.Name == "Key" then
-            createESP(child, Color3.fromRGB(0, 0, 255)) -- Biru
-        elseif child.Name:match("Door") then
-            createESP(child, Color3.fromRGB(0, 255, 0)) -- Hijau
-        elseif child.Name:match("Item") then
-            createESP(child, Color3.fromRGB(128, 0, 128)) -- Ungu
-        elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
-            createESP(child, Color3.fromRGB(255, 165, 0)) -- Oren
-        end
-    end
-end)
-
--- Entity Notify
-workspace.ChildAdded:Connect(function(child)
-    if notifyEnabled then
-        local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
-        for _, entity in pairs(entities) do
-            if child.Name == entity then
-                Obsidian:Notify("Entity Detected!", entity.." telah muncul!", 5)
-            end
-        end
-    end
-end)
-
-Obsidian:Notify("Script Loaded!", "Doors Script berhasil dimuat", 3)
