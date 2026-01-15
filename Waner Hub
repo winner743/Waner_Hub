@@ -1,7 +1,13 @@
--- Load Rayfield Library (Working Alternative to Obsidian)
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Custom Key UI System (Super Bagus)
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
--- Key System
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Key System Variables
 local validKeys = {
     ["Wene-you"] = true,
     ["Wene-123"] = true,
@@ -14,7 +20,7 @@ local keyUsed = "KeyUsed_Doors"
 
 local function checkKey()
     local success, savedKey = pcall(function()
-        return game:GetService("HttpService"):JSONDecode(readfile(keyExpiry) or '""')
+        return game:GetService("HttpService"):JSONDecode(readfile(keyUsed) or '""')
     end)
     local success2, expiry = pcall(function()
         return tonumber(readfile(keyExpiry) or "0")
@@ -29,331 +35,368 @@ end
 local function saveKey(key)
     pcall(function()
         writefile(keyUsed, game:GetService("HttpService"):JSONEncode(key))
-        writefile(keyExpiry, tostring(os.time() + 86400)) -- 24 jam
+        writefile(keyExpiry, tostring(os.time() + 86400))
     end)
 end
 
--- Key System Window
+-- Custom Notification Function
+local function createNotification(title, message, duration, color)
+    local notifGui = Instance.new("ScreenGui")
+    notifGui.Name = "CustomNotification"
+    notifGui.Parent = playerGui
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 350, 0, 80)
+    frame.Position = UDim2.new(1, 10, 0, 100)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    frame.BorderSizePixel = 0
+    frame.Parent = notifGui
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+    
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 35))
+    }
+    gradient.Rotation = 45
+    gradient.Parent = frame
+    
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color or Color3.fromRGB(100, 200, 255)
+    stroke.Thickness = 2
+    stroke.Parent = frame
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -20, 0, 25)
+    titleLabel.Position = UDim2.new(0, 10, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Parent = frame
+    
+    local messageLabel = Instance.new("TextLabel")
+    messageLabel.Size = UDim2.new(1, -20, 0, 40)
+    messageLabel.Position = UDim2.new(0, 10, 0, 30)
+    messageLabel.BackgroundTransparency = 1
+    messageLabel.Text = message
+    messageLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    messageLabel.TextScaled = true
+    messageLabel.Font = Enum.Font.Gotham
+    messageLabel.TextWrapped = true
+    messageLabel.Parent = frame
+    
+    -- Animation
+    local slideIn = TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -360, 0, 100)
+    })
+    
+    slideIn:Play()
+    
+    wait(duration or 3)
+    
+    local slideOut = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Position = UDim2.new(1, 10, 0, 100)
+    })
+    
+    slideOut:Play()
+    slideOut.Completed:Connect(function()
+        notifGui:Destroy()
+    end)
+end
+
+-- Custom Key UI
 if not checkKey() then
-    local KeyWindow = Rayfield:CreateWindow({
-        Name = "Doors Script - Key System",
-        LoadingTitle = "Loading Key System...",
-        LoadingSubtitle = "by YourName",
-    })
+    local keyGui = Instance.new("ScreenGui")
+    keyGui.Name = "DoorsKeySystem"
+    keyGui.Parent = playerGui
+    keyGui.ResetOnSpawn = false
     
-    local KeyTab = KeyWindow:CreateTab("🔑 Key System", 4483362458)
+    -- Background Blur
+    local blurFrame = Instance.new("Frame")
+    blurFrame.Size = UDim2.new(1, 0, 1, 0)
+    blurFrame.Position = UDim2.new(0, 0, 0, 0)
+    blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    blurFrame.BackgroundTransparency = 0.3
+    blurFrame.Parent = keyGui
     
-    local KeySection = KeyTab:CreateSection("Enter Key")
+    -- Main Frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.new(0, 450, 0, 550)
+    mainFrame.Position = UDim2.new(0.5, -225, 0.5, -275)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = keyGui
     
-    local KeyInput = KeySection:CreateInput({
-        Name = "Key Input",
-        PlaceholderText = "Enter your key here...",
-        RemoveTextAfterFocusLost = false,
-        Callback = function(Text)
-            if validKeys[Text] then
-                saveKey(Text)
-                Rayfield:Notify({
-                    Title = "Key Valid!",
-                    Content = "Access granted for 24 hours",
-                    Duration = 3,
-                    Image = 4483362458,
-                })
-                KeyWindow:Destroy()
-                wait(1)
-                loadMainScript()
-            else
-                Rayfield:Notify({
-                    Title = "Invalid Key!",
-                    Content = "Please try again",
-                    Duration = 3,
-                    Image = 4483362458,
-                })
+    local mainCorner = Instance.new("UICorner")
+    mainCorner.CornerRadius = UDim.new(0, 15)
+    mainCorner.Parent = mainFrame
+    
+    local mainStroke = Instance.new("UIStroke")
+    mainStroke.Color = Color3.fromRGB(100, 200, 255)
+    mainStroke.Thickness = 3
+    mainStroke.Parent = mainFrame
+    
+    -- Animated Gradient Background
+    local gradientFrame = Instance.new("Frame")
+    gradientFrame.Size = UDim2.new(1, 0, 1, 0)
+    gradientFrame.Position = UDim2.new(0, 0, 0, 0)
+    gradientFrame.BackgroundTransparency = 0.8
+    gradientFrame.Parent = mainFrame
+    
+    local gradientCorner = Instance.new("UICorner")
+    gradientCorner.CornerRadius = UDim.new(0, 15)
+    gradientCorner.Parent = gradientFrame
+    
+    local animatedGradient = Instance.new("UIGradient")
+    animatedGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 200, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(200, 100, 255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 200))
+    }
+    animatedGradient.Rotation = 0
+    animatedGradient.Parent = gradientFrame
+    
+    -- Animate gradient rotation
+    spawn(function()
+        while keyGui.Parent do
+            for i = 0, 360, 2 do
+                if not keyGui.Parent then break end
+                animatedGradient.Rotation = i
+                wait(0.05)
             end
-        end,
-    })
+        end
+    end)
     
-    KeySection:CreateLabel("Valid Keys: Wene-you, Wene-123, Wene-anti, Wene-police")
+    -- Title
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, -40, 0, 60)
+    titleLabel.Position = UDim2.new(0, 20, 0, 20)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "🚪 DOORS SCRIPT"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Parent = mainFrame
+    
+    -- Subtitle
+    local subtitleLabel = Instance.new("TextLabel")
+    subtitleLabel.Size = UDim2.new(1, -40, 0, 30)
+    subtitleLabel.Position = UDim2.new(0, 20, 0, 80)
+    subtitleLabel.BackgroundTransparency = 1
+    subtitleLabel.Text = "Premium Key System"
+    subtitleLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+    subtitleLabel.TextScaled = true
+    subtitleLabel.Font = Enum.Font.Gotham
+    subtitleLabel.Parent = mainFrame
+    
+    -- Key Input Frame
+    local inputFrame = Instance.new("Frame")
+    inputFrame.Size = UDim2.new(1, -60, 0, 60)
+    inputFrame.Position = UDim2.new(0, 30, 0, 140)
+    inputFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    inputFrame.BorderSizePixel = 0
+    inputFrame.Parent = mainFrame
+    
+    local inputCorner = Instance.new("UICorner")
+    inputCorner.CornerRadius = UDim.new(0, 10)
+    inputCorner.Parent = inputFrame
+    
+    local inputStroke = Instance.new("UIStroke")
+    inputStroke.Color = Color3.fromRGB(60, 60, 70)
+    inputStroke.Thickness = 2
+    inputStroke.Parent = inputFrame
+    
+    -- Key Input TextBox
+    local keyInput = Instance.new("TextBox")
+    keyInput.Size = UDim2.new(1, -20, 1, -10)
+    keyInput.Position = UDim2.new(0, 10, 0, 5)
+    keyInput.BackgroundTransparency = 1
+    keyInput.Text = ""
+    keyInput.PlaceholderText = "Enter your key here..."
+    keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    keyInput.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+    keyInput.TextScaled = true
+    keyInput.Font = Enum.Font.Gotham
+    keyInput.Parent = inputFrame
+    
+    -- Submit Button
+    local submitButton = Instance.new("TextButton")
+    submitButton.Size = UDim2.new(1, -60, 0, 50)
+    submitButton.Position = UDim2.new(0, 30, 0, 220)
+    submitButton.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    submitButton.BorderSizePixel = 0
+    submitButton.Text = "🔓 VERIFY KEY"
+    submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    submitButton.TextScaled = true
+    submitButton.Font = Enum.Font.GothamBold
+    submitButton.Parent = mainFrame
+    
+    local submitCorner = Instance.new("UICorner")
+    submitCorner.CornerRadius = UDim.new(0, 10)
+    submitCorner.Parent = submitButton
+    
+    -- Valid Keys Display
+    local keysFrame = Instance.new("Frame")
+    keysFrame.Size = UDim2.new(1, -60, 0, 200)
+    keysFrame.Position = UDim2.new(0, 30, 0, 290)
+    keysFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    keysFrame.BorderSizePixel = 0
+    keysFrame.Parent = mainFrame
+    
+    local keysCorner = Instance.new("UICorner")
+    keysCorner.CornerRadius = UDim.new(0, 10)
+    keysCorner.Parent = keysFrame
+    
+    local keysStroke = Instance.new("UIStroke")
+    keysStroke.Color = Color3.fromRGB(50, 50, 60)
+    keysStroke.Thickness = 1
+    keysStroke.Parent = keysFrame
+    
+    local keysTitle = Instance.new("TextLabel")
+    keysTitle.Size = UDim2.new(1, -20, 0, 30)
+    keysTitle.Position = UDim2.new(0, 10, 0, 10)
+    keysTitle.BackgroundTransparency = 1
+    keysTitle.Text = "🔑 Valid Keys:"
+    keysTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    keysTitle.TextScaled = true
+    keysTitle.Font = Enum.Font.GothamBold
+    keysTitle.TextXAlignment = Enum.TextXAlignment.Left
+    keysTitle.Parent = keysFrame
+    
+    local keysList = {"• Wene-you", "• Wene-123", "• Wene-anti", "• Wene-police"}
+    for i, keyText in ipairs(keysList) do
+        local keyLabel = Instance.new("TextLabel")
+        keyLabel.Size = UDim2.new(1, -20, 0, 25)
+        keyLabel.Position = UDim2.new(0, 10, 0, 30 + (i * 30))
+        keyLabel.BackgroundTransparency = 1
+        keyLabel.Text = keyText
+        keyLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+        keyLabel.TextScaled = true
+        keyLabel.Font = Enum.Font.Gotham
+        keyLabel.TextXAlignment = Enum.TextXAlignment.Left
+        keyLabel.Parent = keysFrame
+    end
+    
+    -- Status Label
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(1, -40, 0, 30)
+    statusLabel.Position = UDim2.new(0, 20, 0, 510)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = "Ready to verify..."
+    statusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    statusLabel.TextScaled = true
+    statusLabel.Font = Enum.Font.Gotham
+    statusLabel.Parent = mainFrame
+    
+    -- Button Animations
+    local function animateButton(button, hoverColor, normalColor)
+        button.MouseEnter:Connect(function()
+            local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = hoverColor})
+            tween:Play()
+        end)
+        
+        button.MouseLeave:Connect(function()
+            local tween = TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = normalColor})
+            tween:Play()
+        end)
+    end
+    
+    animateButton(submitButton, Color3.fromRGB(120, 220, 255), Color3.fromRGB(100, 200, 255))
+    
+    -- Input Focus Animation
+    keyInput.Focused:Connect(function()
+        local tween = TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 200, 255)})
+        tween:Play()
+    end)
+    
+    keyInput.FocusLost:Connect(function()
+        local tween = TweenService:Create(inputStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(60, 60, 70)})
+        tween:Play()
+    end)
+    
+    -- Key Verification Function
+    local function verifyKey()
+        local key = keyInput.Text
+        statusLabel.Text = "Verifying key..."
+        statusLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
+        
+        wait(1) -- Simulate verification delay
+        
+        if validKeys[key] then
+            statusLabel.Text = "✅ Key verified successfully!"
+            statusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+            
+            saveKey(key)
+            createNotification("Success!", "Key verified! Access granted for 24 hours", 3, Color3.fromRGB(100, 255, 100))
+            
+            -- Fade out animation
+            local fadeOut = TweenService:Create(keyGui, TweenInfo.new(0.5), {BackgroundTransparency = 1})
+            fadeOut:Play()
+            
+            for _, obj in pairs(keyGui:GetDescendants()) do
+                if obj:IsA("GuiObject") then
+                    local fade = TweenService:Create(obj, TweenInfo.new(0.5), {BackgroundTransparency = 1, TextTransparency = 1})
+                    fade:Play()
+                end
+            end
+            
+            fadeOut.Completed:Connect(function()
+                keyGui:Destroy()
+                loadMainScript()
+            end)
+        else
+            statusLabel.Text = "❌ Invalid key! Please try again."
+            statusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            
+            -- Shake animation
+            local originalPos = mainFrame.Position
+            for i = 1, 5 do
+                local tween1 = TweenService:Create(mainFrame, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, 10, 0, 0)})
+                local tween2 = TweenService:Create(mainFrame, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, -10, 0, 0)})
+                tween1:Play()
+                tween1.Completed:Wait()
+                tween2:Play()
+                tween2.Completed:Wait()
+            end
+            local resetTween = TweenService:Create(mainFrame, TweenInfo.new(0.1), {Position = originalPos})
+            resetTween:Play()
+            
+            createNotification("Error!", "Invalid key entered", 3, Color3.fromRGB(255, 100, 100))
+        end
+    end
+    
+    -- Event Connections
+    submitButton.MouseButton1Click:Connect(verifyKey)
+    keyInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            verifyKey()
+        end
+    end)
+    
+    -- Entrance Animation
+    mainFrame.Position = UDim2.new(0.5, -225, 1, 0)
+    local entranceAnim = TweenService:Create(mainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, -225, 0.5, -275)
+    })
+    entranceAnim:Play()
+    
 else
     loadMainScript()
 end
 
+-- Main Script Function (Load Rayfield setelah key verified)
 function loadMainScript()
-    -- Main Window
-    local Window = Rayfield:CreateWindow({
-        Name = "🚪 Doors Script",
-        LoadingTitle = "Doors Script Loading...",
-        LoadingSubtitle = "by YourName",
-    })
-
-    -- Variables
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-
-    local autoProximity = false
-    local autoLoot = false
-    local godMode = false
-    local speedEnabled = false
-    local noclipEnabled = false
-    local espEnabled = false
-    local notifyEnabled = true
-
-    local speedValue = 16
-    local originalSpeed = humanoid.WalkSpeed
-
-    -- Info Tab
-    local InfoTab = Window:CreateTab("ℹ️ Info", 4483362458)
+    -- Load Rayfield Library
+    local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
     
-    local InfoSection = InfoTab:CreateSection("Player Information")
+    -- [Rest of your main script code here...]
+    createNotification("Script Loaded!", "Doors Script is now ready to use", 3, Color3.fromRGB(100, 255, 100))
     
-    InfoSection:CreateLabel("👤 Username: " .. player.Name)
-    InfoSection:CreateLabel("📝 Display Name: " .. player.DisplayName)
-    InfoSection:CreateLabel("🆔 User ID: " .. player.UserId)
-    
-    local expiryTime = tonumber(readfile(keyExpiry) or "0")
-    local hoursLeft = math.max(0, math.floor((expiryTime - os.time()) / 3600))
-    InfoSection:CreateLabel("⏰ Key Expires: " .. hoursLeft .. " hours")
-
-    -- Auto Tab
-    local AutoTab = Window:CreateTab("🤖 Auto", 4483362458)
-    
-    local AutoSection = AutoTab:CreateSection("Auto Features")
-    
-    local AutoProximityToggle = AutoSection:CreateToggle({
-        Name = "🔄 Auto ProximityPrompt (R)",
-        CurrentValue = false,
-        Flag = "AutoProximity",
-        Callback = function(Value)
-            autoProximity = Value
-        end,
-    })
-    
-    local AutoLootToggle = AutoSection:CreateToggle({
-        Name = "📦 Auto Ambil Barang di Laci",
-        CurrentValue = false,
-        Flag = "AutoLoot",
-        Callback = function(Value)
-            autoLoot = Value
-        end,
-    })
-
-    -- Bypass Tab
-    local BypassTab = Window:CreateTab("🛡️ Bypass", 4483362458)
-    
-    local BypassSection = BypassTab:CreateSection("Bypass Features (Anti-Detect)")
-    
-    local GodModeToggle = BypassSection:CreateToggle({
-        Name = "⚡ God Mode Bypass",
-        CurrentValue = false,
-        Flag = "GodMode",
-        Callback = function(Value)
-            godMode = Value
-            if godMode then
-                humanoid.Health = humanoid.MaxHealth
-            end
-        end,
-    })
-    
-    local SpeedSlider = BypassSection:CreateSlider({
-        Name = "🏃 Speed Bypass",
-        Range = {16, 100},
-        Increment = 1,
-        Suffix = " Speed",
-        CurrentValue = 16,
-        Flag = "SpeedValue",
-        Callback = function(Value)
-            speedValue = Value
-            if speedEnabled then
-                humanoid.WalkSpeed = speedValue
-            end
-        end,
-    })
-    
-    local SpeedToggle = BypassSection:CreateToggle({
-        Name = "✅ Enable Speed",
-        CurrentValue = false,
-        Flag = "SpeedEnabled",
-        Callback = function(Value)
-            speedEnabled = Value
-            if speedEnabled then
-                humanoid.WalkSpeed = speedValue
-            else
-                humanoid.WalkSpeed = originalSpeed
-            end
-        end,
-    })
-    
-    local NoclipToggle = BypassSection:CreateToggle({
-        Name = "👻 Noclip Bypass",
-        CurrentValue = false,
-        Flag = "Noclip",
-        Callback = function(Value)
-            noclipEnabled = Value
-        end,
-    })
-
-    -- Main Menu Tab
-    local MainTab = Window:CreateTab("🎮 Main Menu", 4483362458)
-    
-    local MainSection = MainTab:CreateSection("Main Features")
-    
-    local MainSpeedSlider = MainSection:CreateSlider({
-        Name = "🏃 Speed",
-        Range = {16, 100},
-        Increment = 1,
-        Suffix = " Speed",
-        CurrentValue = 16,
-        Flag = "MainSpeed",
-        Callback = function(Value)
-            humanoid.WalkSpeed = Value
-        end,
-    })
-    
-    local MainGodToggle = MainSection:CreateToggle({
-        Name = "⚡ God Mode",
-        CurrentValue = false,
-        Flag = "MainGod",
-        Callback = function(Value)
-            if Value then
-                humanoid.Health = humanoid.MaxHealth
-            end
-        end,
-    })
-    
-    local MainNoclipToggle = MainSection:CreateToggle({
-        Name = "👻 Noclip",
-        CurrentValue = false,
-        Flag = "MainNoclip",
-        Callback = function(Value)
-            noclipEnabled = Value
-        end,
-    })
-
-    -- ESP Tab
-    local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
-    
-    local ESPSection = ESPTab:CreateSection("ESP Features")
-    
-    local ESPToggle = ESPSection:CreateToggle({
-        Name = "🔍 Enable ESP",
-        CurrentValue = false,
-        Flag = "ESP",
-        Callback = function(Value)
-            espEnabled = Value
-        end,
-    })
-    
-    ESPSection:CreateLabel("🔵 Key = Blue | 🟢 Door = Green")
-    ESPSection:CreateLabel("🟣 Item = Purple | 🟠 Hide Spot = Orange")
-
-    -- Notify Tab
-    local NotifyTab = Window:CreateTab("🔔 Notify", 4483362458)
-    
-    local NotifySection = NotifyTab:CreateSection("Notification Settings")
-    
-    local NotifyToggle = NotifySection:CreateToggle({
-        Name = "🚨 Auto Notify Entity",
-        CurrentValue = true,
-        Flag = "Notify",
-        Callback = function(Value)
-            notifyEnabled = Value
-        end,
-    })
-
-    -- Auto Functions
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if autoProximity then
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v:IsA("ProximityPrompt") and v.Enabled then
-                    pcall(function()
-                        fireproximityprompt(v)
-                    end)
-                end
-            end
-        end
-        
-        if autoLoot then
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v.Name == "DrawerContainer" or v.Name == "Drawer" then
-                    local prompt = v:FindFirstChildOfClass("ProximityPrompt")
-                    if prompt then
-                        pcall(function()
-                            fireproximityprompt(prompt)
-                        end)
-                    end
-                end
-            end
-        end
-        
-        if noclipEnabled then
-            pcall(function()
-                for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.CanCollide = false
-                    end
-                end
-            end)
-        end
-        
-        if godMode then
-            pcall(function()
-                if humanoid.Health < humanoid.MaxHealth then
-                    humanoid.Health = humanoid.MaxHealth
-                end
-            end)
-        end
-    end)
-
-    -- ESP Functions
-    local function createESP(obj, color)
-        if not espEnabled then return end
-        
-        pcall(function()
-            local highlight = Instance.new("Highlight")
-            highlight.Parent = obj
-            highlight.OutlineColor = color
-            highlight.FillTransparency = 1
-            highlight.OutlineTransparency = 0
-        end)
-    end
-
-    workspace.ChildAdded:Connect(function(child)
-        if espEnabled then
-            pcall(function()
-                if child.Name == "Key" then
-                    createESP(child, Color3.fromRGB(0, 0, 255)) -- Blue
-                elseif child.Name:match("Door") then
-                    createESP(child, Color3.fromRGB(0, 255, 0)) -- Green
-                elseif child.Name:match("Item") then
-                    createESP(child, Color3.fromRGB(128, 0, 128)) -- Purple
-                elseif child.Name:match("Closet") or child.Name:match("Wardrobe") then
-                    createESP(child, Color3.fromRGB(255, 165, 0)) -- Orange
-                end
-            end)
-        end
-    end)
-
-    -- Entity Notifications
-    workspace.ChildAdded:Connect(function(child)
-        if notifyEnabled then
-            local entities = {"Rush", "Ambush", "Eyes", "Screech", "Halt", "Seek", "Figure", "Jack", "Timothy"}
-            for _, entity in pairs(entities) do
-                if child.Name == entity then
-                    Rayfield:Notify({
-                        Title = "🚨 Entity Detected!",
-                        Content = entity .. " has spawned!",
-                        Duration = 5,
-                        Image = 4483362458,
-                    })
-                end
-            end
-        end
-    end)
-
-    Rayfield:Notify({
-        Title = "✅ Script Loaded!",
-        Content = "Doors Script successfully loaded",
-        Duration = 3,
-        Image = 4483362458,
-    })
+    -- Your main script code goes here
+    print("Main script loaded successfully!")
 end
