@@ -1,0 +1,627 @@
+-- Waner Hub for Mine a Brainrot
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Services
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- Key System Variables
+local validBasicKey = "Wene-you"
+local validPremiumKey = "Wene-Premium"
+local basicKeyExpiry = 86400 -- 24 hours in seconds
+local userKeyType = "none"
+local keyExpireTime = 0
+
+-- Mining Settings
+local miningSettings = {
+    autoTpBase = false,
+    autoTpEnd = false,
+    autoLevel = false,
+    autoMine = false,
+    superFastMine = false,
+    discardItems = {
+        common = true,
+        rare = true,
+        epic = true,
+        legendary = true,
+        limited = true,
+        mythical = false -- Keep mythical items only
+    }
+}
+
+-- Game specific variables
+local isAutoMining = false
+local isAutoLeveling = false
+local connections = {}
+
+-- Create Main Window
+local Window = Rayfield:CreateWindow({
+    Name = "Waner Hub | Mine a Brainrot",
+    LoadingTitle = "Waner Hub Loading...",
+    LoadingSubtitle = "Premium Mining Experience",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "WanerHub",
+        FileName = "MineABrainrotConfig"
+    },
+    Discord = {
+        Enabled = false,
+    },
+    KeySystem = false,
+})
+
+-- Key System Tab
+local KeyTab = Window:CreateTab("🔑 Key System", 4483362458)
+
+local KeySection = KeyTab:CreateSection("Authentication")
+
+-- Key Status Display
+local KeyStatus = KeyTab:CreateParagraph({
+    Title = "Key Status",
+    Content = "Status: No Key Entered\nType: None\nExpiry: N/A"
+})
+
+-- Reset Key Button
+local ResetKeyButton = KeyTab:CreateButton({
+    Name = "🔄 End Key Period / Reset Key",
+    Callback = function()
+        userKeyType = "none"
+        keyExpireTime = 0
+        KeyStatus:Set({
+            Title = "Key Status",
+            Content = "Status: 🔄 Key Reset\nType: None\nExpiry: N/A"
+        })
+        
+        -- Stop all mining activities
+        stopAllMining()
+        
+        Rayfield:Notify({
+            Title = "Key Reset",
+            Content = "Your key has been reset. Please enter a new key.",
+            Duration = 5,
+        })
+    end,
+})
+
+-- Key Input
+local KeyInput = KeyTab:CreateInput({
+    Name = "Enter Your Key",
+    PlaceholderText = "Wene-you or Wene-Premium",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        validateKey(Text)
+    end,
+})
+
+-- Get Key Info Section
+local GetKeySection = KeyTab:CreateSection("Key Information")
+
+KeyTab:CreateParagraph({
+    Title = "Key Types",
+    Content = "Basic Key: Wene-you (24 hours)\nPremium Key: Wene-Premium (Lifetime)\n\nBasic Features: Auto TP Base, Auto Level\nPremium Features: All features + Auto Mine + Item Manager"
+})
+
+-- Key Validation Function
+function validateKey(key)
+    if key == validBasicKey then
+        userKeyType = "basic"
+        keyExpireTime = os.time() + basicKeyExpiry
+        KeyStatus:Set({
+            Title = "Key Status",
+            Content = "Status: ✅ Valid Basic Key\nType: Basic (24h)\nExpiry: " .. os.date("%Y-%m-%d %H:%M:%S", keyExpireTime)
+        })
+        Rayfield:Notify({
+            Title = "Basic Key Accepted",
+            Content = "Basic key validated! Access granted for 24 hours.",
+            Duration = 6.5,
+        })
+    elseif key == validPremiumKey then
+        userKeyType = "premium"
+        keyExpireTime = 0 -- No expiry
+        KeyStatus:Set({
+            Title = "Key Status",
+            Content = "Status: ✅ Valid Premium Key\nType: Premium (Lifetime)\nExpiry: Never"
+        })
+        Rayfield:Notify({
+            Title = "Premium Key Accepted",
+            Content = "Premium key validated! Full access granted.",
+            Duration = 6.5,
+        })
+    else
+        userKeyType = "none"
+        KeyStatus:Set({
+            Title = "Key Status",
+            Content = "Status: ❌ Invalid Key\nType: None\nExpiry: N/A"
+        })
+        Rayfield:Notify({
+            Title = "Invalid Key",
+            Content = "Please enter a valid key.",
+            Duration = 4,
+        })
+    end
+end
+
+-- Check if key is still valid
+function isKeyValid()
+    if userKeyType == "premium" then
+        return true
+    elseif userKeyType == "basic" then
+        return os.time() < keyExpireTime
+    end
+    return false
+end
+
+-- Basic Features Tab
+local BasicTab = Window:CreateTab("⭐ Basic Features", 4483362458)
+
+local BasicSection = BasicTab:CreateSection("Basic Mining Tools")
+
+-- Auto TP to Base
+local AutoTpBase = BasicTab:CreateToggle({
+    Name = "Auto TP to Base",
+    CurrentValue = false,
+    Flag = "AutoTpBase",
+    Callback = function(Value)
+        if not isKeyValid() then
+            Rayfield:Notify({Title = "Access Denied", Content = "Valid key required!", Duration = 3})
+            AutoTpBase:Set(false)
+            return
+        end
+        miningSettings.autoTpBase = Value
+        if Value then
+            startAutoTpBase()
+        else
+            if connections["tpBase"] then
+                connections["tpBase"]:Disconnect()
+            end
+        end
+    end,
+})
+
+-- Auto Level to End
+local AutoLevel = BasicTab:CreateToggle({
+    Name = "Auto Level to End",
+    CurrentValue = false,
+    Flag = "AutoLevel",
+    Callback = function(Value)
+        if not isKeyValid() then
+            Rayfield:Notify({Title = "Access Denied", Content = "Valid key required!", Duration = 3})
+            AutoLevel:Set(false)
+            return
+        end
+        miningSettings.autoLevel = Value
+        isAutoLeveling = Value
+        if Value then
+            startAutoLevel()
+        else
+            if connections["autoLevel"] then
+                connections["autoLevel"]:Disconnect()
+            end
+        end
+    end,
+})
+
+-- Premium Features Tab
+local PremiumTab = Window:CreateTab("💎 Premium Features", 4483362458)
+
+local PremiumSection = PremiumTab:CreateSection("Premium Mining Tools")
+
+-- Premium Access Check
+local function checkPremiumAccess()
+    if userKeyType ~= "premium" then
+        Rayfield:Notify({
+            Title = "Premium Required", 
+            Content = "Need premium! You not have access", 
+            Duration = 5
+        })
+        return false
+    end
+    return true
+end
+
+-- Auto TP to End Mine
+local AutoTpEnd = PremiumTab:CreateToggle({
+    Name = "Auto TP to End Mine",
+    CurrentValue = false,
+    Flag = "AutoTpEnd",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            AutoTpEnd:Set(false)
+            return 
+        end
+        miningSettings.autoTpEnd = Value
+        if Value then
+            startAutoTpEnd()
+        else
+            if connections["tpEnd"] then
+                connections["tpEnd"]:Disconnect()
+            end
+        end
+    end,
+})
+
+-- Auto Mine
+local AutoMine = PremiumTab:CreateToggle({
+    Name = "Auto Mine",
+    CurrentValue = false,
+    Flag = "AutoMine",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            AutoMine:Set(false)
+            return 
+        end
+        miningSettings.autoMine = Value
+        isAutoMining = Value
+        if Value then
+            startAutoMine()
+        else
+            if connections["autoMine"] then
+                connections["autoMine"]:Disconnect()
+            end
+        end
+    end,
+})
+
+-- Super Fast Mine
+local SuperFastMine = PremiumTab:CreateToggle({
+    Name = "Super Fast Mine",
+    CurrentValue = false,
+    Flag = "SuperFastMine",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            SuperFastMine:Set(false)
+            return 
+        end
+        miningSettings.superFastMine = Value
+        if Value then
+            startSuperFastMine()
+        else
+            if connections["superFast"] then
+                connections["superFast"]:Disconnect()
+            end
+        end
+    end,
+})
+
+-- Item Management Tab
+local ItemTab = Window:CreateTab("📦 Item Manager", 4483362458)
+
+local ItemSection = ItemTab:CreateSection("Auto Discard Settings (Premium Only)")
+
+ItemTab:CreateParagraph({
+    Title = "Keep Only Mythical",
+    Content = "This system will automatically discard all items except Mythical rarity. You can customize which items to keep below."
+})
+
+-- Discard toggles
+local DiscardCommon = ItemTab:CreateToggle({
+    Name = "Auto Discard Common Items",
+    CurrentValue = true,
+    Flag = "DiscardCommon",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            DiscardCommon:Set(true)
+            return 
+        end
+        miningSettings.discardItems.common = Value
+    end,
+})
+
+local DiscardRare = ItemTab:CreateToggle({
+    Name = "Auto Discard Rare Items",
+    CurrentValue = true,
+    Flag = "DiscardRare",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            DiscardRare:Set(true)
+            return 
+        end
+        miningSettings.discardItems.rare = Value
+    end,
+})
+
+local DiscardEpic = ItemTab:CreateToggle({
+    Name = "Auto Discard Epic Items",
+    CurrentValue = true,
+    Flag = "DiscardEpic",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            DiscardEpic:Set(true)
+            return 
+        end
+        miningSettings.discardItems.epic = Value
+    end,
+})
+
+local DiscardLegendary = ItemTab:CreateToggle({
+    Name = "Auto Discard Legendary Items",
+    CurrentValue = true,
+    Flag = "DiscardLegendary",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            DiscardLegendary:Set(true)
+            return 
+        end
+        miningSettings.discardItems.legendary = Value
+    end,
+})
+
+local DiscardLimited = ItemTab:CreateToggle({
+    Name = "Auto Discard Limited Items",
+    CurrentValue = true,
+    Flag = "DiscardLimited",
+    Callback = function(Value)
+        if not checkPremiumAccess() then 
+            DiscardLimited:Set(true)
+            return 
+        end
+        miningSettings.discardItems.limited = Value
+    end,
+})
+
+ItemTab:CreateToggle({
+    Name = "Keep Mythical Items (Always On)",
+    CurrentValue = true,
+    Flag = "KeepMythical",
+    Callback = function(Value)
+        -- Mythical items are always kept
+        miningSettings.discardItems.mythical = false
+    end,
+})
+
+-- Mining Functions for Mine a Brainrot
+
+-- Auto TP to Base
+function startAutoTpBase()
+    connections["tpBase"] = RunService.Heartbeat:Connect(function()
+        if not miningSettings.autoTpBase or not isKeyValid() then
+            connections["tpBase"]:Disconnect()
+            return
+        end
+        
+        pcall(function()
+            local base = workspace:FindFirstChild("Base")
+            if base and base:FindFirstChild("Teleporter") then
+                HumanoidRootPart.CFrame = base.Teleporter.CFrame + Vector3.new(0, 5, 0)
+            elseif workspace:FindFirstChild("Spawn") then
+                HumanoidRootPart.CFrame = workspace.Spawn.CFrame + Vector3.new(0, 5, 0)
+            end
+        end)
+        
+        wait(2)
+    end)
+end
+
+-- Auto TP to End Mine
+function startAutoTpEnd()
+    connections["tpEnd"] = RunService.Heartbeat:Connect(function()
+        if not miningSettings.autoTpEnd then
+            connections["tpEnd"]:Disconnect()
+            return
+        end
+        
+        pcall(function()
+            -- Find the deepest/end mining area
+            local endMine = workspace:FindFirstChild("EndMine") or workspace:FindFirstChild("DeepMine")
+            if endMine then
+                HumanoidRootPart.CFrame = endMine.CFrame + Vector3.new(0, 5, 0)
+            else
+                -- If no specific end mine, go to the furthest mining area
+                local miningAreas = {}
+                for _, obj in pairs(workspace:GetChildren()) do
+                    if string.find(obj.Name:lower(), "mine") or string.find(obj.Name:lower(), "level") then
+                        table.insert(miningAreas, obj)
+                    end
+                end
+                if #miningAreas > 0 then
+                    local furthest = miningAreas[#miningAreas](HumanoidRootPart.CFrame) = furthest.CFrame + Vector3.new(0, 5, 0)
+                end
+            end
+        end)
+        
+        wait(3)
+    end)
+end
+
+-- Auto Level/Rebirth
+function startAutoLevel()
+    connections["autoLevel"] = RunService.Heartbeat:Connect(function()
+        if not isAutoLeveling or not isKeyValid() then
+            connections["autoLevel"]:Disconnect()
+            return
+        end
+        
+        pcall(function()
+            -- Find rebirth/level up button or NPC
+            local rebirthGui = Player.PlayerGui:FindFirstChild("RebirthGui")
+            if rebirthGui then
+                local rebirthButton = rebirthGui:FindFirstChild("Rebirth") or rebirthGui:FindFirstChild("LevelUp")
+                if rebirthButton and rebirthButton:FindFirstChild("TextButton") then
+                    firesignal(rebirthButton.TextButton.MouseButton1Click)
+                end
+            end
+            
+            -- Alternative: Look for remote events
+            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                if remote:IsA("RemoteEvent") and (string.find(remote.Name:lower(), "rebirth") or string.find(remote.Name:lower(), "level")) then
+                    remote:FireServer()
+                end
+            end
+        end)
+        
+        wait(1)
+    end)
+end
+
+-- Auto Mine
+function startAutoMine()
+    connections["autoMine"] = RunService.Heartbeat:Connect(function()
+        if not isAutoMining then
+            connections["autoMine"]:Disconnect()
+            return
+        end
+        
+        pcall(function()
+            -- Auto click/mine blocks
+            local tool = Character:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate()
+            end
+            
+            -- Fire mining remotes
+            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                if remote:IsA("RemoteEvent") and (string.find(remote.Name:lower(), "mine") or string.find(remote.Name:lower(), "dig")) then
+                    remote:FireServer()
+                end
+            end
+            
+            -- Auto equip pickaxe
+            local backpack = Player:FindFirstChild("Backpack")
+            if backpack then
+                for _, tool in pairs(backpack:GetChildren()) do
+                    if tool:IsA("Tool") and (string.find(tool.Name:lower(), "pickaxe") or string.find(tool.Name:lower(), "shovel")) then
+                        Humanoid:EquipTool(tool)
+                        break
+                    end
+                end
+            end
+        end)
+        
+        wait(0.1)
+    end)
+end
+
+-- Super Fast Mine
+function startSuperFastMine()
+    connections["superFast"] = RunService.Heartbeat:Connect(function()
+        if not miningSettings.superFastMine then
+            connections["superFast"]:Disconnect()
+            return
+        end
+        
+        pcall(function()
+            -- Rapid fire mining
+            local tool = Character:FindFirstChildOfClass("Tool")
+            if tool then
+                for i = 1, 10 do
+                    tool:Activate()
+                end
+            end
+            
+            -- Spam mining remotes
+            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                if remote:IsA("RemoteEvent") and (string.find(remote.Name:lower(), "mine") or string.find(remote.Name:lower(), "dig")) then
+                    for i = 1, 5 do
+                        remote:FireServer()
+                    end
+                end
+            end
+        end)
+        
+        wait(0.05)
+    end)
+end
+
+-- Auto Discard Items
+function autoDiscardItems()
+    if userKeyType ~= "premium" then return end
+    
+    pcall(function()
+        local inventory = Player:FindFirstChild("Inventory") or Player:FindFirstChild("Backpack")
+        if not inventory then return end
+        
+        for _, item in pairs(inventory:GetChildren()) do
+            if item:IsA("Tool") or item:FindFirstChild("Rarity") then
+                local rarity = item:FindFirstChild("Rarity")
+                if rarity then
+                    local rarityValue = rarity.Value:lower()
+                    
+                    -- Only keep mythical items
+                    if rarityValue ~= "mythical" and rarityValue ~= "mythic" then
+                        if miningSettings.discardItems[rarityValue] then
+                            -- Find discard/sell remote
+                            for _, remote in pairs(ReplicatedStorage:GetDescendants()) do
+                                if remote:IsA("RemoteEvent") and (string.find(remote.Name:lower(), "sell") or string.find(remote.Name:lower(), "discard")) then
+                                    remote:FireServer(item)
+                                end
+                            end
+                            item:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Stop all mining functions
+function stopAllMining()
+    miningSettings.autoTpBase = false
+    miningSettings.autoTpEnd = false
+    miningSettings.autoLevel = false
+    miningSettings.autoMine = false
+    miningSettings.superFastMine = false
+    isAutoMining = false
+    isAutoLeveling = false
+    
+    for name, connection in pairs(connections) do
+        if connection then
+            connection:Disconnect()
+        end
+    end
+    connections = {}
+end
+
+-- Auto discard loop for premium users
+spawn(function()
+    while true do
+        if userKeyType == "premium" then
+            autoDiscardItems()
+        end
+        wait(2)
+    end
+end)
+
+-- Key Expiry Check
+spawn(function()
+    while true do
+        if userKeyType == "basic" and keyExpireTime > 0 and os.time() >= keyExpireTime then
+            userKeyType = "none"
+            keyExpireTime = 0
+            stopAllMining()
+            
+            KeyStatus:Set({
+                Title = "Key Status",
+                Content = "Status: ⏰ Basic Key Expired\nType: None\nExpiry: Expired"
+            })
+            
+            Rayfield:Notify({
+                Title = "Key Expired",
+                Content = "Your basic key has expired. Please enter a new key.",
+                Duration = 6.5,
+            })
+        end
+        wait(60) -- Check every minute
+    end
+end)
+
+-- Character respawn handling
+Player.CharacterAdded:Connect(function(newCharacter)
+    Character = newCharacter
+    Humanoid = Character:WaitForChild("Humanoid")
+    HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+end)
+
+-- Welcome message
+Rayfield:Notify({
+    Title = "Waner Hub Loaded",
+    Content = "Welcome to Mine a Brainrot script! Please enter your key to start.",
+    Duration = 6.5,
+})
