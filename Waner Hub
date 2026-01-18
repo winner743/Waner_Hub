@@ -21,7 +21,7 @@ repeat wait() until player.Character
 repeat wait() until player.Character:FindFirstChild("HumanoidRootPart")
 
 -- ============================================================================
--- VARIABLES UNTIL SEMUA FITUR
+-- VARIABLES UNTUK SEMUA FITUR
 -- ============================================================================
 
 local espObjects = {}
@@ -296,8 +296,8 @@ local function createLoadingScreen()
     TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     TweenService:Create(Status, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
-    TweenService:Create(Progress, TweenInfo.new(0.8
-    TweepnService:Create(SecretInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+    TweenService:Create(Progress, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(SecretInfo, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
     TweenService:Create(Container, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
     TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
     TweenService:Create(Blur, TweenInfo.new(1), {Size = 0}):Play()
@@ -2155,8 +2155,8 @@ task.spawn(function()
         Callback = function()
             createNotification(
                 "⚠️ ENTITY ALERT",
-                "Rush has spawned! Hide immediately!\nThis is how entity alerts
-                "Color3.fromRGB(255, 0, 0),
+                "Rush has spawned! Hide immediately!\nThis is how entity alerts look!",
+                Color3.fromRGB(255, 0, 0),
                 5
             )
             
