@@ -59,7 +59,7 @@ local function setupAutoExecute()
     local autoExecuteCode = [[
 -- WENER HUB ULTIMATE AUTO EXECUTE
 print("🚀 WENER HUB Auto Execute Triggered!")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/WanerScripts/WenerHub/main/doors-ultimate.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/winner743/Waner_Hub/refs/heads/main/Waner%20Hub"))()
 ]]
     
     if not isfolder("WenerHub") then
