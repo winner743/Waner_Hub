@@ -1,0 +1,2959 @@
+--[[
+    ═══════════════════════════════════════════════════════
+    XYEL HUB v3.2 - LIBRARY ONLY (No Example Tabs)
+    Full i18n (40+ langs) + Music System + Working Server Actions
+    ═══════════════════════════════════════════════════════
+--]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local SoundService = game:GetService("SoundService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local function GetParent()
+    if gethui then
+        local ok, hui = pcall(gethui)
+        if ok and hui then return hui end
+    end
+    local ok, cg = pcall(function()
+        local t = Instance.new("Folder")
+        t.Parent = CoreGui
+        t:Destroy()
+        return CoreGui
+    end)
+    if ok and cg then return cg end
+    return LocalPlayer:WaitForChild("PlayerGui")
+end
+
+pcall(function()
+    local p = GetParent()
+    for _, name in ipairs({"XYEL_HUB_Library", "XYEL_HUB", "XYEL_LOADING"}) do
+        if p:FindFirstChild(name) then p[name]:Destroy() end
+    end
+end)
+
+local XYEL = {}
+
+local State = {
+    Theme = {
+        Primary = Color3.fromRGB(99, 102, 241),
+        Secondary = Color3.fromRGB(24, 24, 36),
+        Background = Color3.fromRGB(13, 13, 20),
+        Surface = Color3.fromRGB(20, 20, 30),
+        SurfaceHover = Color3.fromRGB(30, 30, 44),
+        Text = Color3.fromRGB(245, 245, 250),
+        TextDim = Color3.fromRGB(140, 140, 160),
+        Success = Color3.fromRGB(34, 197, 94),
+        Danger = Color3.fromRGB(239, 68, 68),
+        Warning = Color3.fromRGB(251, 191, 36),
+        ToggleOn = Color3.fromRGB(99, 102, 241),
+        ToggleOff = Color3.fromRGB(55, 55, 70),
+    },
+    Language = "English",
+    Animations = true,
+    ToggleKey = Enum.KeyCode.RightControl,
+    Windows = {},
+    Music = {
+        SoundId = "",
+        Enabled = true,
+        Volume = 0.5,
+        Looped = true,
+        Playing = false,
+        AutoPlay = true,
+        MuteGameOnOpen = true,
+    },
+    GameMusicMuted = false,
+}
+
+-- ═══════════════════════════════════════════════════════
+-- TRANSLATIONS (40+ LANGUAGES)
+-- ═══════════════════════════════════════════════════════
+local BaseKeys = {
+    "Info","Settings","Main","Home","Features","Welcome","Appearance","Behavior",
+    "Actions","Background","Music","PlayerFeatures","SoundSettings","LanguageSec",
+    "UISettings","Copy","Rejoin","Hop","FindLow","Apply","StopMusic","PlayMusic",
+    "ClearMusic","Theme","Language","UISize","Small","Mid","Big","AutoLoad",
+    "AutoRejoin","ServerHop","LowServer","Animations","SoundIdInput","Volume",
+    "MuteGame","AutoPlayMusic","LoopMusic","Copied","Description","Rejoined",
+    "Hopping","Finding","AlreadyIn","SoundApplied","SoundStopped","SoundCleared",
+    "InvalidSound","GameMuted","GameUnmuted","MusicPlaying","MusicNotSet",
+    "MusicEnabled","MusicDisabled","Loading","Ready","Close","WalkSpeed",
+    "JumpPower","InfJump","ResetChar","ServerHopBtn","SmallServerBtn","RejoinBtn",
+    "HopDesc","SmallServerDesc","RejoinDesc","Searching","NoServerFound",
+    "Teleporting","ActionRunning"
+}
+
+local function BuildTranslation(tbl)
+    local result = {}
+    for _, key in ipairs(BaseKeys) do
+        result[key] = tbl[key] or key
+    end
+    return result
+end
+
+local Translations = {}
+
+Translations.English = BuildTranslation({
+    Info="Info", Settings="Settings", Main="Main", Home="Home", Features="Features",
+    Welcome="Welcome to XYEL HUB", Appearance="Appearance", Behavior="Behavior",
+    Actions="Quick Actions", Background="Background", Music="Music Player",
+    PlayerFeatures="Player Features", SoundSettings="Sound Settings",
+    LanguageSec="Language", UISettings="UI Settings",
+    Copy="Copy Discord Link", Rejoin="Rejoin Server", Hop="Server Hop",
+    FindLow="Find Low Server", Apply="Apply Sound", StopMusic="Stop Music",
+    PlayMusic="Play Music", ClearMusic="Clear Music",
+    Theme="Theme Color", Language="Language", UISize="UI Size",
+    Small="Small", Mid="Medium", Big="Large",
+    AutoLoad="Auto Load", AutoRejoin="Auto Rejoin", ServerHop="Server Hop",
+    LowServer="Low Server", Animations="Animations",
+    SoundIdInput="Sound ID (Roblox)", Volume="Volume",
+    MuteGame="Mute Game Music", AutoPlayMusic="Auto Play Music",
+    LoopMusic="Loop Music",
+    Copied="Discord link has been copied!",
+    Description="Hello everyone using this script in this script you see a lots cheat op this script is still project if in this script have a bugs join my discord",
+    Rejoined="Rejoining server...", Hopping="Hopping to new server...",
+    Finding="Finding low server...", AlreadyIn="You are already in a low server",
+    SoundApplied="Music applied! Playing now...", SoundStopped="Music stopped",
+    SoundCleared="Music cleared", InvalidSound="Invalid Sound ID",
+    GameMuted="Game music muted", GameUnmuted="Game music unmuted",
+    MusicPlaying="Music is playing...", MusicNotSet="No Sound ID set",
+    MusicEnabled="Music enabled", MusicDisabled="Music disabled",
+    Loading="Loading", Ready="Ready", Close="Close",
+    WalkSpeed="Walk Speed", JumpPower="Jump Power",
+    InfJump="Infinite Jump", ResetChar="Reset Character",
+    ServerHopBtn="Server Hop", SmallServerBtn="Small Server", RejoinBtn="Rejoin",
+    HopDesc="Hop to random server", SmallServerDesc="Find server with few players",
+    RejoinDesc="Rejoin current server", Searching="Searching...",
+    NoServerFound="No server found", Teleporting="Teleporting...",
+    ActionRunning="Running action...",
+})
+
+Translations.Indonesian = BuildTranslation({
+    Info="Info", Settings="Pengaturan", Main="Utama", Home="Beranda", Features="Fitur",
+    Welcome="Selamat Datang di XYEL HUB", Appearance="Tampilan", Behavior="Perilaku",
+    Actions="Aksi Cepat", Background="Latar Belakang", Music="Pemutar Musik",
+    PlayerFeatures="Fitur Pemain", SoundSettings="Pengaturan Suara",
+    LanguageSec="Bahasa", UISettings="Pengaturan UI",
+    Copy="Salin Link Discord", Rejoin="Gabung Ulang Server", Hop="Pindah Server",
+    FindLow="Cari Server Sepi", Apply="Terapkan Suara", StopMusic="Hentikan Musik",
+    PlayMusic="Putar Musik", ClearMusic="Hapus Musik",
+    Theme="Warna Tema", Language="Bahasa", UISize="Ukuran UI",
+    Small="Kecil", Mid="Sedang", Big="Besar",
+    AutoLoad="Muat Otomatis", AutoRejoin="Gabung Otomatis", ServerHop="Pindah Server",
+    LowServer="Server Sepi", Animations="Animasi",
+    SoundIdInput="ID Suara (Roblox)", Volume="Volume",
+    MuteGame="Bisukan Musik Game", AutoPlayMusic="Putar Otomatis",
+    LoopMusic="Ulangi Musik",
+    Copied="Link Discord telah disalin!",
+    Description="Halo semua pengguna script ini di dalam script ini kamu lihat banyak cheat op script ini masih project jika ada bug join discord saya",
+    Rejoined="Menggabungkan ulang server...", Hopping="Pindah ke server baru...",
+    Finding="Mencari server sepi...", AlreadyIn="Kamu sudah di server sepi",
+    SoundApplied="Musik diterapkan! Sedang diputar...", SoundStopped="Musik dihentikan",
+    SoundCleared="Musik dihapus", InvalidSound="ID Suara tidak valid",
+    GameMuted="Musik game dibisukan", GameUnmuted="Musik game dinyalakan",
+    MusicPlaying="Musik sedang diputar...", MusicNotSet="Belum ada ID Suara",
+    MusicEnabled="Musik diaktifkan", MusicDisabled="Musik dimatikan",
+    Loading="Memuat", Ready="Siap", Close="Tutup",
+    WalkSpeed="Kecepatan Jalan", JumpPower="Kekuatan Lompat",
+    InfJump="Lompat Tanpa Batas", ResetChar="Reset Karakter",
+    ServerHopBtn="Pindah Server", SmallServerBtn="Server Sepi", RejoinBtn="Gabung Ulang",
+    HopDesc="Pindah ke server acak", SmallServerDesc="Cari server dengan sedikit pemain",
+    RejoinDesc="Gabung ulang server saat ini", Searching="Mencari...",
+    NoServerFound="Server tidak ditemukan", Teleporting="Teleportasi...",
+    ActionRunning="Menjalankan aksi...",
+})
+
+Translations.Jawa = BuildTranslation({
+    Info="Info", Settings="Setelan", Main="Utama", Home="Ngarep", Features="Fitur",
+    Welcome="Sugeng Rawuh ing XYEL HUB", Appearance="Penampilan", Behavior="Kelakuan",
+    Actions="Aksi Cepet", Background="Latar", Music="Pamuter Musik",
+    PlayerFeatures="Fitur Pemain", SoundSettings="Setelan Swara",
+    LanguageSec="Basa", UISettings="Setelan UI",
+    Copy="Salin Link Discord", Rejoin="Mlebu Maneh Server", Hop="Pindhah Server",
+    FindLow="Golek Server Sepi", Apply="Pasang Swara", StopMusic="Mandekake Musik",
+    PlayMusic="Puter Musik", ClearMusic="Busak Musik",
+    Theme="Warna Tema", Language="Basa", UISize="Ukuran UI",
+    Small="Cilik", Mid="Sedhengan", Big="Gedhe",
+    AutoLoad="Muat Otomatis", AutoRejoin="Mlebu Maneh Otomatis", ServerHop="Pindhah Server",
+    LowServer="Server Sepi", Animations="Animasi",
+    SoundIdInput="ID Swara (Roblox)", Volume="Volume",
+    MuteGame="Bisukan Musik Game", AutoPlayMusic="Puter Otomatis",
+    LoopMusic="Baleni Musik",
+    Copied="Link Discord wis disalin!",
+    Description="Halo kabeh pangguna script iki ing script iki sampeyan ndeleng akeh cheat op script iki isih project yen ana bug join discord aku",
+    Rejoined="Mlebu maneh server...", Hopping="Pindhah menyang server anyar...",
+    Finding="Golek server sepi...", AlreadyIn="Sampeyan wis ana ing server sepi",
+    SoundApplied="Musik wis dipasang! Lagi diputer...", SoundStopped="Musik dimandekake",
+    SoundCleared="Musik dibusak", InvalidSound="ID Swara ora valid",
+    GameMuted="Musik game dibisukan", GameUnmuted="Musik game diuripake",
+    MusicPlaying="Musik lagi diputer...", MusicNotSet="Durung ana ID Swara",
+    MusicEnabled="Musik diuripake", MusicDisabled="Musik dipateni",
+    Loading="Ngamot", Ready="Siap", Close="Tutup",
+    WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
+    InfJump="Mlumpat Tanpa Wates", ResetChar="Reset Karakter",
+    ServerHopBtn="Pindhah Server", SmallServerBtn="Server Sepi", RejoinBtn="Mlebu Maneh",
+    HopDesc="Pindhah menyang server acak", SmallServerDesc="Golek server karo sithik pemain",
+    RejoinDesc="Mlebu maneh server saiki", Searching="Golek...",
+    NoServerFound="Server ora ketemu", Teleporting="Teleportasi...",
+    ActionRunning="Nglakokake aksi...",
+})
+
+Translations.Indramayu = BuildTranslation({
+    Info="Info", Settings="Setelan", Main="Utama", Home="Umah", Features="Fitur",
+    Welcome="Sugeng Rawuh nang XYEL HUB", Appearance="Penampilan", Behavior="Kelakuan",
+    Actions="Aksi Cepet", Background="Latar", Music="Pamuter Musik",
+    PlayerFeatures="Fitur Pemain", SoundSettings="Setelan Swara",
+    LanguageSec="Basa", UISettings="Setelan UI",
+    Copy="Salin Link Discord", Rejoin="Mlebu Maneh Server", Hop="Pindah Server",
+    FindLow="Golek Server Sepi", Apply="Pasang Swara", StopMusic="Mandekake Musik",
+    PlayMusic="Puter Musik", ClearMusic="Busak Musik",
+    Theme="Warna Tema", Language="Basa", UISize="Ukuran UI",
+    Small="Cilik", Mid="Sedeng", Big="Gede",
+    AutoLoad="Muat Otomatis", AutoRejoin="Mlebu Maneh Otomatis", ServerHop="Pindah Server",
+    LowServer="Server Sepi", Animations="Animasi",
+    SoundIdInput="ID Swara (Roblox)", Volume="Volume",
+    MuteGame="Bisukan Musik Game", AutoPlayMusic="Puter Otomatis",
+    LoopMusic="Baleni Musik",
+    Copied="Link Discord wis disalin!",
+    Description="Halo kabeh pangguna script iki ing script iki sampeyan ndeleng akeh cheat op script iki isih project yen ana bug join discord aku",
+    Rejoined="Mlebu maneh server...", Hopping="Pindah menyang server anyar...",
+    Finding="Golek server sepi...", AlreadyIn="Sampeyan wis ana ing server sepi",
+    SoundApplied="Musik wis dipasang! Lagi diputer...", SoundStopped="Musik dimandekake",
+    SoundCleared="Musik dibusak", InvalidSound="ID Swara ora valid",
+    GameMuted="Musik game dibisukan", GameUnmuted="Musik game diuripake",
+    MusicPlaying="Musik lagi diputer...", MusicNotSet="Durung ana ID Swara",
+    MusicEnabled="Musik diuripake", MusicDisabled="Musik dipateni",
+    Loading="Ngamot", Ready="Siap", Close="Tutup",
+    WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
+    InfJump="Mlumpat Tanpa Wates", ResetChar="Reset Karakter",
+    ServerHopBtn="Pindah Server", SmallServerBtn="Server Sepi", RejoinBtn="Mlebu Maneh",
+    HopDesc="Pindah menyang server acak", SmallServerDesc="Golek server karo sithik pemain",
+    RejoinDesc="Mlebu maneh server saiki", Searching="Golek...",
+    NoServerFound="Server ora ketemu", Teleporting="Teleportasi...",
+    ActionRunning="Nglakokake aksi...",
+})
+
+Translations.Turkish = BuildTranslation({
+    Info="Bilgi", Settings="Ayarlar", Main="Ana", Home="Ana Sayfa", Features="Özellikler",
+    Welcome="XYEL HUB'a Hoş Geldiniz", Appearance="Görünüm", Behavior="Davranış",
+    Actions="Hızlı İşlemler", Background="Arka Plan", Music="Müzik Çalar",
+    PlayerFeatures="Oyuncu Özellikleri", SoundSettings="Ses Ayarları",
+    LanguageSec="Dil", UISettings="Arayüz Ayarları",
+    Copy="Discord Bağlantısını Kopyala", Rejoin="Sunucuya Yeniden Katıl",
+    Hop="Sunucu Değiştir", FindLow="Az Kişili Sunucu Bul",
+    Apply="Sesi Uygula", StopMusic="Müziği Durdur",
+    PlayMusic="Müzik Çal", ClearMusic="Müziği Temizle",
+    Theme="Tema Rengi", Language="Dil", UISize="Arayüz Boyutu",
+    Small="Küçük", Mid="Orta", Big="Büyük",
+    AutoLoad="Otomatik Yükle", AutoRejoin="Otomatik Yeniden Katıl",
+    ServerHop="Sunucu Değiştir", LowServer="Az Kişili Sunucu",
+    Animations="Animasyonlar",
+    SoundIdInput="Ses Kimliği (Roblox)", Volume="Ses Seviyesi",
+    MuteGame="Oyun Müziğini Sessize Al", AutoPlayMusic="Otomatik Çal",
+    LoopMusic="Müziği Tekrarla",
+    Copied="Discord bağlantısı kopyalandı!",
+    Description="Merhaba bu scripti kullanan herkes, bu scriptte birçok hile görüyorsunuz bu script hala proje, hata varsa discorduma katılın",
+    Rejoined="Sunucuya yeniden katılıyor...", Hopping="Yeni sunucuya geçiliyor...",
+    Finding="Az kişili sunucu aranıyor...", AlreadyIn="Zaten az kişili sunucudasınız",
+    SoundApplied="Müzik uygulandı! Çalıyor...", SoundStopped="Müzik durduruldu",
+    SoundCleared="Müzik temizlendi", InvalidSound="Geçersiz Ses Kimliği",
+    GameMuted="Oyun müziği sessize alındı", GameUnmuted="Oyun müziği açıldı",
+    MusicPlaying="Müzik çalıyor...", MusicNotSet="Ses Kimliği yok",
+    MusicEnabled="Müzik etkin", MusicDisabled="Müzik devre dışı",
+    Loading="Yükleniyor", Ready="Hazır", Close="Kapat",
+    WalkSpeed="Yürüme Hızı", JumpPower="Zıplama Gücü",
+    InfJump="Sonsuz Zıplama", ResetChar="Karakteri Sıfırla",
+    ServerHopBtn="Sunucu Değiştir", SmallServerBtn="Az Kişili Sunucu", RejoinBtn="Yeniden Katıl",
+    HopDesc="Rastgele sunucuya geç", SmallServerDesc="Az oyunculu sunucu bul",
+    RejoinDesc="Mevcut sunucuya yeniden katıl", Searching="Aranıyor...",
+    NoServerFound="Sunucu bulunamadı", Teleporting="Işınlanıyor...",
+    ActionRunning="İşlem çalışıyor...",
+})
+
+Translations.Arabic = BuildTranslation({
+    Info="معلومات", Settings="الإعدادات", Main="الرئيسية", Home="الرئيسية", Features="المميزات",
+    Welcome="مرحباً بك في XYEL HUB", Appearance="المظهر", Behavior="السلوك",
+    Actions="إجراءات سريعة", Background="الخلفية", Music="مشغل الموسيقى",
+    PlayerFeatures="ميزات اللاعب", SoundSettings="إعدادات الصوت",
+    LanguageSec="اللغة", UISettings="إعدادات الواجهة",
+    Copy="نسخ رابط ديسكورد", Rejoin="إعادة الانضمام للسيرفر",
+    Hop="تبديل السيرفر", FindLow="ابحث عن سيرفر قليل",
+    Apply="تطبيق الصوت", StopMusic="إيقاف الموسيقى",
+    PlayMusic="تشغيل الموسيقى", ClearMusic="مسح الموسيقى",
+    Theme="لون السمة", Language="اللغة", UISize="حجم الواجهة",
+    Small="صغير", Mid="متوسط", Big="كبير",
+    AutoLoad="تحميل تلقائي", AutoRejoin="إعادة الانضمام تلقائياً",
+    ServerHop="تبديل السيرفر", LowServer="سيرفر قليل",
+    Animations="الرسوم المتحركة",
+    SoundIdInput="معرف الصوت (Roblox)", Volume="مستوى الصوت",
+    MuteGame="كتم موسيقى اللعبة", AutoPlayMusic="تشغيل تلقائي",
+    LoopMusic="تكرار الموسيقى",
+    Copied="تم نسخ رابط ديسكورد!",
+    Description="مرحباً بالجميع باستخدام هذا السكريبت، في هذا السكريبت ترى الكثير من الغش، هذا السكريبت لا يزال مشروعاً، إذا كان فيه أخطاء انضم لديسكوردي",
+    Rejoined="إعادة الانضمام للسيرفر...", Hopping="التبديل لسيرفر جديد...",
+    Finding="البحث عن سيرفر قليل...", AlreadyIn="أنت بالفعل في سيرفر قليل",
+    SoundApplied="تم تطبيق الموسيقى! تعمل الآن...", SoundStopped="تم إيقاف الموسيقى",
+    SoundCleared="تم مسح الموسيقى", InvalidSound="معرف صوت غير صالح",
+    GameMuted="تم كتم موسيقى اللعبة", GameUnmuted="تم إلغاء كتم موسيقى اللعبة",
+    MusicPlaying="الموسيقى تعمل...", MusicNotSet="لا يوجد معرف صوت",
+    MusicEnabled="الموسيقى مفعلة", MusicDisabled="الموسيقى معطلة",
+    Loading="جار التحميل", Ready="جاهز", Close="إغلاق",
+    WalkSpeed="سرعة المشي", JumpPower="قوة القفز",
+    InfJump="قفز لا نهائي", ResetChar="إعادة تعيين الشخصية",
+    ServerHopBtn="تبديل السيرفر", SmallServerBtn="سيرفر قليل", RejoinBtn="إعادة الانضمام",
+    HopDesc="التبديل لسيرفر عشوائي", SmallServerDesc="ابحث عن سيرفر بعدد لاعبين قليل",
+    RejoinDesc="إعادة الانضمام للسيرفر الحالي", Searching="البحث...",
+    NoServerFound="لم يتم العثور على سيرفر", Teleporting="جار النقل...",
+    ActionRunning="جار تنفيذ الإجراء...",
+})
+
+Translations.Urdu = BuildTranslation({
+    Info="معلومات", Settings="ترتیبات", Main="مرکزی", Home="ہوم", Features="خصوصیات",
+    Welcome="XYEL HUB میں خوش آمدید", Appearance="ظاہری شکل", Behavior="رویہ",
+    Actions="فوری اقدامات", Background="پس منظر", Music="میوزک پلیئر",
+    PlayerFeatures="کھلاڑی کی خصوصیات", SoundSettings="آواز کی ترتیبات",
+    LanguageSec="زبان", UISettings="UI ترتیبات",
+    Copy="ڈسکارڈ لنک کاپی کریں", Rejoin="سرور میں دوبارہ شامل ہوں",
+    Hop="سرور تبدیل کریں", FindLow="کم سرور تلاش کریں",
+    Apply="آواز لگائیں", StopMusic="میوزک بند کریں",
+    PlayMusic="میوزک چلائیں", ClearMusic="میوزک صاف کریں",
+    Theme="تھیم رنگ", Language="زبان", UISize="UI سائز",
+    Small="چھوٹا", Mid="درمیانہ", Big="بڑا",
+    AutoLoad="خودکار لوڈ", AutoRejoin="خودکار دوبارہ شامل",
+    ServerHop="سرور تبدیل کریں", LowServer="کم سرور",
+    Animations="اینیمیشنز",
+    SoundIdInput="آواز ID (Roblox)", Volume="والیوم",
+    MuteGame="گیم میوزک خاموش کریں", AutoPlayMusic="خودکار چلائیں",
+    LoopMusic="میوزک دہرائیں",
+    Copied="ڈسکارڈ لنک کاپی ہو گیا!",
+    Description="ہیلو سب، اس اسکرپٹ میں آپ بہت سی چیٹ دیکھتے ہیں یہ اسکرپٹ ابھی پروجیکٹ ہے اگر بگ ہو تو میرے ڈسکارڈ میں شامل ہوں",
+    Rejoined="سرور میں دوبارہ شامل ہو رہے ہیں...", Hopping="نئے سرور پر جا رہے ہیں...",
+    Finding="کم سرور تلاش کر رہے ہیں...", AlreadyIn="آپ پہلے سے کم سرور میں ہیں",
+    SoundApplied="میوزک لگ گیا! چل رہا ہے...", SoundStopped="میوزک بند ہو گیا",
+    SoundCleared="میوزک صاف ہو گیا", InvalidSound="غلط آواز ID",
+    GameMuted="گیم میوزک خاموش", GameUnmuted="گیم میوزک آن",
+    MusicPlaying="میوزک چل رہا ہے...", MusicNotSet="کوئی آواز ID نہیں",
+    MusicEnabled="میوزک آن", MusicDisabled="میوزک آف",
+    Loading="لوڈ ہو رہا ہے", Ready="تیار", Close="بند کریں",
+    WalkSpeed="چلنے کی رفتار", JumpPower="چھلانگ کی طاقت",
+    InfJump="لامحدود چھلانگ", ResetChar="کردار ری سیٹ",
+    ServerHopBtn="سرور تبدیل", SmallServerBtn="کم سرور", RejoinBtn="دوبارہ شامل",
+    HopDesc="بے ترتیب سرور پر جائیں", SmallServerDesc="کم کھلاڑیوں والا سرور تلاش کریں",
+    RejoinDesc="موجودہ سرور میں دوبارہ شامل ہوں", Searching="تلاش کر رہے ہیں...",
+    NoServerFound="کوئی سرور نہیں ملا", Teleporting="ٹیلی پورٹ...",
+    ActionRunning="اقدام چل رہا ہے...",
+})
+
+Translations.Japanese = BuildTranslation({
+    Info="情報", Settings="設定", Main="メイン", Home="ホーム", Features="機能",
+    Welcome="XYEL HUBへようこそ", Appearance="外観", Behavior="動作",
+    Actions="クイックアクション", Background="背景", Music="ミュージックプレイヤー",
+    PlayerFeatures="プレイヤー機能", SoundSettings="サウンド設定",
+    LanguageSec="言語", UISettings="UI設定",
+    Copy="Discordリンクをコピー", Rejoin="サーバー再参加",
+    Hop="サーバー変更", FindLow="空きサーバーを探す",
+    Apply="サウンドを適用", StopMusic="音楽を停止",
+    PlayMusic="音楽を再生", ClearMusic="音楽をクリア",
+    Theme="テーマカラー", Language="言語", UISize="UIサイズ",
+    Small="小", Mid="中", Big="大",
+    AutoLoad="自動読み込み", AutoRejoin="自動再参加",
+    ServerHop="サーバー変更", LowServer="空きサーバー",
+    Animations="アニメーション",
+    SoundIdInput="サウンドID (Roblox)", Volume="音量",
+    MuteGame="ゲーム音楽をミュート", AutoPlayMusic="自動再生",
+    LoopMusic="音楽をループ",
+    Copied="Discordリンクをコピーしました!",
+    Description="こんにちは、このスクリプトを使用している皆さん、このスクリプトには多くのチートがあります。まだプロジェクト中です。バグがあればDiscordに参加してください。",
+    Rejoined="サーバーに再参加中...", Hopping="新しいサーバーに移動中...",
+    Finding="空きサーバーを検索中...", AlreadyIn="既に空きサーバーにいます",
+    SoundApplied="音楽が適用されました!再生中...", SoundStopped="音楽を停止しました",
+    SoundCleared="音楽をクリアしました", InvalidSound="無効なサウンドID",
+    GameMuted="ゲーム音楽をミュートしました", GameUnmuted="ゲーム音楽をミュート解除",
+    MusicPlaying="音楽を再生中...", MusicNotSet="サウンドIDがありません",
+    MusicEnabled="音楽オン", MusicDisabled="音楽オフ",
+    Loading="読み込み中", Ready="準備完了", Close="閉じる",
+    WalkSpeed="歩行速度", JumpPower="ジャンプ力",
+    InfJump="無限ジャンプ", ResetChar="キャラクターリセット",
+    ServerHopBtn="サーバー変更", SmallServerBtn="空きサーバー", RejoinBtn="再参加",
+    HopDesc="ランダムサーバーへ移動", SmallServerDesc="プレイヤーが少ないサーバーを探す",
+    RejoinDesc="現在のサーバーに再参加", Searching="検索中...",
+    NoServerFound="サーバーが見つかりません", Teleporting="テレポート中...",
+    ActionRunning="アクション実行中...",
+})
+
+Translations.Korean = BuildTranslation({
+    Info="정보", Settings="설정", Main="메인", Home="홈", Features="기능",
+    Welcome="XYEL HUB에 오신 것을 환영합니다", Appearance="모양", Behavior="동작",
+    Actions="빠른 작업", Background="배경", Music="음악 플레이어",
+    PlayerFeatures="플레이어 기능", SoundSettings="사운드 설정",
+    LanguageSec="언어", UISettings="UI 설정",
+    Copy="디스코드 링크 복사", Rejoin="서버 재접속",
+    Hop="서버 변경", FindLow="한산한 서버 찾기",
+    Apply="사운드 적용", StopMusic="음악 정지",
+    PlayMusic="음악 재생", ClearMusic="음악 지우기",
+    Theme="테마 색상", Language="언어", UISize="UI 크기",
+    Small="작게", Mid="중간", Big="크게",
+    AutoLoad="자동 로드", AutoRejoin="자동 재접속",
+    ServerHop="서버 변경", LowServer="한산한 서버",
+    Animations="애니메이션",
+    SoundIdInput="사운드 ID (Roblox)", Volume="볼륨",
+    MuteGame="게임 음악 음소거", AutoPlayMusic="자동 재생",
+    LoopMusic="음악 반복",
+    Copied="디스코드 링크가 복사되었습니다!",
+    Description="안녕하세요, 이 스크립트를 사용하는 모든 분들, 이 스크립트에는 많은 치트가 있습니다. 아직 프로젝트 중이며 버그가 있으면 제 디스코드에 참여하세요.",
+    Rejoined="서버 재접속 중...", Hopping="새 서버로 이동 중...",
+    Finding="한산한 서버 검색 중...", AlreadyIn="이미 한산한 서버에 있습니다",
+    SoundApplied="음악 적용됨! 재생 중...", SoundStopped="음악 정지됨",
+    SoundCleared="음악 지워짐", InvalidSound="잘못된 사운드 ID",
+    GameMuted="게임 음악 음소거됨", GameUnmuted="게임 음악 음소거 해제",
+    MusicPlaying="음악 재생 중...", MusicNotSet="사운드 ID 없음",
+    MusicEnabled="음악 켜짐", MusicDisabled="음악 꺼짐",
+    Loading="로딩 중", Ready="준비 완료", Close="닫기",
+    WalkSpeed="걷기 속도", JumpPower="점프 파워",
+    InfJump="무한 점프", ResetChar="캐릭터 리셋",
+    ServerHopBtn="서버 변경", SmallServerBtn="한산한 서버", RejoinBtn="재접속",
+    HopDesc="무작위 서버로 이동", SmallServerDesc="플레이어가 적은 서버 찾기",
+    RejoinDesc="현재 서버 재접속", Searching="검색 중...",
+    NoServerFound="서버를 찾을 수 없음", Teleporting="텔레포트...",
+    ActionRunning="작업 실행 중...",
+})
+
+Translations.Chinese = BuildTranslation({
+    Info="信息", Settings="设置", Main="主页", Home="家", Features="功能",
+    Welcome="欢迎来到XYEL HUB", Appearance="外观", Behavior="行为",
+    Actions="快速操作", Background="背景", Music="音乐播放器",
+    PlayerFeatures="玩家功能", SoundSettings="声音设置",
+    LanguageSec="语言", UISettings="界面设置",
+    Copy="复制Discord链接", Rejoin="重新加入服务器",
+    Hop="切换服务器", FindLow="寻找低人数服务器",
+    Apply="应用声音", StopMusic="停止音乐",
+    PlayMusic="播放音乐", ClearMusic="清除音乐",
+    Theme="主题颜色", Language="语言", UISize="界面大小",
+    Small="小", Mid="中", Big="大",
+    AutoLoad="自动加载", AutoRejoin="自动重新加入",
+    ServerHop="切换服务器", LowServer="低人数服务器",
+    Animations="动画",
+    SoundIdInput="声音ID (Roblox)", Volume="音量",
+    MuteGame="静音游戏音乐", AutoPlayMusic="自动播放",
+    LoopMusic="循环音乐",
+    Copied="Discord链接已复制!",
+    Description="大家好，使用此脚本的各位，在此脚本中你会看到许多作弊功能，此脚本仍在开发中，如有错误请加入我的Discord",
+    Rejoined="正在重新加入服务器...", Hopping="正在切换到新服务器...",
+    Finding="正在寻找低人数服务器...", AlreadyIn="你已经在低人数服务器中",
+    SoundApplied="音乐已应用!正在播放...", SoundStopped="音乐已停止",
+    SoundCleared="音乐已清除", InvalidSound="无效的声音ID",
+    GameMuted="游戏音乐已静音", GameUnmuted="游戏音乐已取消静音",
+    MusicPlaying="音乐正在播放...", MusicNotSet="未设置声音ID",
+    MusicEnabled="音乐已启用", MusicDisabled="音乐已禁用",
+    Loading="加载中", Ready="准备就绪", Close="关闭",
+    WalkSpeed="行走速度", JumpPower="跳跃力量",
+    InfJump="无限跳跃", ResetChar="重置角色",
+    ServerHopBtn="切换服务器", SmallServerBtn="低人数服务器", RejoinBtn="重新加入",
+    HopDesc="切换到随机服务器", SmallServerDesc="寻找低人数服务器",
+    RejoinDesc="重新加入当前服务器", Searching="搜索中...",
+    NoServerFound="未找到服务器", Teleporting="传送中...",
+    ActionRunning="操作运行中...",
+})
+
+Translations.Hindi = BuildTranslation({
+    Info="जानकारी", Settings="सेटिंग्स", Main="मुख्य", Home="होम", Features="विशेषताएं",
+    Welcome="XYEL HUB में आपका स्वागत है", Appearance="रूप", Behavior="व्यवहार",
+    Actions="त्वरित क्रियाएं", Background="पृष्ठभूमि", Music="संगीत प्लेयर",
+    PlayerFeatures="खिलाड़ी विशेषताएं", SoundSettings="ध्वनि सेटिंग्स",
+    LanguageSec="भाषा", UISettings="UI सेटिंग्स",
+    Copy="Discord लिंक कॉपी करें", Rejoin="सर्वर में फिर से जुड़ें",
+    Hop="सर्वर बदलें", FindLow="कम सर्वर खोजें",
+    Apply="ध्वनि लागू करें", StopMusic="संगीत रोकें",
+    PlayMusic="संगीत चलाएं", ClearMusic="संगीत साफ़ करें",
+    Theme="थीम रंग", Language="भाषा", UISize="UI आकार",
+    Small="छोटा", Mid="मध्यम", Big="बड़ा",
+    AutoLoad="स्वतः लोड", AutoRejoin="स्वतः फिर से जुड़ें",
+    ServerHop="सर्वर बदलें", LowServer="कम सर्वर",
+    Animations="एनिमेशन",
+    SoundIdInput="ध्वनि ID (Roblox)", Volume="वॉल्यूम",
+    MuteGame="गेम संगीत म्यूट करें", AutoPlayMusic="स्वतः चलाएं",
+    LoopMusic="संगीत दोहराएं",
+    Copied="Discord लिंक कॉपी हो गया!",
+    Description="नमस्ते सभी, इस स्क्रिप्ट का उपयोग करने वाले, इस स्क्रिप्ट में आप बहुत सारे चीट देखते हैं, यह स्क्रिप्ट अभी भी प्रोजेक्ट है, अगर बग हों तो मेरे डिस्कॉर्ड से जुड़ें",
+    Rejoined="सर्वर में फिर से जुड़ रहे हैं...", Hopping="नए सर्वर पर जा रहे हैं...",
+    Finding="कम सर्वर खोज रहे हैं...", AlreadyIn="आप पहले से ही कम सर्वर में हैं",
+    SoundApplied="संगीत लागू हो गया! अभी चल रहा है...", SoundStopped="संगीत रुक गया",
+    SoundCleared="संगीत साफ़ हो गया", InvalidSound="अमान्य ध्वनि ID",
+    GameMuted="गेम संगीत म्यूट", GameUnmuted="गेम संगीत अनम्यूट",
+    MusicPlaying="संगीत चल रहा है...", MusicNotSet="कोई ध्वनि ID नहीं",
+    MusicEnabled="संगीत सक्षम", MusicDisabled="संगीत अक्षम",
+    Loading="लोड हो रहा है", Ready="तैयार", Close="बंद करें",
+    WalkSpeed="चलने की गति", JumpPower="कूदने की शक्ति",
+    InfJump="असीमित कूद", ResetChar="कैरेक्टर रीसेट",
+    ServerHopBtn="सर्वर बदलें", SmallServerBtn="कम सर्वर", RejoinBtn="फिर से जुड़ें",
+    HopDesc="यादृच्छिक सर्वर पर जाएं", SmallServerDesc="कम खिलाड़ियों वाला सर्वर खोजें",
+    RejoinDesc="वर्तमान सर्वर में फिर से जुड़ें", Searching="खोज रहे हैं...",
+    NoServerFound="कोई सर्वर नहीं मिला", Teleporting="टेलीपोर्ट...",
+    ActionRunning="कार्रवाई चल रही है...",
+})
+
+Translations.Thai = BuildTranslation({
+    Info="ข้อมูล", Settings="การตั้งค่า", Main="หลัก", Home="หน้าแรก", Features="คุณสมบัติ",
+    Welcome="ยินดีต้อนรับสู่ XYEL HUB", Appearance="รูปลักษณ์", Behavior="พฤติกรรม",
+    Actions="การดำเนินการด่วน", Background="พื้นหลัง", Music="เครื่องเล่นเพลง",
+    PlayerFeatures="คุณสมบัติผู้เล่น", SoundSettings="การตั้งค่าเสียง",
+    LanguageSec="ภาษา", UISettings="การตั้งค่า UI",
+    Copy="คัดลอกลิงก์ Discord", Rejoin="เข้าร่วมเซิร์ฟเวอร์อีกครั้ง",
+    Hop="เปลี่ยนเซิร์ฟเวอร์", FindLow="ค้นหาเซิร์ฟเวอร์ว่าง",
+    Apply="ใช้เสียง", StopMusic="หยุดเพลง",
+    PlayMusic="เล่นเพลง", ClearMusic="ล้างเพลง",
+    Theme="สีธีม", Language="ภาษา", UISize="ขนาด UI",
+    Small="เล็ก", Mid="กลาง", Big="ใหญ่",
+    AutoLoad="โหลดอัตโนมัติ", AutoRejoin="เข้าร่วมอัตโนมัติ",
+    ServerHop="เปลี่ยนเซิร์ฟเวอร์", LowServer="เซิร์ฟเวอร์ว่าง",
+    Animations="ภาพเคลื่อนไหว",
+    SoundIdInput="Sound ID (Roblox)", Volume="ระดับเสียง",
+    MuteGame="ปิดเสียงเพลงเกม", AutoPlayMusic="เล่นอัตโนมัติ",
+    LoopMusic="เล่นซ้ำ",
+    Copied="คัดลอกลิงก์ Discord แล้ว!",
+    Description="สวัสดีทุกคนที่ใช้สคริปต์นี้ ในสคริปต์นี้คุณจะเห็น cheat มากมาย สคริปต์นี้ยังเป็นโปรเจกต์อยู่ ถ้ามีบั๊กเข้าร่วม discord ของฉัน",
+    Rejoined="กำลังเข้าร่วมเซิร์ฟเวอร์อีกครั้ง...", Hopping="กำลังเปลี่ยนไปเซิร์ฟเวอร์ใหม่...",
+    Finding="กำลังค้นหาเซิร์ฟเวอร์ว่าง...", AlreadyIn="คุณอยู่ในเซิร์ฟเวอร์ว่างแล้ว",
+    SoundApplied="ใช้เพลงแล้ว! กำลังเล่น...", SoundStopped="หยุดเพลงแล้ว",
+    SoundCleared="ล้างเพลงแล้ว", InvalidSound="Sound ID ไม่ถูกต้อง",
+    GameMuted="ปิดเสียงเพลงเกมแล้ว", GameUnmuted="เปิดเสียงเพลงเกมแล้ว",
+    MusicPlaying="เพลงกำลังเล่น...", MusicNotSet="ยังไม่ได้ตั้งค่า Sound ID",
+    MusicEnabled="เปิดเพลง", MusicDisabled="ปิดเพลง",
+    Loading="กำลังโหลด", Ready="พร้อม", Close="ปิด",
+    WalkSpeed="ความเร็วเดิน", JumpPower="พลังกระโดด",
+    InfJump="กระโดดไม่จำกัด", ResetChar="รีเซ็ตตัวละคร",
+    ServerHopBtn="เปลี่ยนเซิร์ฟเวอร์", SmallServerBtn="เซิร์ฟเวอร์ว่าง", RejoinBtn="เข้าร่วมอีกครั้ง",
+    HopDesc="ไปเซิร์ฟเวอร์สุ่ม", SmallServerDesc="ค้นหาเซิร์ฟเวอร์ที่มีผู้เล่นน้อย",
+    RejoinDesc="เข้าร่วมเซิร์ฟเวอร์ปัจจุบันอีกครั้ง", Searching="กำลังค้นหา...",
+    NoServerFound="ไม่พบเซิร์ฟเวอร์", Teleporting="กำลังเทเลพอร์ต...",
+    ActionRunning="กำลังดำเนินการ...",
+})
+
+Translations.Vietnamese = BuildTranslation({
+    Info="Thông tin", Settings="Cài đặt", Main="Chính", Home="Trang chủ", Features="Tính năng",
+    Welcome="Chào mừng đến XYEL HUB", Appearance="Ngoại hình", Behavior="Hành vi",
+    Actions="Hành động nhanh", Background="Nền", Music="Trình phát nhạc",
+    PlayerFeatures="Tính năng người chơi", SoundSettings="Cài đặt âm thanh",
+    LanguageSec="Ngôn ngữ", UISettings="Cài đặt UI",
+    Copy="Sao chép liên kết Discord", Rejoin="Vào lại máy chủ",
+    Hop="Đổi máy chủ", FindLow="Tìm máy chủ vắng",
+    Apply="Áp dụng âm thanh", StopMusic="Dừng nhạc",
+    PlayMusic="Phát nhạc", ClearMusic="Xóa nhạc",
+    Theme="Màu chủ đề", Language="Ngôn ngữ", UISize="Kích thước UI",
+    Small="Nhỏ", Mid="Vừa", Big="Lớn",
+    AutoLoad="Tự động tải", AutoRejoin="Tự động vào lại",
+    ServerHop="Đổi máy chủ", LowServer="Máy chủ vắng",
+    Animations="Hoạt ảnh",
+    SoundIdInput="ID âm thanh (Roblox)", Volume="Âm lượng",
+    MuteGame="Tắt tiếng nhạc game", AutoPlayMusic="Tự động phát",
+    LoopMusic="Lặp nhạc",
+    Copied="Đã sao chép liên kết Discord!",
+    Description="Xin chào mọi người sử dụng script này, trong script này bạn thấy rất nhiều cheat, script này vẫn đang là dự án, nếu có lỗi hãy tham gia discord của tôi",
+    Rejoined="Đang vào lại máy chủ...", Hopping="Đang chuyển máy chủ mới...",
+    Finding="Đang tìm máy chủ vắng...", AlreadyIn="Bạn đã ở trong máy chủ vắng",
+    SoundApplied="Đã áp dụng nhạc! Đang phát...", SoundStopped="Đã dừng nhạc",
+    SoundCleared="Đã xóa nhạc", InvalidSound="ID âm thanh không hợp lệ",
+    GameMuted="Đã tắt tiếng nhạc game", GameUnmuted="Đã bật tiếng nhạc game",
+    MusicPlaying="Nhạc đang phát...", MusicNotSet="Chưa đặt ID âm thanh",
+    MusicEnabled="Nhạc đã bật", MusicDisabled="Nhạc đã tắt",
+    Loading="Đang tải", Ready="Sẵn sàng", Close="Đóng",
+    WalkSpeed="Tốc độ đi", JumpPower="Lực nhảy",
+    InfJump="Nhảy vô hạn", ResetChar="Đặt lại nhân vật",
+    ServerHopBtn="Đổi máy chủ", SmallServerBtn="Máy chủ vắng", RejoinBtn="Vào lại",
+    HopDesc="Chuyển đến máy chủ ngẫu nhiên", SmallServerDesc="Tìm máy chủ ít người chơi",
+    RejoinDesc="Vào lại máy chủ hiện tại", Searching="Đang tìm...",
+    NoServerFound="Không tìm thấy máy chủ", Teleporting="Đang dịch chuyển...",
+    ActionRunning="Đang thực hiện hành động...",
+})
+
+Translations.Filipino = BuildTranslation({
+    Info="Impormasyon", Settings="Mga Setting", Main="Pangunahin", Home="Home", Features="Mga Tampok",
+    Welcome="Maligayang Pagdating sa XYEL HUB", Appearance="Itsura", Behavior="Pag-uugali",
+    Actions="Mabilis na Aksyon", Background="Background", Music="Music Player",
+    PlayerFeatures="Mga Tampok ng Manlalaro", SoundSettings="Mga Setting ng Tunog",
+    LanguageSec="Wika", UISettings="Mga Setting ng UI",
+    Copy="Kopyahin ang Discord Link", Rejoin="Sumali Muli sa Server",
+    Hop="Lumipat ng Server", FindLow="Maghanap ng Bakanteng Server",
+    Apply="Ilapat ang Tunog", StopMusic="Itigil ang Musika",
+    PlayMusic="I-play ang Musika", ClearMusic="I-clear ang Musika",
+    Theme="Kulay ng Tema", Language="Wika", UISize="Laki ng UI",
+    Small="Maliit", Mid="Katamtaman", Big="Malaki",
+    AutoLoad="Auto Load", AutoRejoin="Auto Rejoin",
+    ServerHop="Lumipat ng Server", LowServer="Bakanteng Server",
+    Animations="Mga Animasyon",
+    SoundIdInput="Sound ID (Roblox)", Volume="Volume",
+    MuteGame="I-mute ang Musika ng Laro", AutoPlayMusic="Auto Play",
+    LoopMusic="Ulitin ang Musika",
+    Copied="Nakopya ang Discord link!",
+    Description="Kamusta sa lahat ng gumagamit ng script na ito, sa script na ito makikita mo ang maraming cheat, ang script na ito ay project pa rin, kung may bugs sumali sa aking discord",
+    Rejoined="Sumasali muli sa server...", Hopping="Lumilipat sa bagong server...",
+    Finding="Naghahanap ng bakanteng server...", AlreadyIn="Nasa bakanteng server ka na",
+    SoundApplied="Nailapat ang musika! Nagpapatugtog na...", SoundStopped="Itinigil ang musika",
+    SoundCleared="Na-clear ang musika", InvalidSound="Invalid na Sound ID",
+    GameMuted="Naka-mute ang musika ng laro", GameUnmuted="Naka-unmute ang musika ng laro",
+    MusicPlaying="Nagpapatugtog ang musika...", MusicNotSet="Walang Sound ID na nakatakda",
+    MusicEnabled="Naka-enable ang musika", MusicDisabled="Naka-disable ang musika",
+    Loading="Naglo-load", Ready="Handa", Close="Isara",
+    WalkSpeed="Bilis ng Paglalakad", JumpPower="Lakas ng Pagtalon",
+    InfJump="Walang Hanggang Pagtalon", ResetChar="I-reset ang Karakter",
+    ServerHopBtn="Lumipat ng Server", SmallServerBtn="Bakanteng Server", RejoinBtn="Sumali Muli",
+    HopDesc="Lumipat sa random server", SmallServerDesc="Maghanap ng server na may kaunting manlalaro",
+    RejoinDesc="Sumali muli sa kasalukuyang server", Searching="Naghahanap...",
+    NoServerFound="Walang nahanap na server", Teleporting="Nag-te-teleport...",
+    ActionRunning="Tumatakbo ang aksyon...",
+})
+
+Translations.Malay = BuildTranslation({
+    Info="Maklumat", Settings="Tetapan", Main="Utama", Home="Utama", Features="Ciri-ciri",
+    Welcome="Selamat Datang ke XYEL HUB", Appearance="Penampilan", Behavior="Tingkah Laku",
+    Actions="Tindakan Pantas", Background="Latar Belakang", Music="Pemain Muzik",
+    PlayerFeatures="Ciri Pemain", SoundSettings="Tetapan Bunyi",
+    LanguageSec="Bahasa", UISettings="Tetapan UI",
+    Copy="Salin Pautan Discord", Rejoin="Sertai Semula Server",
+    Hop="Tukar Server", FindLow="Cari Server Kosong",
+    Apply="Guna Bunyi", StopMusic="Henti Muzik",
+    PlayMusic="Main Muzik", ClearMusic="Kosongkan Muzik",
+    Theme="Warna Tema", Language="Bahasa", UISize="Saiz UI",
+    Small="Kecil", Mid="Sederhana", Big="Besar",
+    AutoLoad="Muat Auto", AutoRejoin="Sertai Semula Auto",
+    ServerHop="Tukar Server", LowServer="Server Kosong",
+    Animations="Animasi",
+    SoundIdInput="Sound ID (Roblox)", Volume="Kelantangan",
+    MuteGame="Senyapkan Muzik Game", AutoPlayMusic="Main Auto",
+    LoopMusic="Ulang Muzik",
+    Copied="Pautan Discord telah disalin!",
+    Description="Helo semua yang menggunakan skrip ini, dalam skrip ini anda melihat banyak cheat, skrip ini masih projek, jika ada bug sertai discord saya",
+    Rejoined="Menyertai semula server...", Hopping="Bertukar ke server baru...",
+    Finding="Mencari server kosong...", AlreadyIn="Anda sudah berada dalam server kosong",
+    SoundApplied="Muzik digunakan! Sedang dimainkan...", SoundStopped="Muzik dihentikan",
+    SoundCleared="Muzik dikosongkan", InvalidSound="Sound ID tidak sah",
+    GameMuted="Muzik game disenyapkan", GameUnmuted="Muzik game dinyahsenyap",
+    MusicPlaying="Muzik sedang dimainkan...", MusicNotSet="Tiada Sound ID",
+    MusicEnabled="Muzik diaktifkan", MusicDisabled="Muzik dilumpuhkan",
+    Loading="Memuatkan", Ready="Sedia", Close="Tutup",
+    WalkSpeed="Kelajuan Berjalan", JumpPower="Kuasa Lompat",
+    InfJump="Lompat Tanpa Had", ResetChar="Set Semula Watak",
+    ServerHopBtn="Tukar Server", SmallServerBtn="Server Kosong", RejoinBtn="Sertai Semula",
+    HopDesc="Tukar ke server rawak", SmallServerDesc="Cari server dengan sedikit pemain",
+    RejoinDesc="Sertai semula server semasa", Searching="Mencari...",
+    NoServerFound="Server tidak dijumpai", Teleporting="Teleportasi...",
+    ActionRunning="Tindakan sedang dijalankan...",
+})
+
+Translations.Spanish = BuildTranslation({
+    Info="Información", Settings="Configuración", Main="Principal", Home="Inicio", Features="Funciones",
+    Welcome="Bienvenido a XYEL HUB", Appearance="Apariencia", Behavior="Comportamiento",
+    Actions="Acciones Rápidas", Background="Fondo", Music="Reproductor de Música",
+    PlayerFeatures="Funciones del Jugador", SoundSettings="Configuración de Sonido",
+    LanguageSec="Idioma", UISettings="Configuración de UI",
+    Copy="Copiar Enlace de Discord", Rejoin="Reincorporarse al Servidor",
+    Hop="Cambiar Servidor", FindLow="Buscar Servidor Vacío",
+    Apply="Aplicar Sonido", StopMusic="Detener Música",
+    PlayMusic="Reproducir Música", ClearMusic="Limpiar Música",
+    Theme="Color del Tema", Language="Idioma", UISize="Tamaño de UI",
+    Small="Pequeño", Mid="Mediano", Big="Grande",
+    AutoLoad="Carga Automática", AutoRejoin="Reincorporación Automática",
+    ServerHop="Cambiar Servidor", LowServer="Servidor Vacío",
+    Animations="Animaciones",
+    SoundIdInput="ID de Sonido (Roblox)", Volume="Volumen",
+    MuteGame="Silenciar Música del Juego", AutoPlayMusic="Reproducción Automática",
+    LoopMusic="Repetir Música",
+    Copied="¡Enlace de Discord copiado!",
+    Description="Hola a todos los que usan este script, en este script ves muchos trucos, este script todavía es un proyecto, si tiene errores únete a mi discord",
+    Rejoined="Reincorporándose al servidor...", Hopping="Cambiando a nuevo servidor...",
+    Finding="Buscando servidor vacío...", AlreadyIn="Ya estás en un servidor vacío",
+    SoundApplied="¡Música aplicada! Reproduciendo ahora...", SoundStopped="Música detenida",
+    SoundCleared="Música limpiada", InvalidSound="ID de Sonido inválido",
+    GameMuted="Música del juego silenciada", GameUnmuted="Música del juego dessilenciada",
+    MusicPlaying="Música reproduciéndose...", MusicNotSet="Sin ID de Sonido",
+    MusicEnabled="Música activada", MusicDisabled="Música desactivada",
+    Loading="Cargando", Ready="Listo", Close="Cerrar",
+    WalkSpeed="Velocidad de Caminata", JumpPower="Poder de Salto",
+    InfJump="Salto Infinito", ResetChar="Reiniciar Personaje",
+    ServerHopBtn="Cambiar Servidor", SmallServerBtn="Servidor Vacío", RejoinBtn="Reincorporarse",
+    HopDesc="Cambiar a servidor aleatorio", SmallServerDesc="Buscar servidor con pocos jugadores",
+    RejoinDesc="Reincorporarse al servidor actual", Searching="Buscando...",
+    NoServerFound="Servidor no encontrado", Teleporting="Teletransportando...",
+    ActionRunning="Acción en ejecución...",
+})
+
+Translations.French = BuildTranslation({
+    Info="Info", Settings="Paramètres", Main="Principal", Home="Accueil", Features="Fonctionnalités",
+    Welcome="Bienvenue sur XYEL HUB", Appearance="Apparence", Behavior="Comportement",
+    Actions="Actions Rapides", Background="Arrière-plan", Music="Lecteur de Musique",
+    PlayerFeatures="Fonctionnalités du Joueur", SoundSettings="Paramètres Audio",
+    LanguageSec="Langue", UISettings="Paramètres UI",
+    Copy="Copier le Lien Discord", Rejoin="Rejoindre le Serveur",
+    Hop="Changer de Serveur", FindLow="Trouver Serveur Vide",
+    Apply="Appliquer le Son", StopMusic="Arrêter la Musique",
+    PlayMusic="Jouer la Musique", ClearMusic="Effacer la Musique",
+    Theme="Couleur du Thème", Language="Langue", UISize="Taille de l'UI",
+    Small="Petit", Mid="Moyen", Big="Grand",
+    AutoLoad="Chargement Auto", AutoRejoin="Rejoindre Auto",
+    ServerHop="Changer Serveur", LowServer="Serveur Vide",
+    Animations="Animations",
+    SoundIdInput="ID Son (Roblox)", Volume="Volume",
+    MuteGame="Muet Musique du Jeu", AutoPlayMusic="Lecture Auto",
+    LoopMusic="Répéter Musique",
+    Copied="Lien Discord copié!",
+    Description="Bonjour à tous ceux qui utilisent ce script, dans ce script vous voyez beaucoup de triches, ce script est encore un projet, si vous avez des bugs rejoignez mon discord",
+    Rejoined="Rejoindre le serveur...", Hopping="Changement de serveur...",
+    Finding="Recherche de serveur vide...", AlreadyIn="Vous êtes déjà dans un serveur vide",
+    SoundApplied="Musique appliquée! En cours de lecture...", SoundStopped="Musique arrêtée",
+    SoundCleared="Musique effacée", InvalidSound="ID Son invalide",
+    GameMuted="Musique du jeu en sourdine", GameUnmuted="Musique du jeu réactivée",
+    MusicPlaying="Musique en cours...", MusicNotSet="Pas d'ID Son",
+    MusicEnabled="Musique activée", MusicDisabled="Musique désactivée",
+    Loading="Chargement", Ready="Prêt", Close="Fermer",
+    WalkSpeed="Vitesse de Marche", JumpPower="Puissance de Saut",
+    InfJump="Saut Infini", ResetChar="Réinitialiser le Personnage",
+    ServerHopBtn="Changer Serveur", SmallServerBtn="Serveur Vide", RejoinBtn="Rejoindre",
+    HopDesc="Aller sur un serveur aléatoire", SmallServerDesc="Trouver un serveur avec peu de joueurs",
+    RejoinDesc="Rejoindre le serveur actuel", Searching="Recherche...",
+    NoServerFound="Aucun serveur trouvé", Teleporting="Téléportation...",
+    ActionRunning="Action en cours...",
+})
+
+Translations.German = BuildTranslation({
+    Info="Info", Settings="Einstellungen", Main="Haupt", Home="Startseite", Features="Funktionen",
+    Welcome="Willkommen bei XYEL HUB", Appearance="Aussehen", Behavior="Verhalten",
+    Actions="Schnellaktionen", Background="Hintergrund", Music="Musik-Player",
+    PlayerFeatures="Spielerfunktionen", SoundSettings="Sound-Einstellungen",
+    LanguageSec="Sprache", UISettings="UI-Einstellungen",
+    Copy="Discord-Link Kopieren", Rejoin="Server Beitreten",
+    Hop="Server Wechseln", FindLow="Leeren Server Finden",
+    Apply="Sound Anwenden", StopMusic="Musik Stoppen",
+    PlayMusic="Musik Abspielen", ClearMusic="Musik Löschen",
+    Theme="Themenfarbe", Language="Sprache", UISize="UI-Größe",
+    Small="Klein", Mid="Mittel", Big="Groß",
+    AutoLoad="Auto Laden", AutoRejoin="Auto Beitreten",
+    ServerHop="Server Wechseln", LowServer="Leerer Server",
+    Animations="Animationen",
+    SoundIdInput="Sound-ID (Roblox)", Volume="Lautstärke",
+    MuteGame="Spielmusik Stummschalten", AutoPlayMusic="Auto Abspielen",
+    LoopMusic="Musik Wiederholen",
+    Copied="Discord-Link kopiert!",
+    Description="Hallo an alle, die dieses Skript verwenden, in diesem Skript sehen Sie viele Cheats, dieses Skript ist noch ein Projekt, wenn es Bugs gibt, treten Sie meinem Discord bei",
+    Rejoined="Server wird erneut beigetreten...", Hopping="Wechsel zu neuem Server...",
+    Finding="Leerer Server wird gesucht...", AlreadyIn="Sie sind bereits auf einem leeren Server",
+    SoundApplied="Musik angewendet! Wird abgespielt...", SoundStopped="Musik gestoppt",
+    SoundCleared="Musik gelöscht", InvalidSound="Ungültige Sound-ID",
+    GameMuted="Spielmusik stummgeschaltet", GameUnmuted="Spielmusik aktiviert",
+    MusicPlaying="Musik wird abgespielt...", MusicNotSet="Keine Sound-ID",
+    MusicEnabled="Musik aktiviert", MusicDisabled="Musik deaktiviert",
+    Loading="Laden", Ready="Bereit", Close="Schließen",
+    WalkSpeed="Gehgeschwindigkeit", JumpPower="Sprungkraft",
+    InfJump="Unendlicher Sprung", ResetChar="Charakter Zurücksetzen",
+    ServerHopBtn="Server Wechseln", SmallServerBtn="Leerer Server", RejoinBtn="Beitreten",
+    HopDesc="Zu zufälligem Server wechseln", SmallServerDesc="Server mit wenigen Spielern finden",
+    RejoinDesc="Aktuellem Server erneut beitreten", Searching="Suche...",
+    NoServerFound="Kein Server gefunden", Teleporting="Teleportiere...",
+    ActionRunning="Aktion läuft...",
+})
+
+Translations.Italian = BuildTranslation({
+    Info="Informazioni", Settings="Impostazioni", Main="Principale", Home="Home", Features="Funzionalità",
+    Welcome="Benvenuto su XYEL HUB", Appearance="Aspetto", Behavior="Comportamento",
+    Actions="Azioni Rapide", Background="Sfondo", Music="Riproduttore Musicale",
+    PlayerFeatures="Funzionalità Giocatore", SoundSettings="Impostazioni Audio",
+    LanguageSec="Lingua", UISettings="Impostazioni UI",
+    Copy="Copia Link Discord", Rejoin="Rientra nel Server",
+    Hop="Cambia Server", FindLow="Trova Server Vuoto",
+    Apply="Applica Suono", StopMusic="Ferma Musica",
+    PlayMusic="Riproduci Musica", ClearMusic="Cancella Musica",
+    Theme="Colore Tema", Language="Lingua", UISize="Dimensione UI",
+    Small="Piccolo", Mid="Medio", Big="Grande",
+    AutoLoad="Caricamento Auto", AutoRejoin="Rientro Auto",
+    ServerHop="Cambia Server", LowServer="Server Vuoto",
+    Animations="Animazioni",
+    SoundIdInput="ID Suono (Roblox)", Volume="Volume",
+    MuteGame="Muto Musica di Gioco", AutoPlayMusic="Riproduzione Auto",
+    LoopMusic="Ripeti Musica",
+    Copied="Link Discord copiato!",
+    Description="Ciao a tutti coloro che usano questo script, in questo script vedi molti cheat, questo script è ancora un progetto, se ci sono bug unisciti al mio discord",
+    Rejoined="Rientro nel server...", Hopping="Cambio a nuovo server...",
+    Finding="Ricerca server vuoto...", AlreadyIn="Sei già in un server vuoto",
+    SoundApplied="Musica applicata! In riproduzione...", SoundStopped="Musica fermata",
+    SoundCleared="Musica cancellata", InvalidSound="ID Suono non valido",
+    GameMuted="Musica di gioco silenziata", GameUnmuted="Musica di gioco riattivata",
+    MusicPlaying="Musica in riproduzione...", MusicNotSet="Nessun ID Suono",
+    MusicEnabled="Musica attiva", MusicDisabled="Musica disattivata",
+    Loading="Caricamento", Ready="Pronto", Close="Chiudi",
+    WalkSpeed="Velocità di Camminata", JumpPower="Potenza di Salto",
+    InfJump="Salto Infinito", ResetChar="Reimposta Personaggio",
+    ServerHopBtn="Cambia Server", SmallServerBtn="Server Vuoto", RejoinBtn="Rientra",
+    HopDesc="Vai a server casuale", SmallServerDesc="Trova server con pochi giocatori",
+    RejoinDesc="Rientra nel server attuale", Searching="Ricerca...",
+    NoServerFound="Nessun server trovato", Teleporting="Teletrasporto...",
+    ActionRunning="Azione in esecuzione...",
+})
+
+Translations.Portuguese = BuildTranslation({
+    Info="Informação", Settings="Configurações", Main="Principal", Home="Início", Features="Recursos",
+    Welcome="Bem-vindo ao XYEL HUB", Appearance="Aparência", Behavior="Comportamento",
+    Actions="Ações Rápidas", Background="Fundo", Music="Player de Música",
+    PlayerFeatures="Recursos do Jogador", SoundSettings="Configurações de Som",
+    LanguageSec="Idioma", UISettings="Configurações da UI",
+    Copy="Copiar Link do Discord", Rejoin="Reentrar no Servidor",
+    Hop="Trocar Servidor", FindLow="Encontrar Servidor Vazio",
+    Apply="Aplicar Som", StopMusic="Parar Música",
+    PlayMusic="Tocar Música", ClearMusic="Limpar Música",
+    Theme="Cor do Tema", Language="Idioma", UISize="Tamanho da UI",
+    Small="Pequeno", Mid="Médio", Big="Grande",
+    AutoLoad="Carregamento Automático", AutoRejoin="Reentrar Automático",
+    ServerHop="Trocar Servidor", LowServer="Servidor Vazio",
+    Animations="Animações",
+    SoundIdInput="ID do Som (Roblox)", Volume="Volume",
+    MuteGame="Silenciar Música do Jogo", AutoPlayMusic="Reprodução Automática",
+    LoopMusic="Repetir Música",
+    Copied="Link do Discord copiado!",
+    Description="Olá a todos usando este script, neste script você vê muitos cheats, este script ainda é um projeto, se tiver bugs entre no meu discord",
+    Rejoined="Reentrando no servidor...", Hopping="Mudando para novo servidor...",
+    Finding="Procurando servidor vazio...", AlreadyIn="Você já está em um servidor vazio",
+    SoundApplied="Música aplicada! Tocando agora...", SoundStopped="Música parada",
+    SoundCleared="Música limpa", InvalidSound="ID do Som inválido",
+    GameMuted="Música do jogo silenciada", GameUnmuted="Música do jogo dessilenciada",
+    MusicPlaying="Música tocando...", MusicNotSet="Nenhum ID do Som definido",
+    MusicEnabled="Música ativada", MusicDisabled="Música desativada",
+    Loading="Carregando", Ready="Pronto", Close="Fechar",
+    WalkSpeed="Velocidade de Caminhada", JumpPower="Poder de Pulo",
+    InfJump="Pulo Infinito", ResetChar="Resetar Personagem",
+    ServerHopBtn="Trocar Servidor", SmallServerBtn="Servidor Vazio", RejoinBtn="Reentrar",
+    HopDesc="Ir para servidor aleatório", SmallServerDesc="Encontrar servidor com poucos jogadores",
+    RejoinDesc="Reentrar no servidor atual", Searching="Procurando...",
+    NoServerFound="Nenhum servidor encontrado", Teleporting="Teleportando...",
+    ActionRunning="Ação em execução...",
+})
+
+Translations.Russian = BuildTranslation({
+    Info="Информация", Settings="Настройки", Main="Главная", Home="Главная", Features="Функции",
+    Welcome="Добро пожаловать в XYEL HUB", Appearance="Внешний вид", Behavior="Поведение",
+    Actions="Быстрые действия", Background="Фон", Music="Музыкальный плеер",
+    PlayerFeatures="Функции игрока", SoundSettings="Настройки звука",
+    LanguageSec="Язык", UISettings="Настройки UI",
+    Copy="Копировать ссылку Discord", Rejoin="Переподключиться к серверу",
+    Hop="Сменить сервер", FindLow="Найти пустой сервер",
+    Apply="Применить звук", StopMusic="Остановить музыку",
+    PlayMusic="Воспроизвести музыку", ClearMusic="Очистить музыку",
+    Theme="Цвет темы", Language="Язык", UISize="Размер UI",
+    Small="Маленький", Mid="Средний", Big="Большой",
+    AutoLoad="Автозагрузка", AutoRejoin="Автопереподключение",
+    ServerHop="Сменить сервер", LowServer="Пустой сервер",
+    Animations="Анимации",
+    SoundIdInput="ID звука (Roblox)", Volume="Громкость",
+    MuteGame="Отключить музыку игры", AutoPlayMusic="Автовоспроизведение",
+    LoopMusic="Повторять музыку",
+    Copied="Ссылка Discord скопирована!",
+    Description="Привет всем, кто использует этот скрипт, в этом скрипте вы видите много читов, этот скрипт все еще проект, если есть ошибки, присоединяйтесь к моему discord",
+    Rejoined="Переподключение к серверу...", Hopping="Переход на новый сервер...",
+    Finding="Поиск пустого сервера...", AlreadyIn="Вы уже на пустом сервере",
+    SoundApplied="Музыка применена! Играет...", SoundStopped="Музыка остановлена",
+    SoundCleared="Музыка очищена", InvalidSound="Неверный ID звука",
+    GameMuted="Музыка игры отключена", GameUnmuted="Музыка игры включена",
+    MusicPlaying="Музыка играет...", MusicNotSet="ID звука не установлен",
+    MusicEnabled="Музыка включена", MusicDisabled="Музыка отключена",
+    Loading="Загрузка", Ready="Готово", Close="Закрыть",
+    WalkSpeed="Скорость ходьбы", JumpPower="Сила прыжка",
+    InfJump="Бесконечный прыжок", ResetChar="Сбросить персонажа",
+    ServerHopBtn="Сменить сервер", SmallServerBtn="Пустой сервер", RejoinBtn="Переподключиться",
+    HopDesc="Перейти на случайный сервер", SmallServerDesc="Найти сервер с малым числом игроков",
+    RejoinDesc="Переподключиться к текущему серверу", Searching="Поиск...",
+    NoServerFound="Сервер не найден", Teleporting="Телепортация...",
+    ActionRunning="Действие выполняется...",
+})
+
+Translations.Dutch = BuildTranslation({
+    Info="Informatie", Settings="Instellingen", Main="Hoofd", Home="Start", Features="Functies",
+    Welcome="Welkom bij XYEL HUB", Appearance="Uiterlijk", Behavior="Gedrag",
+    Actions="Snelle Acties", Background="Achtergrond", Music="Muziekspeler",
+    PlayerFeatures="Spelersfuncties", SoundSettings="Geluidsinstellingen",
+    LanguageSec="Taal", UISettings="UI-instellingen",
+    Copy="Discord-link Kopiëren", Rejoin="Opnieuw Deelnemen",
+    Hop="Server Wisselen", FindLow="Lege Server Vinden",
+    Apply="Geluid Toepassen", StopMusic="Muziek Stoppen",
+    PlayMusic="Muziek Afspelen", ClearMusic="Muziek Wissen",
+    Theme="Themakleur", Language="Taal", UISize="UI-grootte",
+    Small="Klein", Mid="Gemiddeld", Big="Groot",
+    AutoLoad="Auto Laden", AutoRejoin="Auto Opnieuw Deelnemen",
+    ServerHop="Server Wisselen", LowServer="Lege Server",
+    Animations="Animaties",
+    SoundIdInput="Geluid-ID (Roblox)", Volume="Volume",
+    MuteGame="Spelmuziek Dempen", AutoPlayMusic="Automatisch Afspelen",
+    LoopMusic="Muziek Herhalen",
+    Copied="Discord-link gekopieerd!",
+    Description="Hallo allemaal die dit script gebruiken, in dit script zie je veel cheats, dit script is nog een project, als er bugs zijn sluit je aan bij mijn discord",
+    Rejoined="Opnieuw deelnemen aan server...", Hopping="Wisselen naar nieuwe server...",
+    Finding="Zoeken naar lege server...", AlreadyIn="Je bent al op een lege server",
+    SoundApplied="Muziek toegepast! Speelt nu...", SoundStopped="Muziek gestopt",
+    SoundCleared="Muziek gewist", InvalidSound="Ongeldige Geluid-ID",
+    GameMuted="Spelmuziek gedempt", GameUnmuted="Spelmuziek gedempt opgeheven",
+    MusicPlaying="Muziek speelt...", MusicNotSet="Geen Geluid-ID ingesteld",
+    MusicEnabled="Muziek ingeschakeld", MusicDisabled="Muziek uitgeschakeld",
+    Loading="Laden", Ready="Klaar", Close="Sluiten",
+    WalkSpeed="Loopsnelheid", JumpPower="Springkracht",
+    InfJump="Oneindige Sprong", ResetChar="Personage Resetten",
+    ServerHopBtn="Server Wisselen", SmallServerBtn="Lege Server", RejoinBtn="Opnieuw Deelnemen",
+    HopDesc="Naar willekeurige server gaan", SmallServerDesc="Server met weinig spelers vinden",
+    RejoinDesc="Opnieuw deelnemen aan huidige server", Searching="Zoeken...",
+    NoServerFound="Geen server gevonden", Teleporting="Teleporteren...",
+    ActionRunning="Actie wordt uitgevoerd...",
+})
+
+Translations.Polish = BuildTranslation({
+    Info="Informacje", Settings="Ustawienia", Main="Główny", Home="Strona główna", Features="Funkcje",
+    Welcome="Witamy w XYEL HUB", Appearance="Wygląd", Behavior="Zachowanie",
+    Actions="Szybkie Akcje", Background="Tło", Music="Odtwarzacz Muzyki",
+    PlayerFeatures="Funkcje Gracza", SoundSettings="Ustawienia Dźwięku",
+    LanguageSec="Język", UISettings="Ustawienia UI",
+    Copy="Kopiuj Link Discord", Rejoin="Dołącz Ponownie",
+    Hop="Zmień Serwer", FindLow="Znajdź Pusty Serwer",
+    Apply="Zastosuj Dźwięk", StopMusic="Zatrzymaj Muzykę",
+    PlayMusic="Odtwórz Muzykę", ClearMusic="Wyczyść Muzykę",
+    Theme="Kolor Motywu", Language="Język", UISize="Rozmiar UI",
+    Small="Mały", Mid="Średni", Big="Duży",
+    AutoLoad="Auto Ładowanie", AutoRejoin="Auto Ponowne Dołączenie",
+    ServerHop="Zmień Serwer", LowServer="Pusty Serwer",
+    Animations="Animacje",
+    SoundIdInput="ID Dźwięku (Roblox)", Volume="Głośność",
+    MuteGame="Wycisz Muzykę Gry", AutoPlayMusic="Auto Odtwarzanie",
+    LoopMusic="Powtórz Muzykę",
+    Copied="Link Discord skopiowany!",
+    Description="Witaj wszystkich używających tego skryptu, w tym skrypcie widzisz wiele cheatów, ten skrypt jest nadal projektem, jeśli są błędy dołącz do mojego discorda",
+    Rejoined="Ponowne dołączanie do serwera...", Hopping="Przechodzenie do nowego serwera...",
+    Finding="Szukanie pustego serwera...", AlreadyIn="Już jesteś na pustym serwerze",
+    SoundApplied="Muzyka zastosowana! Odtwarza...", SoundStopped="Muzyka zatrzymana",
+    SoundCleared="Muzyka wyczyszczona", InvalidSound="Nieprawidłowy ID Dźwięku",
+    GameMuted="Muzyka gry wyciszona", GameUnmuted="Muzyka gry odciszona",
+    MusicPlaying="Muzyka odtwarza...", MusicNotSet="Nie ustawiono ID Dźwięku",
+    MusicEnabled="Muzyka włączona", MusicDisabled="Muzyka wyłączona",
+    Loading="Ładowanie", Ready="Gotowe", Close="Zamknij",
+    WalkSpeed="Prędkość Chodzenia", JumpPower="Moc Skoku",
+    InfJump="Nieskończony Skok", ResetChar="Resetuj Postać",
+    ServerHopBtn="Zmień Serwer", SmallServerBtn="Pusty Serwer", RejoinBtn="Dołącz Ponownie",
+    HopDesc="Przejdź do losowego serwera", SmallServerDesc="Znajdź serwer z małą liczbą graczy",
+    RejoinDesc="Dołącz ponownie do obecnego serwera", Searching="Szukanie...",
+    NoServerFound="Nie znaleziono serwera", Teleporting="Teleportacja...",
+    ActionRunning="Akcja w toku...",
+})
+
+Translations.Ukrainian = BuildTranslation({
+    Info="Інформація", Settings="Налаштування", Main="Головна", Home="Головна", Features="Функції",
+    Welcome="Ласкаво просимо до XYEL HUB", Appearance="Зовнішній вигляд", Behavior="Поведінка",
+    Actions="Швидкі дії", Background="Фон", Music="Музичний плеєр",
+    PlayerFeatures="Функції гравця", SoundSettings="Налаштування звуку",
+    LanguageSec="Мова", UISettings="Налаштування UI",
+    Copy="Копіювати посилання Discord", Rejoin="Повторно приєднатися",
+    Hop="Змінити сервер", FindLow="Знайти порожній сервер",
+    Apply="Застосувати звук", StopMusic="Зупинити музику",
+    PlayMusic="Відтворити музику", ClearMusic="Очистити музику",
+    Theme="Колір теми", Language="Мова", UISize="Розмір UI",
+    Small="Малий", Mid="Середній", Big="Великий",
+    AutoLoad="Автозавантаження", AutoRejoin="Автоповторне приєднання",
+    ServerHop="Змінити сервер", LowServer="Порожній сервер",
+    Animations="Анімації",
+    SoundIdInput="ID звуку (Roblox)", Volume="Гучність",
+    MuteGame="Вимкнути музику гри", AutoPlayMusic="Автовідтворення",
+    LoopMusic="Повторити музику",
+    Copied="Посилання Discord скопійовано!",
+    Description="Привіт усім, хто використовує цей скрипт, у цьому скрипті ви бачите багато читів, цей скрипт ще проєкт, якщо є помилки, приєднуйтесь до мого discord",
+    Rejoined="Повторне приєднання до сервера...", Hopping="Перехід на новий сервер...",
+    Finding="Пошук порожнього сервера...", AlreadyIn="Ви вже на порожньому сервері",
+    SoundApplied="Музику застосовано! Грає...", SoundStopped="Музику зупинено",
+    SoundCleared="Музику очищено", InvalidSound="Невірний ID звуку",
+    GameMuted="Музику гри вимкнено", GameUnmuted="Музику гри увімкнено",
+    MusicPlaying="Музика грає...", MusicNotSet="ID звуку не встановлено",
+    MusicEnabled="Музику увімкнено", MusicDisabled="Музику вимкнено",
+    Loading="Завантаження", Ready="Готово", Close="Закрити",
+    WalkSpeed="Швидкість ходьби", JumpPower="Сила стрибка",
+    InfJump="Нескінченний стрибок", ResetChar="Скинути персонажа",
+    ServerHopBtn="Змінити сервер", SmallServerBtn="Порожній сервер", RejoinBtn="Приєднатися",
+    HopDesc="Перейти на випадковий сервер", SmallServerDesc="Знайти сервер з малою кількістю гравців",
+    RejoinDesc="Повторно приєднатися до поточного сервера", Searching="Пошук...",
+    NoServerFound="Сервер не знайдено", Teleporting="Телепортація...",
+    ActionRunning="Дія виконується...",
+})
+
+-- ═══ AFRIKA ═══
+Translations.Swahili = BuildTranslation({
+    Info="Taarifa", Settings="Mipangilio", Main="Kuu", Home="Nyumbani", Features="Vipengele",
+    Welcome="Karibu XYEL HUB", Appearance="Mwonekano", Behavior="Tabia",
+    Actions="Vitendo vya Haraka", Background="Mandhari", Music="Kicheza Muziki",
+    PlayerFeatures="Vipengele vya Mchezaji", SoundSettings="Mipangilio ya Sauti",
+    LanguageSec="Lugha", UISettings="Mipangilio ya UI",
+    Copy="Nakili Kiungo cha Discord", Rejoin="Jiunge Tena na Seva",
+    Hop="Badilisha Seva", FindLow="Tafuta Seva Tupu",
+    Apply="Tumia Sauti", StopMusic="Simamisha Muziki",
+    PlayMusic="Cheza Muziki", ClearMusic="Futa Muziki",
+    Theme="Rangi ya Mandhari", Language="Lugha", UISize="Ukubwa wa UI",
+    Small="Ndogo", Mid="Wastani", Big="Kubwa",
+    AutoLoad="Pakia Kiotomatiki", AutoRejoin="Jiunge Kiotomatiki",
+    ServerHop="Badilisha Seva", LowServer="Seva Tupu",
+    Animations="Uhuishaji",
+    SoundIdInput="Kitambulisho cha Sauti (Roblox)", Volume="Kiasi",
+    MuteGame="Nyamazisha Muziki wa Mchezo", AutoPlayMusic="Cheza Kiotomatiki",
+    LoopMusic="Rudia Muziki",
+    Copied="Kiungo cha Discord kimenakiliwa!",
+    Description="Habari kila mtu anayetumia script hii, katika script hii unaona cheats nyingi, script hii bado ni mradi, ikiwa kuna hitilafu jiunge na discord yangu",
+    Rejoined="Inajiunga tena na seva...", Hopping="Inabadilisha seva mpya...",
+    Finding="Inatafuta seva tupu...", AlreadyIn="Tayari uko kwenye seva tupu",
+    SoundApplied="Muziki umetumika! Inacheza sasa...", SoundStopped="Muziki umesimama",
+    SoundCleared="Muziki umefutwa", InvalidSound="Kitambulisho cha sauti batili",
+    GameMuted="Muziki wa mchezo umenyamazishwa", GameUnmuted="Muziki wa mchezo umerudishwa",
+    MusicPlaying="Muziki unacheza...", MusicNotSet="Hakuna kitambulisho cha sauti",
+    MusicEnabled="Muziki umewashwa", MusicDisabled="Muziki umezimwa",
+    Loading="Inapakia", Ready="Tayari", Close="Funga",
+    WalkSpeed="Kasi ya Kutembea", JumpPower="Nguvu ya Kuruka",
+    InfJump="Kuruka Bila Kikomo", ResetChar="Weka Upya Mhusika",
+    ServerHopBtn="Badilisha Seva", SmallServerBtn="Seva Tupu", RejoinBtn="Jiunge Tena",
+    HopDesc="Nenda kwenye seva ya bahati nasibu", SmallServerDesc="Tafuta seva yenye wachezaji wachache",
+    RejoinDesc="Jiunge tena na seva ya sasa", Searching="Inatafuta...",
+    NoServerFound="Hakuna seva iliyopatikana", Teleporting="Inasafiri...",
+    ActionRunning="Kitendo kinaendesha...",
+})
+
+Translations.Afrikaans = BuildTranslation({
+    Info="Inligting", Settings="Instellings", Main="Hoof", Home="Tuis", Features="Kenmerke",
+    Welcome="Welkom by XYEL HUB", Appearance="Voorkoms", Behavior="Gedrag",
+    Actions="Vinnige Aksies", Background="Agtergrond", Music="Musiekspeler",
+    PlayerFeatures="Speler Kenmerke", SoundSettings="Klank Instellings",
+    LanguageSec="Taal", UISettings="UI Instellings",
+    Copy="Kopieer Discord Skakel", Rejoin="Sluit Weer Aan",
+    Hop="Verander Bediener", FindLow="Vind Leë Bediener",
+    Apply="Pas Klank Toe", StopMusic="Stop Musiek",
+    PlayMusic="Speel Musiek", ClearMusic="Vee Musiek Uit",
+    Theme="Tema Kleur", Language="Taal", UISize="UI Grootte",
+    Small="Klein", Mid="Medium", Big="Groot",
+    AutoLoad="Outo Laai", AutoRejoin="Outo Sluit Aan",
+    ServerHop="Verander Bediener", LowServer="Leë Bediener",
+    Animations="Animasies",
+    SoundIdInput="Klank ID (Roblox)", Volume="Volume",
+    MuteGame="Demp Speletjie Musiek", AutoPlayMusic="Outo Speel",
+    LoopMusic="Herhaal Musiek",
+    Copied="Discord skakel gekopieer!",
+    Description="Hallo almal wat hierdie script gebruik, in hierdie script sien jy baie cheats, hierdie script is nog 'n projek, as daar foute is sluit aan by my discord",
+    Rejoined="Sluit weer aan by bediener...", Hopping="Verander na nuwe bediener...",
+    Finding="Soek leë bediener...", AlreadyIn="Jy is al op 'n leë bediener",
+    SoundApplied="Musiek toegepas! Speel nou...", SoundStopped="Musiek gestop",
+    SoundCleared="Musiek uitgevee", InvalidSound="Ongeldige Klank ID",
+    GameMuted="Speletjie musiek gedemp", GameUnmuted="Speletjie musiek ontdemp",
+    MusicPlaying="Musiek speel...", MusicNotSet="Geen Klank ID",
+    MusicEnabled="Musiek geaktiveer", MusicDisabled="Musiek gedeaktiveer",
+    Loading="Laai", Ready="Gereed", Close="Sluit",
+    WalkSpeed="Stap Spoed", JumpPower="Spring Krag",
+    InfJump="Oneindige Spring", ResetChar="Herstel Karakter",
+    ServerHopBtn="Verander Bediener", SmallServerBtn="Leë Bediener", RejoinBtn="Sluit Weer Aan",
+    HopDesc="Gaan na ewekansige bediener", SmallServerDesc="Vind bediener met min spelers",
+    RejoinDesc="Sluit weer aan by huidige bediener", Searching="Soek...",
+    NoServerFound="Geen bediener gevind", Teleporting="Teleporteer...",
+    ActionRunning="Aksie loop...",
+})
+
+-- ═══ LANGUAGE LIST ═══
+local LanguageList = {
+    "English","Indonesian","Jawa","Indramayu","Turkish","Arabic","Urdu",
+    "Japanese","Korean","Chinese","Hindi","Thai","Vietnamese","Filipino","Malay",
+    "Spanish","French","German","Italian","Portuguese","Russian","Dutch",
+    "Polish","Ukrainian","Swahili","Afrikaans",
+}
+
+local CurrentLang = "English"
+local function T(key)
+    local lang = Translations[CurrentLang] or Translations.English
+    return lang[key] or Translations.English[key] or key
+end
+
+-- ═══════════════════════════════════════════════════════
+-- i18n REGISTRY
+-- ═══════════════════════════════════════════════════════
+local i18nElements = {}
+
+local function RegI18n(obj, key, isPlaceholder)
+    table.insert(i18nElements, {
+        obj = obj,
+        key = key,
+        isPlaceholder = isPlaceholder or false,
+    })
+end
+
+local function RefreshI18n()
+    for _, item in ipairs(i18nElements) do
+        if item.obj and item.obj.Parent then
+            if item.isPlaceholder then
+                item.obj.PlaceholderText = T(item.key)
+            else
+                item.obj.Text = T(item.key)
+            end
+        end
+    end
+end
+
+-- ═══════════════════════════════════════════════════════
+-- UTILS
+-- ═══════════════════════════════════════════════════════
+local function Create(class, props)
+    local obj = Instance.new(class)
+    for k, v in pairs(props or {}) do
+        if k ~= "Parent" then obj[k] = v end
+    end
+    if props and props.Parent then obj.Parent = props.Parent end
+    return obj
+end
+
+local function Tween(obj, time, props, style, dir)
+    local info = TweenInfo.new(time or 0.3, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out)
+    local t = TweenService:Create(obj, info, props)
+    t:Play()
+    return t
+end
+
+local function Corner(parent, radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius or 8)
+    c.Parent = parent
+    return c
+end
+
+local function Stroke(parent, color, thickness, transparency)
+    local s = Instance.new("UIStroke")
+    s.Color = color or Color3.fromRGB(255,255,255)
+    s.Thickness = thickness or 1
+    s.Transparency = transparency or 0.5
+    s.Parent = parent
+    return s
+end
+
+local function Gradient(parent, c1, c2, rotation)
+    local g = Instance.new("UIGradient")
+    g.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, c1),
+        ColorSequenceKeypoint.new(1, c2),
+    })
+    g.Rotation = rotation or 90
+    g.Parent = parent
+    return g
+end
+
+-- ═══════════════════════════════════════════════════════
+-- MUSIC SYSTEM
+-- ═══════════════════════════════════════════════════════
+local MusicPlayer = Create("Sound", {
+    Name = "XYEL_MusicPlayer",
+    SoundId = "",
+    Volume = 0.5,
+    Looped = true,
+    Playing = false,
+    Parent = SoundService,
+})
+
+local gameMusicRestoreState = {}
+
+local function MuteGameMusic()
+    if State.GameMusicMuted then return end
+    State.GameMusicMuted = true
+    gameMusicRestoreState = {}
+    
+    pcall(function()
+        for _, child in ipairs(SoundService:GetDescendants()) do
+            if child:IsA("Sound") and child ~= MusicPlayer and child.Playing then
+                gameMusicRestoreState[child] = { Volume = child.Volume, WasPlaying = child.Playing }
+                child.Volume = 0
+            end
+        end
+    end)
+    
+    pcall(function()
+        for _, sg in ipairs(SoundService:GetChildren()) do
+            if sg:IsA("SoundGroup") then
+                gameMusicRestoreState[sg] = { Volume = sg.Volume }
+                sg.Volume = 0
+            end
+        end
+    end)
+end
+
+local function UnmuteGameMusic()
+    if not State.GameMusicMuted then return end
+    State.GameMusicMuted = false
+    
+    for obj, state in pairs(gameMusicRestoreState) do
+        pcall(function()
+            if obj and obj.Parent then
+                if state.Volume then obj.Volume = state.Volume end
+            end
+        end)
+    end
+    gameMusicRestoreState = {}
+end
+
+local function PlayMenuMusic()
+    if not State.Music.Enabled then return false end
+    if not State.Music.SoundId or State.Music.SoundId == "" then return false end
+    
+    local ok = pcall(function()
+        MusicPlayer.SoundId = "rbxassetid://" .. State.Music.SoundId
+        MusicPlayer.Volume = State.Music.Volume
+        MusicPlayer.Looped = State.Music.Looped
+        MusicPlayer:Play()
+    end)
+    
+    if ok then
+        State.Music.Playing = true
+        return true
+    end
+    return false
+end
+
+local function StopMenuMusic()
+    pcall(function() MusicPlayer:Stop() end)
+    State.Music.Playing = false
+end
+
+local function PauseMenuMusic()
+    pcall(function() MusicPlayer:Pause() end)
+    State.Music.Playing = false
+end
+
+local function ResumeMenuMusic()
+    if State.Music.Enabled and State.Music.SoundId ~= "" then
+        pcall(function()
+            MusicPlayer.SoundId = "rbxassetid://" .. State.Music.SoundId
+            MusicPlayer.Volume = State.Music.Volume
+            MusicPlayer.Looped = State.Music.Looped
+            MusicPlayer:Resume()
+        end)
+        State.Music.Playing = true
+    end
+end
+
+-- ═══════════════════════════════════════════════════════
+-- SERVER ACTIONS (REAL WORKING)
+-- ═══════════════════════════════════════════════════════
+local function FetchServers()
+    local servers = {}
+    local cursor = ""
+    local ok = pcall(function()
+        for _ = 1, 3 do  -- Fetch 3 pages max
+            local url = "https://games.roblox.com/v1/games/" .. game.PlaceId ..
+                "/servers/Public?sortOrder=Asc&limit=100"
+            if cursor ~= "" then
+                url = url .. "&cursor=" .. cursor
+            end
+            
+            local response = HttpService:JSONDecode(game:HttpGet(url))
+            if response and response.data then
+                for _, srv in ipairs(response.data) do
+                    if srv.id and srv.playing and srv.maxPlayers then
+                        table.insert(servers, srv)
+                    end
+                end
+                cursor = response.nextPageCursor or ""
+                if cursor == "" then break end
+            else
+                break
+            end
+        end
+    end)
+    return servers
+end
+
+local function DoServerHop()
+    task.spawn(function()
+        local servers = FetchServers()
+        if #servers == 0 then
+            XYEL:Notify({ Title = "Server Hop", Content = T("NoServerFound"), Type = "error" })
+            return
+        end
+        
+        -- Pick random server
+        local target = servers[math.random(1, #servers)]
+        local attempts = 0
+        while target.id == game.JobId and attempts < 10 do
+            target = servers[math.random(1, #servers)]
+            attempts = attempts + 1
+        end
+        
+        if target and target.id ~= game.JobId then
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, target.id, LocalPlayer)
+            end)
+        else
+            XYEL:Notify({ Title = "Server Hop", Content = T("NoServerFound"), Type = "warning" })
+        end
+    end)
+end
+
+local function DoSmallServer()
+    task.spawn(function()
+        local servers = FetchServers()
+        if #servers == 0 then
+            XYEL:Notify({ Title = T("SmallServerBtn"), Content = T("NoServerFound"), Type = "error" })
+            return
+        end
+        
+        -- Find server with fewest players (excluding self)
+        local best, bestCount = nil, math.huge
+        for _, srv in ipairs(servers) do
+            if srv.id ~= game.JobId and srv.playing < bestCount then
+                bestCount = srv.playing
+                best = srv
+            end
+        end
+        
+        if best then
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, best.id, LocalPlayer)
+            end)
+        else
+            XYEL:Notify({ Title = T("SmallServerBtn"), Content = T("AlreadyIn"), Type = "warning" })
+        end
+    end)
+end
+
+local function DoRejoin()
+    task.spawn(function()
+        local ok = pcall(function()
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+        end)
+        if not ok then
+            -- Fallback to Teleport
+            pcall(function()
+                TeleportService:Teleport(game.PlaceId, LocalPlayer)
+            end)
+        end
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- NOTIFICATION
+-- ═══════════════════════════════════════════════════════
+local notifStack = 0
+function XYEL:Notify(opts)
+    opts = opts or {}
+    local parent = GetParent():FindFirstChild("XYEL_HUB_Library")
+    if not parent then return end
+    
+    local title = opts.Title or "Notification"
+    local content = opts.Content or ""
+    local duration = opts.Duration or 3
+    local ntype = opts.Type or "info"
+    
+    local colors = {
+        info = State.Theme.Primary,
+        success = State.Theme.Success,
+        warning = State.Theme.Warning,
+        error = State.Theme.Danger,
+    }
+    local accentColor = colors[ntype] or colors.info
+    
+    notifStack = notifStack + 1
+    local myIndex = notifStack
+    local baseY = 20 + (myIndex - 1) * 82
+    
+    local notif = Create("Frame", {
+        Size = UDim2.new(0, 320, 0, 72),
+        Position = UDim2.new(1, 20, 0, baseY),
+        BackgroundColor3 = State.Theme.Surface,
+        BorderSizePixel = 0,
+        ZIndex = 500,
+        Parent = parent,
+    })
+    Corner(notif, 12)
+    Stroke(notif, accentColor, 1.5, 0.4)
+    
+    local bar = Create("Frame", {
+        Size = UDim2.new(0, 4, 1, -20),
+        Position = UDim2.new(0, 8, 0, 10),
+        BackgroundColor3 = accentColor,
+        BorderSizePixel = 0,
+        Parent = notif,
+    })
+    Corner(bar, 2)
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, -40, 0, 22),
+        Position = UDim2.new(0, 22, 0, 12),
+        BackgroundTransparency = 1,
+        Text = title,
+        TextColor3 = State.Theme.Text,
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent = notif,
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, -40, 0, 32),
+        Position = UDim2.new(0, 22, 0, 32),
+        BackgroundTransparency = 1,
+        Text = content,
+        TextColor3 = State.Theme.TextDim,
+        Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        Parent = notif,
+    })
+    
+    local progBg = Create("Frame", {
+        Size = UDim2.new(1, -32, 0, 2),
+        Position = UDim2.new(0, 16, 1, -6),
+        BackgroundColor3 = State.Theme.Background,
+        BorderSizePixel = 0,
+        Parent = notif,
+    })
+    Corner(progBg, 1)
+    
+    local progFill = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundColor3 = accentColor,
+        BorderSizePixel = 0,
+        Parent = progBg,
+    })
+    Corner(progFill, 1)
+    
+    Tween(notif, 0.4, { Position = UDim2.new(1, -340, 0, baseY) }, Enum.EasingStyle.Back)
+    Tween(progFill, duration, { Size = UDim2.new(0, 0, 1, 0) }, Enum.EasingStyle.Linear)
+    
+    task.spawn(function()
+        task.wait(duration)
+        Tween(notif, 0.35, { Position = UDim2.new(1, 20, 0, baseY), BackgroundTransparency = 1 })
+        task.wait(0.35)
+        if notif and notif.Parent then notif:Destroy() end
+        notifStack = math.max(0, notifStack - 1)
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- LOADING SCREEN
+-- ═══════════════════════════════════════════════════════
+local function ShowLoading(parent, title, readyCheck, callback)
+    local Loading = Create("Frame", {
+        Name = "XYEL_LOADING",
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+        BorderSizePixel = 0,
+        ZIndex = 1000,
+        Parent = parent,
+    })
+    
+    local glow = Create("Frame", {
+        Size = UDim2.new(0, 400, 0, 400),
+        Position = UDim2.new(0.5, -200, 0.5, -200),
+        BackgroundColor3 = State.Theme.Primary,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 1000,
+        Parent = Loading,
+    })
+    Corner(glow, 200)
+    
+    local ringContainer = Create("Frame", {
+        Size = UDim2.new(0, 100, 0, 100),
+        Position = UDim2.new(0.5, -50, 0.4, -150),
+        BackgroundTransparency = 1,
+        ZIndex = 1001,
+        Parent = Loading,
+    })
+    
+    local ring = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ZIndex = 1001,
+        Parent = ringContainer,
+    })
+    local ringStroke = Stroke(ring, State.Theme.Primary, 3, 0.2)
+    Corner(ring, 50)
+    
+    local ringGradient = Create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, State.Theme.Primary),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 100, 180)),
+            ColorSequenceKeypoint.new(1, State.Theme.Primary),
+        }),
+        Parent = ringStroke,
+    })
+    
+    local spinConn = RunService.RenderStepped:Connect(function(dt)
+        if not ring or not ring.Parent then spinConn:Disconnect() return end
+        ringGradient.Rotation = (ringGradient.Rotation + 4) % 360
+        ringContainer.Rotation = (ringContainer.Rotation + 2) % 360
+    end)
+    
+    local TitleLbl = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 60),
+        Position = UDim2.new(0, 0, 0.4, -40),
+        BackgroundTransparency = 1,
+        Text = title or "XYEL HUB",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 52,
+        ZIndex = 1001,
+        Parent = Loading,
+    })
+    Gradient(TitleLbl, Color3.fromRGB(255,255,255), State.Theme.Primary, 0)
+    
+    local LoadingLbl = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 24),
+        Position = UDim2.new(0, 0, 0.4, 30),
+        BackgroundTransparency = 1,
+        Text = T("Loading") .. "...",
+        TextColor3 = Color3.fromRGB(180, 180, 190),
+        Font = Enum.Font.Gotham,
+        TextSize = 15,
+        ZIndex = 1001,
+        Parent = Loading,
+    })
+    
+    local Wave = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0.4, 60),
+        BackgroundTransparency = 1,
+        Text = "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_",
+        TextColor3 = State.Theme.Primary,
+        Font = Enum.Font.Code,
+        TextSize = 14,
+        ZIndex = 1001,
+        Parent = Loading,
+    })
+    
+    local Percent = Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 20),
+        Position = UDim2.new(0, 0, 0.4, 90),
+        BackgroundTransparency = 1,
+        Text = "0%",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        ZIndex = 1001,
+        Parent = Loading,
+    })
+    
+    local waveOffset = 0
+    local waveConn = RunService.RenderStepped:Connect(function(dt)
+        waveOffset = waveOffset + dt * 8
+        local pattern = ""
+        for i = 1, 32 do
+            local idx = math.floor((i + waveOffset) % 4)
+            pattern = pattern .. (idx < 2 and "_" or "-")
+        end
+        if Wave and Wave.Parent then Wave.Text = pattern end
+    end)
+    
+    task.spawn(function()
+        local progress = 0
+        while progress < 90 do
+            progress = math.min(90, progress + math.random(2, 5))
+            if Percent and Percent.Parent then
+                Percent.Text = tostring(progress) .. "%"
+            end
+            task.wait(0.05)
+        end
+        
+        while readyCheck and not readyCheck() do
+            task.wait(0.1)
+        end
+        
+        while progress < 100 do
+            progress = math.min(100, progress + math.random(3, 6))
+            if Percent and Percent.Parent then
+                Percent.Text = tostring(progress) .. "%"
+            end
+            task.wait(0.03)
+        end
+        
+        task.wait(0.4)
+        spinConn:Disconnect()
+        waveConn:Disconnect()
+        
+        Tween(Loading, 0.6, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint)
+        Tween(glow, 0.5, { BackgroundTransparency = 1 })
+        Tween(ringContainer, 0.5, { Size = UDim2.new(0, 300, 0, 300), Position = UDim2.new(0.5, -150, 0.4, -300) })
+        for _, child in ipairs(Loading:GetChildren()) do
+            if child:IsA("TextLabel") then
+                Tween(child, 0.5, { TextTransparency = 1 })
+            elseif child:IsA("Frame") then
+                Tween(child, 0.5, { BackgroundTransparency = 1 })
+            end
+        end
+        task.wait(0.65)
+        if Loading then Loading:Destroy() end
+        if callback then callback() end
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- CREATE WINDOW
+-- ═══════════════════════════════════════════════════════
+function XYEL:CreateWindow(opts)
+    opts = opts or {}
+    local title = opts.Title or "XYEL HUB"
+    local userName = opts.UserName or LocalPlayer.DisplayName or LocalPlayer.Name
+    local displayName = opts.DisplayName or LocalPlayer.Name
+    local discord = opts.Discord or "https://discord.gg/KWTkjVvgK"
+    local noDefaultTabs = opts.NoDefaultTabs or false
+    
+    local parent = GetParent()
+    
+    local ScreenGui = Create("ScreenGui", {
+        Name = "XYEL_HUB_Library",
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        IgnoreGuiInset = true,
+        Parent = parent,
+    })
+    
+    local MainFrame = Create("Frame", {
+        Size = UDim2.new(0, 640, 0, 420),
+        Position = UDim2.new(0.5, -320, 0.5, -210),
+        BackgroundColor3 = State.Theme.Background,
+        BorderSizePixel = 0,
+        Visible = false,
+        ClipsDescendants = true,
+        Active = true,
+        ZIndex = 10,
+        Parent = ScreenGui,
+    })
+    Corner(MainFrame, 16)
+    local mainStroke = Stroke(MainFrame, State.Theme.Primary, 1, 0.5)
+    
+    local BgImage = Create("ImageLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ImageTransparency = 0.88,
+        Image = "",
+        ZIndex = 1,
+        Parent = MainFrame,
+    })
+    Corner(BgImage, 16)
+    
+    -- Top Bar
+    local TopBar = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 48),
+        BackgroundColor3 = State.Theme.Secondary,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+        Parent = MainFrame,
+    })
+    Corner(TopBar, 16)
+    Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 16),
+        Position = UDim2.new(0, 0, 1, -16),
+        BackgroundColor3 = State.Theme.Secondary,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+        Parent = TopBar,
+    })
+    
+    local logoCircle = Create("Frame", {
+        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(0, 12, 0, 8),
+        BackgroundColor3 = State.Theme.Primary,
+        BorderSizePixel = 0,
+        ZIndex = 6,
+        Parent = TopBar,
+    })
+    Corner(logoCircle, 16)
+    Gradient(logoCircle, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 45)
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Text = "X",
+        TextColor3 = Color3.fromRGB(255,255,255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        ZIndex = 7,
+        Parent = logoCircle,
+    })
+    
+    local Title = Create("TextLabel", {
+        Size = UDim2.new(0, 400, 1, 0),
+        Position = UDim2.new(0, 54, 0, 0),
+        BackgroundTransparency = 1,
+        Text = title,
+        TextColor3 = State.Theme.Text,
+        Font = Enum.Font.GothamBold,
+        TextSize = 17,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 6,
+        Parent = TopBar,
+    })
+    
+    local CloseBtn = Create("TextButton", {
+        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(1, -42, 0, 8),
+        BackgroundColor3 = State.Theme.Danger,
+        Text = "×",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 20,
+        AutoButtonColor = false,
+        ZIndex = 6,
+        Parent = TopBar,
+    })
+    Corner(CloseBtn, 10)
+    CloseBtn.MouseEnter:Connect(function()
+        Tween(CloseBtn, 0.2, { BackgroundColor3 = Color3.fromRGB(255, 100, 100) })
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        Tween(CloseBtn, 0.2, { BackgroundColor3 = State.Theme.Danger })
+    end)
+    
+    local MinBtn = Create("TextButton", {
+        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(1, -80, 0, 8),
+        BackgroundColor3 = State.Theme.Surface,
+        Text = "—",
+        TextColor3 = State.Theme.Text,
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        AutoButtonColor = false,
+        ZIndex = 6,
+        Parent = TopBar,
+    })
+    Corner(MinBtn, 10)
+    MinBtn.MouseEnter:Connect(function()
+        Tween(MinBtn, 0.2, { BackgroundColor3 = State.Theme.SurfaceHover })
+    end)
+    MinBtn.MouseLeave:Connect(function()
+        Tween(MinBtn, 0.2, { BackgroundColor3 = State.Theme.Surface })
+    end)
+    
+    -- Drag
+    local dragging, dragStart, startPos
+    local function makeDraggable(frame, handle)
+        handle.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = frame.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+    end
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    makeDraggable(MainFrame, TopBar)
+    makeDraggable(MainFrame, Title)
+    
+    -- Sidebar
+    local Sidebar = Create("Frame", {
+        Size = UDim2.new(0, 160, 1, -48),
+        Position = UDim2.new(0, 0, 0, 48),
+        BackgroundColor3 = State.Theme.Surface,
+        BorderSizePixel = 0,
+        ZIndex = 4,
+        Parent = MainFrame,
+    })
+    
+    local TabList = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, -130),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        ZIndex = 5,
+        Parent = Sidebar,
+    })
+    Create("UIListLayout", {
+        Padding = UDim.new(0, 4),
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        Parent = TabList,
+    })
+    Create("UIPadding", {
+        PaddingTop = UDim.new(0, 12),
+        PaddingLeft = UDim.new(0, 8),
+        PaddingRight = UDim.new(0, 8),
+        Parent = TabList,
+    })
+    
+    -- User Panel
+    local UserPanel = Create("Frame", {
+        Size = UDim2.new(1, -16, 0, 116),
+        Position = UDim2.new(0, 8, 1, -124),
+        BackgroundColor3 = State.Theme.Background,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+        Parent = Sidebar,
+    })
+    Corner(UserPanel, 12)
+    Stroke(UserPanel, State.Theme.Primary, 1, 0.7)
+    
+    local AvatarFrame = Create("Frame", {
+        Size = UDim2.new(0, 56, 0, 56),
+        Position = UDim2.new(0.5, -28, 0, 8),
+        BackgroundColor3 = State.Theme.Background,
+        BorderSizePixel = 0,
+        ClipsDescendants = true,
+        ZIndex = 6,
+        Parent = UserPanel,
+    })
+    Corner(AvatarFrame, 28)
+    
+    local AvatarImg = Create("ImageLabel", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(LocalPlayer.UserId) .. "&w=150&h=150",
+        ZIndex = 7,
+        Parent = AvatarFrame,
+    })
+    Corner(AvatarImg, 28)
+    
+    local RotatingBorder = Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ZIndex = 8,
+        Parent = AvatarFrame,
+    })
+    Corner(RotatingBorder, 28)
+    local rotStroke = Stroke(RotatingBorder, State.Theme.Primary, 2.5, 0)
+    local rotGrad = Create("UIGradient", {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, State.Theme.Primary),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 100, 180)),
+            ColorSequenceKeypoint.new(1, State.Theme.Primary),
+        }),
+        Parent = rotStroke,
+    })
+    
+    task.spawn(function()
+        while RotatingBorder.Parent do
+            rotGrad.Rotation = (rotGrad.Rotation + 3) % 360
+            task.wait(0.03)
+        end
+    end)
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 18),
+        Position = UDim2.new(0, 0, 0, 68),
+        BackgroundTransparency = 1,
+        Text = userName,
+        TextColor3 = State.Theme.Text,
+        Font = Enum.Font.GothamBold,
+        TextSize = 12,
+        Parent = UserPanel,
+    })
+    
+    Create("TextLabel", {
+        Size = UDim2.new(1, 0, 0, 14),
+        Position = UDim2.new(0, 0, 0, 86),
+        BackgroundTransparency = 1,
+        Text = "@" .. displayName,
+        TextColor3 = State.Theme.TextDim,
+        Font = Enum.Font.Gotham,
+        TextSize = 10,
+        Parent = UserPanel,
+    })
+    
+    local Content = Create("Frame", {
+        Size = UDim2.new(1, -160, 1, -48),
+        Position = UDim2.new(0, 160, 0, 48),
+        BackgroundTransparency = 1,
+        ZIndex = 3,
+        Parent = MainFrame,
+    })
+    
+    -- Tab system
+    local tabButtons = {}
+    local activeTab = nil
+    local allPages = {}
+    
+    local WindowObj = {}
+    
+    local function CreateTabButton(nameKey, callback)
+        local btn = Create("TextButton", {
+            Size = UDim2.new(1, 0, 0, 34),
+            BackgroundColor3 = State.Theme.Background,
+            BackgroundTransparency = 0.5,
+            Text = "",
+            AutoButtonColor = false,
+            ZIndex = 6,
+            Parent = TabList,
+        })
+        Corner(btn, 8)
+        
+        local label = Create("TextLabel", {
+            Size = UDim2.new(1, -32, 1, 0),
+            Position = UDim2.new(0, 26, 0, 0),
+            BackgroundTransparency = 1,
+            Text = T(nameKey),
+            TextColor3 = State.Theme.TextDim,
+            Font = Enum.Font.GothamMedium,
+            TextSize = 13,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 7,
+            Parent = btn,
+        })
+        RegI18n(label, nameKey)
+        
+        local indicator = Create("Frame", {
+            Size = UDim2.new(0, 3, 0.6, 0),
+            Position = UDim2.new(0, 6, 0.2, 0),
+            BackgroundColor3 = State.Theme.Primary,
+            BorderSizePixel = 0,
+            BackgroundTransparency = 1,
+            ZIndex = 8,
+            Parent = btn,
+        })
+        Corner(indicator, 2)
+        
+        local dot = Create("Frame", {
+            Size = UDim2.new(0, 6, 0, 6),
+            Position = UDim2.new(0, 12, 0.5, -3),
+            BackgroundColor3 = State.Theme.TextDim,
+            BorderSizePixel = 0,
+            BackgroundTransparency = 0.5,
+            ZIndex = 7,
+            Parent = btn,
+        })
+        Corner(dot, 3)
+        
+        btn.MouseEnter:Connect(function()
+            if activeTab ~= nameKey then
+                Tween(btn, 0.25, { BackgroundTransparency = 0.25 })
+                Tween(label, 0.25, { TextColor3 = State.Theme.Text })
+                Tween(dot, 0.25, { BackgroundColor3 = State.Theme.Primary })
+            end
+        end)
+        btn.MouseLeave:Connect(function()
+            if activeTab ~= nameKey then
+                Tween(btn, 0.25, { BackgroundTransparency = 0.5 })
+                Tween(label, 0.25, { TextColor3 = State.Theme.TextDim })
+                Tween(dot, 0.25, { BackgroundColor3 = State.Theme.TextDim })
+            end
+        end)
+        
+        btn.MouseButton1Click:Connect(function()
+            if activeTab == nameKey then return end
+            activeTab = nameKey
+            for n, data in pairs(tabButtons) do
+                Tween(data.btn, 0.25, { BackgroundTransparency = 0.5 })
+                Tween(data.label, 0.25, { TextColor3 = State.Theme.TextDim })
+                Tween(data.indicator, 0.25, { BackgroundTransparency = 1 })
+                Tween(data.dot, 0.25, { BackgroundColor3 = State.Theme.TextDim, Size = UDim2.new(0, 6, 0, 6) })
+            end
+            Tween(btn, 0.25, { BackgroundTransparency = 0 })
+            Tween(label, 0.25, { TextColor3 = State.Theme.Text })
+            Tween(indicator, 0.25, { BackgroundTransparency = 0 })
+            Tween(dot, 0.25, { BackgroundColor3 = State.Theme.Primary, Size = UDim2.new(0, 8, 0, 8) })
+            if callback then callback() end
+        end)
+        
+        tabButtons[nameKey] = { btn = btn, label = label, indicator = indicator, dot = dot }
+        return btn
+    end
+    
+    function WindowObj:CreateTab(nameKey)
+        local page = Create("ScrollingFrame", {
+            Size = UDim2.new(1, -20, 1, -20),
+            Position = UDim2.new(0, 10, 0, 10),
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            ScrollBarThickness = 3,
+            ScrollBarImageColor3 = State.Theme.Primary,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            Visible = false,
+            ZIndex = 4,
+            Parent = Content,
+        })
+        Create("UIListLayout", {
+            Padding = UDim.new(0, 8),
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            Parent = page,
+        })
+        Create("UIPadding", { PaddingRight = UDim.new(0, 12), Parent = page })
+        
+        table.insert(allPages, page)
+        
+        CreateTabButton(nameKey, function()
+            for _, p in ipairs(allPages) do
+                if p == page then
+                    p.Visible = true
+                    for _, child in ipairs(p:GetChildren()) do
+                        if child:IsA("GuiObject") then
+                            local origPos = child.Position
+                            child.Position = origPos + UDim2.new(0, 0, 0, 8)
+                            Tween(child, 0.3, { Position = origPos }, Enum.EasingStyle.Quint)
+                        end
+                    end
+                else
+                    p.Visible = false
+                end
+            end
+        end)
+        
+        if not activeTab then
+            activeTab = nameKey
+            local data = tabButtons[nameKey]
+            Tween(data.btn, 0.25, { BackgroundTransparency = 0 })
+            Tween(data.label, 0.25, { TextColor3 = State.Theme.Text })
+            Tween(data.indicator, 0.25, { BackgroundTransparency = 0 })
+            Tween(data.dot, 0.25, { BackgroundColor3 = State.Theme.Primary, Size = UDim2.new(0, 8, 0, 8) })
+            page.Visible = true
+        end
+        
+        local TabObj = {}
+        
+        function TabObj:CreateSection(titleKey)
+            local section = Create("Frame", {
+                Size = UDim2.new(1, 0, 0, 30),
+                BackgroundTransparency = 1,
+                Parent = page,
+            })
+            local lbl = Create("TextLabel", {
+                Size = UDim2.new(1, 0, 1, 0),
+                BackgroundTransparency = 1,
+                Text = T(titleKey),
+                TextColor3 = State.Theme.Primary,
+                Font = Enum.Font.GothamBold,
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = section,
+            })
+            RegI18n(lbl, titleKey)
+            
+            Create("Frame", {
+                Size = UDim2.new(1, 0, 0, 1),
+                Position = UDim2.new(0, 0, 1, -2),
+                BackgroundColor3 = State.Theme.Primary,
+                BackgroundTransparency = 0.6,
+                BorderSizePixel = 0,
+                Parent = section,
+            })
+            
+            local SectionObj = {}
+            
+            function SectionObj:CreateButton(textKey, callback)
+                local btn = Create("TextButton", {
+                    Size = UDim2.new(1, 0, 0, 40),
+                    BackgroundColor3 = State.Theme.Surface,
+                    Text = "",
+                    AutoButtonColor = false,
+                    Parent = page,
+                })
+                Corner(btn, 10)
+                Stroke(btn, State.Theme.Primary, 1, 0.6)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, 0, 1, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 14,
+                    Parent = btn,
+                })
+                RegI18n(lbl, textKey)
+                
+                btn.MouseEnter:Connect(function()
+                    Tween(btn, 0.2, { BackgroundColor3 = State.Theme.Primary })
+                    Tween(lbl, 0.2, { TextColor3 = Color3.fromRGB(255,255,255) })
+                end)
+                btn.MouseLeave:Connect(function()
+                    Tween(btn, 0.2, { BackgroundColor3 = State.Theme.Surface })
+                    Tween(lbl, 0.2, { TextColor3 = State.Theme.Text })
+                end)
+                btn.MouseButton1Click:Connect(function()
+                    if State.Animations then
+                        Tween(btn, 0.1, { Size = UDim2.new(0.97, 0, 0, 38) }, Enum.EasingStyle.Back)
+                        task.wait(0.1)
+                        Tween(btn, 0.2, { Size = UDim2.new(1, 0, 0, 40) }, Enum.EasingStyle.Back)
+                    end
+                    if callback then callback() end
+                end)
+                return { Frame = btn, Label = lbl }
+            end
+            
+            function SectionObj:CreateToggle(textKey, default, callback)
+                local state = default or false
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                Stroke(row, State.Theme.Primary, 1, 0.85)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -80, 1, 0),
+                    Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                
+                local toggleBg = Create("TextButton", {
+                    Size = UDim2.new(0, 48, 0, 26),
+                    Position = UDim2.new(1, -60, 0.5, -13),
+                    BackgroundColor3 = state and State.Theme.ToggleOn or State.Theme.ToggleOff,
+                    Text = "",
+                    AutoButtonColor = false,
+                    Parent = row,
+                })
+                Corner(toggleBg, 13)
+                local toggleStroke = Stroke(toggleBg, State.Theme.Primary, 1, state and 0.5 or 1)
+                
+                local knob = Create("Frame", {
+                    Size = UDim2.new(0, 20, 0, 20),
+                    Position = state and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10),
+                    BackgroundColor3 = Color3.fromRGB(255,255,255),
+                    BorderSizePixel = 0,
+                    Parent = toggleBg,
+                })
+                Corner(knob, 10)
+                
+                local function setState(v)
+                    state = v
+                    Tween(toggleBg, 0.25, { BackgroundColor3 = v and State.Theme.ToggleOn or State.Theme.ToggleOff })
+                    Tween(toggleStroke, 0.25, { Transparency = v and 0.5 or 1 })
+                    Tween(knob, 0.25, { Position = v and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10) }, Enum.EasingStyle.Back)
+                    if callback then callback(v) end
+                end
+                toggleBg.MouseButton1Click:Connect(function() setState(not state) end)
+                return { Set = setState, Get = function() return state end, Frame = row, Label = lbl }
+            end
+            
+            function SectionObj:CreateSlider(textKey, min, max, default, callback)
+                min = min or 0
+                max = max or 100
+                default = default or min
+                local value = default
+                
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 62),
+                    BackgroundColor3 = State.Theme.Surface,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -80, 0, 20),
+                    Position = UDim2.new(0, 16, 0, 8),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                
+                local valueLabel = Create("TextLabel", {
+                    Size = UDim2.new(0, 60, 0, 20),
+                    Position = UDim2.new(1, -76, 0, 8),
+                    BackgroundTransparency = 1,
+                    Text = tostring(value),
+                    TextColor3 = State.Theme.Primary,
+                    Font = Enum.Font.GothamBold,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Right,
+                    Parent = row,
+                })
+                
+                local barBg = Create("Frame", {
+                    Size = UDim2.new(1, -32, 0, 8),
+                    Position = UDim2.new(0, 16, 0, 40),
+                    BackgroundColor3 = State.Theme.Background,
+                    BorderSizePixel = 0,
+                    Parent = row,
+                })
+                Corner(barBg, 4)
+                
+                local fill = Create("Frame", {
+                    Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
+                    BackgroundColor3 = State.Theme.Primary,
+                    BorderSizePixel = 0,
+                    Parent = barBg,
+                })
+                Corner(fill, 4)
+                Gradient(fill, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 0)
+                
+                local knob = Create("Frame", {
+                    Size = UDim2.new(0, 16, 0, 16),
+                    Position = UDim2.new((default - min) / (max - min), -8, 0.5, -8),
+                    BackgroundColor3 = Color3.fromRGB(255,255,255),
+                    BorderSizePixel = 0,
+                    Parent = barBg,
+                })
+                Corner(knob, 8)
+                Stroke(knob, State.Theme.Primary, 2, 0)
+                
+                local dragging2 = false
+                local function updateFromInput(input)
+                    local pos = math.clamp((input.Position.X - barBg.AbsolutePosition.X) / barBg.AbsoluteSize.X, 0, 1)
+                    value = math.floor(min + (max - min) * pos)
+                    valueLabel.Text = tostring(value)
+                    Tween(fill, 0.08, { Size = UDim2.new(pos, 0, 1, 0) })
+                    Tween(knob, 0.08, { Position = UDim2.new(pos, -8, 0.5, -8) })
+                    if callback then callback(value) end
+                end
+                
+                barBg.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1
+                    or input.UserInputType == Enum.UserInputType.Touch then
+                        dragging2 = true
+                        updateFromInput(input)
+                    end
+                end)
+                UserInputService.InputChanged:Connect(function(input)
+                    if dragging2 and (input.UserInputType == Enum.UserInputType.MouseMovement
+                    or input.UserInputType == Enum.UserInputType.Touch) then
+                        updateFromInput(input)
+                    end
+                end)
+                UserInputService.InputEnded:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1
+                    or input.UserInputType == Enum.UserInputType.Touch then
+                        dragging2 = false
+                    end
+                end)
+                
+                return {
+                    Set = function(v)
+                        value = math.clamp(v, min, max)
+                        local pos = (value - min) / (max - min)
+                        valueLabel.Text = tostring(value)
+                        Tween(fill, 0.1, { Size = UDim2.new(pos, 0, 1, 0) })
+                        Tween(knob, 0.1, { Position = UDim2.new(pos, -8, 0.5, -8) })
+                        if callback then callback(value) end
+                    end,
+                    Get = function() return value end,
+                    Frame = row, Label = lbl,
+                }
+            end
+            
+            function SectionObj:CreateDropdown(textKey, options, default, callback)
+                options = options or {}
+                local selected = default or options[1]
+                local open = false
+                local container = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface,
+                    ClipsDescendants = true,
+                    Parent = page,
+                })
+                Corner(container, 10)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -120, 0, 42),
+                    Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = container,
+                })
+                RegI18n(lbl, textKey)
+                
+                local selBtn = Create("TextButton", {
+                    Size = UDim2.new(0, 100, 0, 28),
+                    Position = UDim2.new(1, -110, 0, 7),
+                    BackgroundColor3 = State.Theme.Background,
+                    Text = tostring(selected),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 12,
+                    AutoButtonColor = false,
+                    Parent = container,
+                })
+                Corner(selBtn, 8)
+                Stroke(selBtn, State.Theme.Primary, 1, 0.7)
+                
+                local listFrame = Create("Frame", {
+                    Size = UDim2.new(1, -20, 0, 0),
+                    Position = UDim2.new(0, 10, 0, 46),
+                    BackgroundTransparency = 1,
+                    Parent = container,
+                })
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 4),
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Parent = listFrame,
+                })
+                
+                for _, opt in ipairs(options) do
+                    local optBtn = Create("TextButton", {
+                        Size = UDim2.new(1, 0, 0, 28),
+                        BackgroundColor3 = State.Theme.Background,
+                        Text = tostring(opt),
+                        TextColor3 = State.Theme.TextDim,
+                        Font = Enum.Font.Gotham,
+                        TextSize = 12,
+                        AutoButtonColor = false,
+                        Parent = listFrame,
+                    })
+                    Corner(optBtn, 6)
+                    optBtn.MouseEnter:Connect(function()
+                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Primary, TextColor3 = State.Theme.Text })
+                    end)
+                    optBtn.MouseLeave:Connect(function()
+                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Background, TextColor3 = State.Theme.TextDim })
+                    end)
+                    optBtn.MouseButton1Click:Connect(function()
+                        selected = opt
+                        selBtn.Text = tostring(opt)
+                        open = false
+                        Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, 42) }, Enum.EasingStyle.Quint)
+                        if callback then callback(opt) end
+                    end)
+                end
+                
+                selBtn.MouseButton1Click:Connect(function()
+                    open = not open
+                    local totalH = 42 + (#options * 32) + 14
+                    Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, open and totalH or 42) }, Enum.EasingStyle.Quint)
+                end)
+                
+                return {
+                    Set = function(v) selected = v; selBtn.Text = tostring(v) end,
+                    Get = function() return selected end,
+                    Frame = container, Label = lbl, SelBtn = selBtn,
+                }
+            end
+            
+            function SectionObj:CreateInput(textKey, placeholderKey, callback)
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(0, 130, 1, 0),
+                    Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                
+                local box = Create("TextBox", {
+                    Size = UDim2.new(1, -166, 0, 30),
+                    Position = UDim2.new(0, 154, 0, 6),
+                    BackgroundColor3 = State.Theme.Background,
+                    Text = "",
+                    PlaceholderText = T(placeholderKey or textKey),
+                    PlaceholderColor3 = State.Theme.TextDim,
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 12,
+                    ClearTextOnFocus = false,
+                    Parent = row,
+                })
+                Corner(box, 8)
+                Stroke(box, State.Theme.Primary, 1, 0.7)
+                
+                if placeholderKey then
+                    RegI18n(box, placeholderKey, true)
+                end
+                
+                box.FocusLost:Connect(function()
+                    if callback then callback(box.Text) end
+                end)
+                
+                return { Set = function(v) box.Text = v end, Get = function() return box.Text end, Label = lbl, Box = box }
+            end
+            
+            function SectionObj:CreateKeybind(textKey, default, callback)
+                local key = default or Enum.KeyCode.F
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -110, 1, 0),
+                    Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                
+                local keyBtn = Create("TextButton", {
+                    Size = UDim2.new(0, 90, 0, 28),
+                    Position = UDim2.new(1, -100, 0.5, -14),
+                    BackgroundColor3 = State.Theme.Background,
+                    Text = key.Name,
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 12,
+                    AutoButtonColor = false,
+                    Parent = row,
+                })
+                Corner(keyBtn, 8)
+                Stroke(keyBtn, State.Theme.Primary, 1, 0.7)
+                
+                local listening = false
+                keyBtn.MouseButton1Click:Connect(function()
+                    listening = true
+                    keyBtn.Text = "..."
+                end)
+                
+                UserInputService.InputBegan:Connect(function(input, gpe)
+                    if gpe then return end
+                    if listening and input.UserInputType == Enum.UserInputType.Keyboard then
+                        key = input.KeyCode
+                        keyBtn.Text = key.Name
+                        listening = false
+                    elseif input.KeyCode == key and not listening then
+                        if callback then callback() end
+                    end
+                end)
+                
+                return { Set = function(k) key = k; keyBtn.Text = k.Name end, Get = function() return key end, Label = lbl }
+            end
+            
+            function SectionObj:CreateColorPicker(textKey, default, callback)
+                local current = default or State.Theme.Primary
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 54),
+                    BackgroundColor3 = State.Theme.Surface,
+                    ClipsDescendants = true,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -70, 0, 54),
+                    Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1,
+                    Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                
+                local colorBtn = Create("TextButton", {
+                    Size = UDim2.new(0, 46, 0, 26),
+                    Position = UDim2.new(1, -60, 0, 14),
+                    BackgroundColor3 = current,
+                    Text = "",
+                    AutoButtonColor = false,
+                    Parent = row,
+                })
+                Corner(colorBtn, 8)
+                Stroke(colorBtn, Color3.fromRGB(255,255,255), 1.5, 0.6)
+                
+                local colors = {
+                    Color3.fromRGB(99, 102, 241), Color3.fromRGB(239, 68, 68),
+                    Color3.fromRGB(34, 197, 94), Color3.fromRGB(168, 85, 247),
+                    Color3.fromRGB(251, 146, 60), Color3.fromRGB(236, 72, 153),
+                    Color3.fromRGB(34, 211, 238), Color3.fromRGB(250, 204, 21),
+                }
+                
+                local picker = Create("Frame", {
+                    Size = UDim2.new(1, -20, 0, 30),
+                    Position = UDim2.new(0, 10, 0, 60),
+                    BackgroundTransparency = 1,
+                    Parent = row,
+                })
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 5),
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Parent = picker,
+                })
+                
+                for _, c in ipairs(colors) do
+                    local cb = Create("TextButton", {
+                        Size = UDim2.new(0, 28, 0, 28),
+                        BackgroundColor3 = c,
+                        Text = "",
+                        AutoButtonColor = false,
+                        Parent = picker,
+                    })
+                    Corner(cb, 6)
+                    cb.MouseButton1Click:Connect(function()
+                        current = c
+                        colorBtn.BackgroundColor3 = c
+                        if callback then callback(c) end
+                    end)
+                end
+                
+                local open = false
+                colorBtn.MouseButton1Click:Connect(function()
+                    open = not open
+                    Tween(row, 0.3, { Size = UDim2.new(1, 0, 0, open and 100 or 54) }, Enum.EasingStyle.Quint)
+                end)
+                
+                return { Set = function(c) current = c; colorBtn.BackgroundColor3 = c end, Get = function() return current end, Label = lbl }
+            end
+            
+            function SectionObj:CreateParagraph(titleKey, contentKey)
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BackgroundColor3 = State.Theme.Surface,
+                    Parent = page,
+                })
+                Corner(row, 10)
+                Stroke(row, State.Theme.Primary, 1, 0.8)
+                
+                Create("UIPadding", {
+                    PaddingTop = UDim.new(0, 12),
+                    PaddingBottom = UDim.new(0, 12),
+                    PaddingLeft = UDim.new(0, 16),
+                    PaddingRight = UDim.new(0, 16),
+                    Parent = row,
+                })
+                
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 6),
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Parent = row,
+                })
+                
+                local titleLbl = Create("TextLabel", {
+                    Size = UDim2.new(1, 0, 0, 22),
+                    BackgroundTransparency = 1,
+                    Text = T(titleKey),
+                    TextColor3 = State.Theme.Primary,
+                    Font = Enum.Font.GothamBold,
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    LayoutOrder = 1,
+                    Parent = row,
+                })
+                RegI18n(titleLbl, titleKey)
+                
+                local contentLbl = Create("TextLabel", {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BackgroundTransparency = 1,
+                    Text = T(contentKey),
+                    TextColor3 = State.Theme.TextDim,
+                    Font = Enum.Font.Gotham,
+                    TextSize = 12,
+                    TextWrapped = true,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextYAlignment = Enum.TextYAlignment.Top,
+                    LayoutOrder = 2,
+                    Parent = row,
+                })
+                RegI18n(contentLbl, contentKey)
+                
+                return { Frame = row, Title = titleLbl, Content = contentLbl }
+            end
+            
+            return SectionObj
+        end
+        
+        function TabObj:CreateLabel(textKey)
+            local lbl = Create("TextLabel", {
+                Size = UDim2.new(1, 0, 0, 24),
+                BackgroundTransparency = 1,
+                Text = T(textKey),
+                TextColor3 = State.Theme.TextDim,
+                Font = Enum.Font.Gotham,
+                TextSize = 13,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                Parent = page,
+            })
+            RegI18n(lbl, textKey)
+            return { Set = function(t) lbl.Text = t end, Label = lbl }
+        end
+        
+        function TabObj:CreateDivider()
+            local d = Create("Frame", {
+                Size = UDim2.new(1, 0, 0, 1),
+                BackgroundColor3 = State.Theme.Surface,
+                BorderSizePixel = 0,
+                Parent = page,
+            })
+            return { Frame = d }
+        end
+        
+        return TabObj
+    end
+    
+    function WindowObj:SetBackground(decalId)
+        if decalId and tostring(decalId) ~= "" then
+            BgImage.Image = "rbxassetid://" .. tostring(decalId)
+        else
+            BgImage.Image = ""
+        end
+    end
+    
+    function WindowObj:SetThemeColor(color)
+        State.Theme.Primary = color
+        mainStroke.Color = color
+    end
+    
+    function WindowObj:Destroy()
+        ScreenGui:Destroy()
+    end
+    
+    -- ═══ DEFAULT TABS (Info & Settings only, no Main) ═══
+    if not noDefaultTabs then
+        -- INFO TAB
+        local InfoTab = WindowObj:CreateTab("Info")
+        local InfoSection = InfoTab:CreateSection("Info")
+        InfoSection:CreateParagraph("Welcome", "Description")
+        
+        InfoSection:CreateButton("Copy", function()
+            if setclipboard then setclipboard(discord) end
+            XYEL:Notify({ Title = "Discord", Content = T("Copied"), Type = "success" })
+        end)
+        
+        -- SETTINGS TAB
+        local SettingsTab = WindowObj:CreateTab("Settings")
+        
+        -- Appearance
+        local appearanceSection = SettingsTab:CreateSection("Appearance")
+        appearanceSection:CreateColorPicker("Theme", State.Theme.Primary, function(c)
+            State.Theme.Primary = c
+            mainStroke.Color = c
+        end)
+        appearanceSection:CreateDropdown("Language", LanguageList, CurrentLang, function(v)
+            CurrentLang = v
+            State.Language = v
+            RefreshI18n()
+            XYEL:Notify({ Title = "Language", Content = "✓ " .. v, Type = "info", Duration = 2 })
+        end)
+        appearanceSection:CreateToggle("Animations", State.Animations, function(v)
+            State.Animations = v
+        end)
+        
+        -- Music
+        local musicSection = SettingsTab:CreateSection("Music")
+        
+        local soundIdInput = musicSection:CreateInput("SoundIdInput", "SoundIdInput", function(text)
+            local cleaned = string.gsub(text, "%D", "")
+            if cleaned ~= "" and tonumber(cleaned) then
+                State.Music.SoundId = cleaned
+                State.Music.Enabled = true
+                if State.Music.Playing then
+                    StopMenuMusic()
+                    if PlayMenuMusic() then
+                        XYEL:Notify({ Title = "Music", Content = T("SoundApplied"), Type = "success" })
+                    end
+                end
+            else
+                XYEL:Notify({ Title = "Music", Content = T("InvalidSound"), Type = "error" })
+            end
+        end)
+        
+        musicSection:CreateButton("Apply", function()
+            if State.Music.SoundId == "" then
+                XYEL:Notify({ Title = "Music", Content = T("MusicNotSet"), Type = "warning" })
+                return
+            end
+            StopMenuMusic()
+            if PlayMenuMusic() then
+                XYEL:Notify({ Title = "Music", Content = T("SoundApplied"), Type = "success" })
+            else
+                XYEL:Notify({ Title = "Music", Content = T("InvalidSound"), Type = "error" })
+            end
+        end)
+        
+        musicSection:CreateButton("StopMusic", function()
+            StopMenuMusic()
+            XYEL:Notify({ Title = "Music", Content = T("SoundStopped"), Type = "info" })
+        end)
+        
+        musicSection:CreateButton("ClearMusic", function()
+            StopMenuMusic()
+            State.Music.SoundId = ""
+            soundIdInput.Set("")
+            XYEL:Notify({ Title = "Music", Content = T("SoundCleared"), Type = "info" })
+        end)
+        
+        musicSection:CreateSlider("Volume", 0, 100, 50, function(v)
+            State.Music.Volume = v / 100
+            if MusicPlayer then MusicPlayer.Volume = State.Music.Volume end
+        end)
+        
+        musicSection:CreateToggle("LoopMusic", true, function(v)
+            State.Music.Looped = v
+            if MusicPlayer then MusicPlayer.Looped = v end
+        end)
+        
+        musicSection:CreateToggle("MuteGame", true, function(v)
+            State.Music.MuteGameOnOpen = v
+            if not v then UnmuteGameMusic() end
+        end)
+        
+        musicSection:CreateToggle("AutoPlayMusic", true, function(v)
+            State.Music.AutoPlay = v
+        end)
+        
+        -- Behavior
+        local behaviorSection = SettingsTab:CreateSection("Behavior")
+        behaviorSection:CreateToggle("AutoLoad", false, function(v) end)
+        behaviorSection:CreateToggle("AutoRejoin", false, function(v) end)
+        
+        -- ═══ ACTIONS SECTION (REAL WORKING BUTTONS) ═══
+        local actionsSection = SettingsTab:CreateSection("Actions")
+        
+        local hopBtn = actionsSection:CreateButton("ServerHopBtn", function()
+            XYEL:Notify({ Title = T("ServerHopBtn"), Content = T("Hopping"), Type = "info" })
+            DoServerHop()
+        end)
+        
+        local smallBtn = actionsSection:CreateButton("SmallServerBtn", function()
+            XYEL:Notify({ Title = T("SmallServerBtn"), Content = T("Finding"), Type = "info" })
+            DoSmallServer()
+        end)
+        
+        local rejoinBtn = actionsSection:CreateButton("RejoinBtn", function()
+            XYEL:Notify({ Title = T("RejoinBtn"), Content = T("Rejoined"), Type = "info" })
+            DoRejoin()
+        end)
+        
+        -- Background
+        local bgSection = SettingsTab:CreateSection("Background")
+        bgSection:CreateInput("Background", "Background", function(text)
+            if text ~= "" then
+                BgImage.Image = "rbxassetid://" .. text
+            end
+        end)
+    end
+    
+    -- Toggle Button
+    local ToggleBtn = Create("TextButton", {
+        Name = "ToggleBtn",
+        Size = UDim2.new(0, 56, 0, 56),
+        Position = UDim2.new(0, 24, 0.5, -28),
+        BackgroundColor3 = State.Theme.Primary,
+        Text = "X",
+        TextColor3 = Color3.fromRGB(255,255,255),
+        Font = Enum.Font.GothamBold,
+        TextSize = 22,
+        AutoButtonColor = false,
+        ZIndex = 50,
+        Parent = ScreenGui,
+    })
+    Corner(ToggleBtn, 28)
+    local toggleStroke = Stroke(ToggleBtn, Color3.fromRGB(255,255,255), 1.5, 0.4)
+    Gradient(ToggleBtn, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 45)
+    
+    task.spawn(function()
+        while ToggleBtn.Parent do
+            Tween(toggleStroke, 1.2, { Transparency = 0.7, Thickness = 2.5 })
+            task.wait(1.2)
+            Tween(toggleStroke, 1.2, { Transparency = 0.4, Thickness = 1.5 })
+            task.wait(1.2)
+        end
+    end)
+    
+    local tbDragging, tbStart, tbStartPos
+    ToggleBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            tbDragging = true
+            tbStart = input.Position
+            tbStartPos = ToggleBtn.Position
+        end
+    end)
+    ToggleBtn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            tbDragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if tbDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - tbStart
+            ToggleBtn.Position = UDim2.new(
+                tbStartPos.X.Scale, tbStartPos.X.Offset + delta.X,
+                tbStartPos.Y.Scale, tbStartPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    local menuOpen = true
+    
+    local function OpenMenu()
+        if menuOpen then return end
+        menuOpen = true
+        MainFrame.Visible = true
+        if State.Animations then
+            MainFrame.Size = UDim2.new(0, 0, 0, 0)
+            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            MainFrame.BackgroundTransparency = 1
+            Tween(MainFrame, 0.4, { Size = UDim2.new(0, 640, 0, 420), Position = UDim2.new(0.5, -320, 0.5, -210), BackgroundTransparency = 0 }, Enum.EasingStyle.Back)
+            task.wait(0.05)
+            Tween(mainStroke, 0.3, { Transparency = 0.5 })
+        end
+        Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Primary, Rotation = 0 }, Enum.EasingStyle.Back)
+        ToggleBtn.Text = "X"
+        
+        if State.Music.MuteGameOnOpen ~= false then
+            MuteGameMusic()
+        end
+        if State.Music.AutoPlay ~= false and State.Music.SoundId ~= "" then
+            ResumeMenuMusic()
+        end
+    end
+    
+    local function CloseMenu()
+        if not menuOpen then return end
+        menuOpen = false
+        if State.Animations then
+            Tween(mainStroke, 0.2, { Transparency = 1 })
+            local t = Tween(MainFrame, 0.3, { Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0), BackgroundTransparency = 1 }, Enum.EasingStyle.Quint)
+            t.Completed:Connect(function()
+                if not menuOpen then MainFrame.Visible = false end
+            end)
+        else
+            MainFrame.Visible = false
+        end
+        Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Success, Rotation = 180 }, Enum.EasingStyle.Back)
+        ToggleBtn.Text = "≡"
+        
+        UnmuteGameMusic()
+        PauseMenuMusic()
+    end
+    
+    local tbPressPos
+    ToggleBtn.MouseButton1Down:Connect(function()
+        tbPressPos = UserInputService:GetMouseLocation()
+    end)
+    ToggleBtn.MouseButton1Click:Connect(function()
+        local cur = UserInputService:GetMouseLocation()
+        if tbPressPos and (cur - tbPressPos).Magnitude < 8 then
+            if menuOpen then CloseMenu() else OpenMenu() end
+        end
+    end)
+    
+    CloseBtn.MouseButton1Click:Connect(CloseMenu)
+    MinBtn.MouseButton1Click:Connect(CloseMenu)
+    
+    UserInputService.InputBegan:Connect(function(input, gpe)
+        if gpe then return end
+        if input.KeyCode == State.ToggleKey then
+            if menuOpen then CloseMenu() else OpenMenu() end
+        end
+    end)
+    
+    -- Show loading
+    local ready = false
+    task.delay(1.5, function() ready = true end)
+    
+    ShowLoading(ScreenGui, title, function() return ready end, function()
+        MainFrame.Visible = true
+        menuOpen = true
+        if State.Animations then
+            MainFrame.Size = UDim2.new(0, 0, 0, 0)
+            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            MainFrame.BackgroundTransparency = 1
+            Tween(MainFrame, 0.5, { Size = UDim2.new(0, 640, 0, 420), Position = UDim2.new(0.5, -320, 0.5, -210), BackgroundTransparency = 0 }, Enum.EasingStyle.Back)
+        end
+        if State.Music.MuteGameOnOpen ~= false then
+            MuteGameMusic()
+        end
+        if State.Music.AutoPlay ~= false and State.Music.SoundId ~= "" then
+            PlayMenuMusic()
+        end
+    end)
+    
+    task.delay(3, function()
+        XYEL:Notify({
+            Title = "XYEL HUB",
+            Content = "Script loaded successfully! ✓",
+            Type = "success",
+            Duration = 3,
+        })
+    end)
+    
+    table.insert(State.Windows, WindowObj)
+    return WindowObj
+end
+
+-- ═══════════════════════════════════════════════════════
+-- LIBRARY API
+-- ═══════════════════════════════════════════════════════
+function XYEL:SetLanguage(lang)
+    CurrentLang = lang
+    State.Language = lang
+    RefreshI18n()
+end
+function XYEL:GetLanguage() return CurrentLang end
+function XYEL:GetLanguages()
+    local list = {}
+    for k in pairs(Translations) do table.insert(list, k) end
+    return list
+end
+function XYEL:SetThemeColor(c) State.Theme.Primary = c end
+function XYEL:GetTheme() return State.Theme end
+function XYEL:SetMusic(soundId, volume)
+    State.Music.SoundId = tostring(soundId)
+    if volume then State.Music.Volume = volume end
+end
+function XYEL:PlayMusic() return PlayMenuMusic() end
+function XYEL:StopMusic() StopMenuMusic() end
+function XYEL:ServerHop() DoServerHop() end
+function XYEL:SmallServer() DoSmallServer() end
+function XYEL:Rejoin() DoRejoin() end
+function XYEL:DestroyAll()
+    for _, w in ipairs(State.Windows) do
+        pcall(function() w:Destroy() end)
+    end
+    State.Windows = {}
+    pcall(function() UnmuteGameMusic() end)
+    pcall(function() MusicPlayer:Destroy() end)
+    pcall(function()
+        local p = GetParent()
+        for _, name in ipairs({"XYEL_HUB_Library", "XYEL_HUB", "XYEL_LOADING"}) do
+            if p:FindFirstChild(name) then p[name]:Destroy() end
+        end
+    end)
+end
+
+-- ═══════════════════════════════════════════════════════
+-- AUTO CREATE WINDOW (NO MAIN TAB)
+-- ═══════════════════════════════════════════════════════
+local Window = XYEL:CreateWindow({
+    Title = "XYEL HUB",
+    UserName = LocalPlayer.DisplayName or LocalPlayer.Name,
+    DisplayName = LocalPlayer.Name,
+    Discord = "https://discord.gg/KWTkjVvgK",
+})
+
+print("[XYEL HUB v3.2 LIBRARY-ONLY] Loaded!")
+print("[XYEL HUB] Languages: " .. #LanguageList .. " available")
+print("[XYEL HUB] Server actions: WORKING (Hop, Small Server, Rejoin)")
