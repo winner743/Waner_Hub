@@ -1,7 +1,7 @@
 --[[
     ═══════════════════════════════════════════════════════
-    XYEL HUB v8 - FIXED & ENHANCED
-    Smooth animations • Working floating mode • Rainbow colors
+    XYEL HUB v9 - ULTRA COMPLETE LIBRARY
+    Smooth anims • Music • Full mode switch • 33 Languages
     ═══════════════════════════════════════════════════════
 --]]
 
@@ -34,12 +34,15 @@ end
 
 pcall(function()
     local p = GetParent()
-    if p:FindFirstChild("XYEL_HUB_Library") then p.XYEL_HUB_Library:Destroy() end
+    for _, name in ipairs({"XYEL_HUB_Library", "XYEL_FlyDPad", "XYEL_Music"}) do
+        if p:FindFirstChild(name) then p[name]:Destroy() end
+    end
 end)
 
 local XYEL = {}
 _G.XYEL_LIBRARY = XYEL
 
+-- ═══ STATE ═══
 local State = {
     Theme = {
         Primary = Color3.fromRGB(99, 102, 241),
@@ -57,32 +60,41 @@ local State = {
     Language = "English",
     SliderActive = nil,
     GameName = "Unknown",
-    MenuMode = "Normal Mode",
+    MenuMode = "Classic Mode",
     RainbowEnabled = false,
     MainFrame = nil,
     ScreenGui = nil,
     FloatingWindows = {},
     TabData = {},
     WindowObj = nil,
+    IsMinimized = false,
+    Music = {
+        Sound = nil,
+        SoundId = "",
+        Playing = false,
+        Volume = 0.5,
+        Looped = true,
+    },
 }
 
--- ═══ TRANSLATIONS (33 languages × 85 keys) ═══
+-- ═══ TRANSLATIONS KEYS (100+) ═══
 local T_KEYS = {
     "Info","Settings","Main","Welcome","Appearance","Copy","Language","MenuMode",
-    "NormalMode","FloatingMode","Description","Loading","Close","Minimize",
+    "NormalMode","FloatingMode","ClassicMode","Description","Loading","Close","Minimize",
     "Speed","Jump","Fly","Noclip","WalkSpeed","JumpPower","EnableFly","EnableNoclip",
     "FlySpeed","Ready","DetectingGame","LoadingGame","Actions","Theme",
     "Animations","ModeChanged","SpeedDesc","JumpDesc","FlyDesc","NoclipDesc",
     "Music","MusicPlayer","SoundId","Volume","MuteGame","AutoPlay","LoopMusic",
-    "Apply","StopMusic","ClearMusic","Background","Rejoin","Hop","FindLow",
-    "RejoinBtn","ServerHopBtn","SmallServerBtn","Copied","SoundApplied",
+    "Apply","StopMusic","ClearMusic","PlayMusic","PauseMusic","Background","Rejoin",
+    "Hop","FindLow","RejoinBtn","ServerHopBtn","SmallServerBtn","Copied","SoundApplied",
     "SoundStopped","SoundCleared","InvalidSound","GameMuted","GameUnmuted",
     "MusicNotSet","MusicEnabled","MusicDisabled","PlayerFeatures","Behavior",
     "AutoLoad","AutoRejoin","ServerHop","LowServer","UISize","Small","Mid","Big",
     "ThemeColor","ResetChar","InfJump","Hopping","Finding","AlreadyIn",
     "NoServerFound","Rejoined","Teleporting","ActionRunning","Searching",
     "ThemeColorPicker","ResetSettings","About","Version","Rainbow","RainbowOn","RainbowOff",
-    "FlyControls","FlyUp","FlyDown","FlyForward","FlyBack","FlyLeft","FlyRight",
+    "ParticleEffects","GlowEffects","RippleClick","NotificationSound","AboutText",
+    "ThemePresets","AutoSave","ServerActions","LanguageInfo",
 }
 
 local function BK(tbl)
@@ -93,12 +105,13 @@ end
 
 local Translations = {}
 
+-- ═══ ENGLISH ═══
 Translations.English = BK({
     Info="Info", Settings="Settings", Main="Main",
     Welcome="Welcome to XYEL HUB", Appearance="Appearance",
     Copy="Copy Discord Link", Language="Language", MenuMode="Menu Mode",
-    NormalMode="Normal Menu", FloatingMode="Floating Menu",
-    Description="Hello everyone using this script! This script has many cheats, it's still a project. If you find bugs, join my discord.",
+    NormalMode="Classic Menu", FloatingMode="Floating Menu", ClassicMode="Classic Menu",
+    Description="Hello everyone! This script has many cheats, still a project. If you find bugs, join my discord.",
     Loading="Loading", Close="Close", Minimize="Minimize",
     Speed="Speed", Jump="Jump", Fly="Fly", Noclip="Noclip",
     WalkSpeed="Walk Speed", JumpPower="Jump Power",
@@ -111,6 +124,7 @@ Translations.English = BK({
     Music="Music", MusicPlayer="Music Player", SoundId="Sound ID", Volume="Volume",
     MuteGame="Mute Game", AutoPlay="Auto Play", LoopMusic="Loop Music",
     Apply="Apply", StopMusic="Stop Music", ClearMusic="Clear Music",
+    PlayMusic="Play Music", PauseMusic="Pause Music",
     Background="Background", Rejoin="Rejoin", Hop="Server Hop", FindLow="Find Low Server",
     RejoinBtn="Rejoin Server", ServerHopBtn="Server Hop", SmallServerBtn="Small Server",
     Copied="Discord link copied!", SoundApplied="Music applied!",
@@ -125,17 +139,21 @@ Translations.English = BK({
     Hopping="Hopping...", Finding="Finding...", AlreadyIn="Already in low server",
     NoServerFound="No server found", Rejoined="Rejoining...", Teleporting="Teleporting...",
     ActionRunning="Running action...", Searching="Searching...",
-    ThemeColorPicker="Theme Color", ResetSettings="Reset Settings", About="About", Version="Version",
-    Rainbow="Rainbow", RainbowOn="Rainbow ON", RainbowOff="Rainbow OFF",
-    FlyControls="Fly Controls", FlyUp="Up", FlyDown="Down", FlyForward="Forward",
-    FlyBack="Back", FlyLeft="Left", FlyRight="Right",
+    ThemeColorPicker="Theme Color", ResetSettings="Reset Settings", About="About",
+    Version="Version", Rainbow="Rainbow", RainbowOn="Rainbow ON", RainbowOff="Rainbow OFF",
+    ParticleEffects="Particle Effects", GlowEffects="Glow Effects",
+    RippleClick="Ripple Click", NotificationSound="Notification Sound",
+    AboutText="XYEL HUB v9 - Ultra Edition. Modern UI library with 33 languages, music player, server actions, and smooth animations.",
+    ThemePresets="Theme Presets", AutoSave="Auto Save", ServerActions="Server Actions",
+    LanguageInfo="Select your language",
 })
 
+-- ═══ INDONESIAN ═══
 Translations.Indonesian = BK({
     Info="Info", Settings="Pengaturan", Main="Utama",
     Welcome="Selamat Datang di XYEL HUB", Appearance="Tampilan",
     Copy="Salin Link Discord", Language="Bahasa", MenuMode="Mode Menu",
-    NormalMode="Menu Normal", FloatingMode="Menu Melayang",
+    NormalMode="Menu Klasik", FloatingMode="Menu Melayang", ClassicMode="Menu Klasik",
     Description="Halo semua! Script ini punya banyak cheat, masih project. Kalau ada bug, join discord saya.",
     Loading="Memuat", Close="Tutup", Minimize="Kecilkan",
     Speed="Kecepatan", Jump="Lompatan", Fly="Terbang", Noclip="Tembus Dinding",
@@ -149,6 +167,7 @@ Translations.Indonesian = BK({
     Music="Musik", MusicPlayer="Pemutar Musik", SoundId="ID Suara", Volume="Volume",
     MuteGame="Bisukan Game", AutoPlay="Putar Otomatis", LoopMusic="Ulangi Musik",
     Apply="Terapkan", StopMusic="Hentikan", ClearMusic="Hapus Musik",
+    PlayMusic="Putar Musik", PauseMusic="Jeda Musik",
     Background="Latar", Rejoin="Gabung Ulang", Hop="Pindah Server", FindLow="Cari Server Sepi",
     RejoinBtn="Gabung Ulang", ServerHopBtn="Pindah Server", SmallServerBtn="Server Sepi",
     Copied="Link Discord disalin!", SoundApplied="Musik diterapkan!",
@@ -163,17 +182,21 @@ Translations.Indonesian = BK({
     Hopping="Pindah server...", Finding="Mencari...", AlreadyIn="Sudah di server sepi",
     NoServerFound="Server tidak ditemukan", Rejoined="Menggabungkan ulang...", Teleporting="Teleportasi...",
     ActionRunning="Menjalankan aksi...", Searching="Mencari...",
-    ThemeColorPicker="Warna Tema", ResetSettings="Reset Pengaturan", About="Tentang", Version="Versi",
-    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
-    FlyControls="Kontrol Terbang", FlyUp="Atas", FlyDown="Bawah", FlyForward="Maju",
-    FlyBack="Mundur", FlyLeft="Kiri", FlyRight="Kanan",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Pengaturan", About="Tentang",
+    Version="Versi", Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    ParticleEffects="Efek Partikel", GlowEffects="Efek Cahaya",
+    RippleClick="Efek Riak Klik", NotificationSound="Suara Notifikasi",
+    AboutText="XYEL HUB v9 - Edisi Ultra. Library UI modern dengan 33 bahasa, pemutar musik, aksi server, dan animasi halus.",
+    ThemePresets="Preset Tema", AutoSave="Simpan Otomatis", ServerActions="Aksi Server",
+    LanguageInfo="Pilih bahasa kamu",
 })
 
+-- ═══ JAWA ═══
 Translations.Jawa = BK({
     Info="Info", Settings="Setelan", Main="Utama",
     Welcome="Sugeng Rawuh ing XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
-    NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
+    NormalMode="Menu Klasik", FloatingMode="Menu Melayang", ClassicMode="Menu Klasik",
     Description="Halo kabeh! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
@@ -187,6 +210,7 @@ Translations.Jawa = BK({
     Music="Musik", MusicPlayer="Pamuter Musik", SoundId="ID Swara", Volume="Volume",
     MuteGame="Bisukan Game", AutoPlay="Puter Otomatis", LoopMusic="Baleni Musik",
     Apply="Pasang", StopMusic="Mandekake", ClearMusic="Busak Musik",
+    PlayMusic="Puter Musik", PauseMusic="Jeda Musik",
     Background="Latar", Rejoin="Mlebu Maneh", Hop="Pindhah Server", FindLow="Golek Server Sepi",
     RejoinBtn="Mlebu Maneh", ServerHopBtn="Pindhah Server", SmallServerBtn="Server Sepi",
     Copied="Link Discord wis disalin!", SoundApplied="Musik wis dipasang!",
@@ -201,17 +225,21 @@ Translations.Jawa = BK({
     Hopping="Pindhah server...", Finding="Golek...", AlreadyIn="Wis ana ing server sepi",
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
-    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
-    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
-    FlyControls="Kontrol Mabur", FlyUp="Ndhuwur", FlyDown="Ngisor", FlyForward="Maju",
-    FlyBack="Mundur", FlyLeft="Kiwa", FlyRight="Tengen",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan",
+    Version="Versi", Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    ParticleEffects="Efek Partikel", GlowEffects="Efek Cahya",
+    RippleClick="Efek Riak Klik", NotificationSound="Swara Notifikasi",
+    AboutText="XYEL HUB v9 - Edisi Ultra. Library UI modern karo 33 basa, pamuter musik, aksi server, lan animasi alus.",
+    ThemePresets="Preset Tema", AutoSave="Simpen Otomatis", ServerActions="Aksi Server",
+    LanguageInfo="Pilih basa sampeyan",
 })
 
+-- ═══ INDRAMAYU ═══
 Translations.Indramayu = BK({
     Info="Info", Settings="Setelan", Main="Utama",
     Welcome="Sugeng Rawuh nang XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
-    NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
+    NormalMode="Menu Klasik", FloatingMode="Menu Melayang", ClassicMode="Menu Klasik",
     Description="Halo kabeh! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
@@ -225,6 +253,7 @@ Translations.Indramayu = BK({
     Music="Musik", MusicPlayer="Pamuter Musik", SoundId="ID Swara", Volume="Volume",
     MuteGame="Bisukan Game", AutoPlay="Puter Otomatis", LoopMusic="Baleni Musik",
     Apply="Pasang", StopMusic="Mandekake", ClearMusic="Busak Musik",
+    PlayMusic="Puter Musik", PauseMusic="Jeda Musik",
     Background="Latar", Rejoin="Mlebu Maneh", Hop="Pindah Server", FindLow="Golek Server Sepi",
     RejoinBtn="Mlebu Maneh", ServerHopBtn="Pindah Server", SmallServerBtn="Server Sepi",
     Copied="Link Discord wis disalin!", SoundApplied="Musik wis dipasang!",
@@ -239,17 +268,21 @@ Translations.Indramayu = BK({
     Hopping="Pindah server...", Finding="Golek...", AlreadyIn="Wis ana ing server sepi",
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
-    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
-    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
-    FlyControls="Kontrol Mabur", FlyUp="Ndhuwur", FlyDown="Ngisor", FlyForward="Maju",
-    FlyBack="Mundur", FlyLeft="Kiwa", FlyRight="Tengen",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan",
+    Version="Versi", Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    ParticleEffects="Efek Partikel", GlowEffects="Efek Cahya",
+    RippleClick="Efek Riak Klik", NotificationSound="Swara Notifikasi",
+    AboutText="XYEL HUB v9 - Edisi Ultra. Library UI modern karo 33 basa, pamuter musik, aksi server, lan animasi alus.",
+    ThemePresets="Preset Tema", AutoSave="Simpen Otomatis", ServerActions="Aksi Server",
+    LanguageInfo="Pilih basa sampeyan",
 })
 
+-- ═══ MALAY ═══
 Translations.Malay = BK({
     Info="Maklumat", Settings="Tetapan", Main="Utama",
     Welcome="Selamat Datang ke XYEL HUB", Appearance="Penampilan",
     Copy="Salin Pautan Discord", Language="Bahasa", MenuMode="Mod Menu",
-    NormalMode="Menu Biasa", FloatingMode="Menu Terapung",
+    NormalMode="Menu Klasik", FloatingMode="Menu Terapung", ClassicMode="Menu Klasik",
     Description="Helo semua! Skrip ini ada banyak cheat, masih projek. Jika ada bug, sertai discord saya.",
     Loading="Memuatkan", Close="Tutup", Minimize="Kecilkan",
     Speed="Kelajuan", Jump="Lompat", Fly="Terbang", Noclip="Tembus Dinding",
@@ -263,6 +296,7 @@ Translations.Malay = BK({
     Music="Muzik", MusicPlayer="Pemain Muzik", SoundId="ID Bunyi", Volume="Kelantangan",
     MuteGame="Senyapkan Game", AutoPlay="Main Auto", LoopMusic="Ulang Muzik",
     Apply="Guna", StopMusic="Henti", ClearMusic="Kosongkan",
+    PlayMusic="Main Muzik", PauseMusic="Jeda Muzik",
     Background="Latar Belakang", Rejoin="Sertai Semula", Hop="Tukar Server", FindLow="Cari Server Kosong",
     RejoinBtn="Sertai Semula", ServerHopBtn="Tukar Server", SmallServerBtn="Server Kosong",
     Copied="Pautan Discord disalin!", SoundApplied="Muzik digunakan!",
@@ -277,17 +311,21 @@ Translations.Malay = BK({
     Hopping="Tukar server...", Finding="Mencari...", AlreadyIn="Sudah di server kosong",
     NoServerFound="Server tidak dijumpai", Rejoined="Sertai semula...", Teleporting="Teleportasi...",
     ActionRunning="Tindakan sedang dijalankan...", Searching="Mencari...",
-    ThemeColorPicker="Warna Tema", ResetSettings="Reset Tetapan", About="Mengenai", Version="Versi",
-    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
-    FlyControls="Kawalan Terbang", FlyUp="Atas", FlyDown="Bawah", FlyForward="Hadapan",
-    FlyBack="Belakang", FlyLeft="Kiri", FlyRight="Kanan",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Tetapan", About="Mengenai",
+    Version="Versi", Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    ParticleEffects="Kesan Partikel", GlowEffects="Kesan Cahaya",
+    RippleClick="Kesan Riak Klik", NotificationSound="Bunyi Notifikasi",
+    AboutText="XYEL HUB v9 - Edisi Ultra. Perpustakaan UI moden dengan 33 bahasa, pemain muzik, tindakan server, dan animasi lancar.",
+    ThemePresets="Preset Tema", AutoSave="Simpan Auto", ServerActions="Tindakan Server",
+    LanguageInfo="Pilih bahasa anda",
 })
 
+-- ═══ FILIPINO ═══
 Translations.Filipino = BK({
     Info="Impormasyon", Settings="Mga Setting", Main="Pangunahin",
     Welcome="Maligayang Pagdating sa XYEL HUB", Appearance="Itsura",
     Copy="Kopyahin ang Discord", Language="Wika", MenuMode="Menu Mode",
-    NormalMode="Normal na Menu", FloatingMode="Lumulutang na Menu",
+    NormalMode="Klasikong Menu", FloatingMode="Lumulutang na Menu", ClassicMode="Klasikong Menu",
     Description="Kamusta sa lahat! Maraming cheat sa script na ito, project pa rin. Kung may bugs, sumali sa aking discord.",
     Loading="Naglo-load", Close="Isara", Minimize="I-minimize",
     Speed="Bilis", Jump="Talon", Fly="Lumipad", Noclip="Tembus Dinding",
@@ -301,6 +339,7 @@ Translations.Filipino = BK({
     Music="Musika", MusicPlayer="Music Player", SoundId="Sound ID", Volume="Volume",
     MuteGame="I-mute ang Game", AutoPlay="Auto Play", LoopMusic="Ulitin",
     Apply="Ilapat", StopMusic="Itigil", ClearMusic="I-clear",
+    PlayMusic="I-play ang Musika", PauseMusic="I-pause ang Musika",
     Background="Background", Rejoin="Sumali Muli", Hop="Lumipat ng Server", FindLow="Maghanap ng Bakanteng Server",
     RejoinBtn="Sumali Muli", ServerHopBtn="Lumipat ng Server", SmallServerBtn="Bakanteng Server",
     Copied="Nakopya ang link!", SoundApplied="Nailapat ang musika!",
@@ -308,24 +347,28 @@ Translations.Filipino = BK({
     InvalidSound="Invalid na Sound ID", GameMuted="Naka-mute ang musika ng laro",
     GameUnmuted="Naka-unmute ang musika ng laro", MusicNotSet="Walang Sound ID",
     MusicEnabled="Naka-enable ang musika", MusicDisabled="Naka-disable ang musika",
-    PlayerFeatures="Mga Tampok", Behavior="Pag-uugali",
+    PlayerFeatures="Mga Tampok ng Manlalaro", Behavior="Pag-uugali",
     AutoLoad="Auto Load", AutoRejoin="Auto Rejoin", ServerHop="Lumipat ng Server",
     LowServer="Bakanteng Server", UISize="Laki ng UI", Small="Maliit", Mid="Katamtaman", Big="Malaki",
-    ThemeColor="Kulay ng Tema", ResetChar="I-reset ang Karakter", InfJump="Walang Hanggang Pagtalon",
+    ThemeColor="Kulay ng Tema", ResetChar="I-reset", InfJump="Walang Hanggang Pagtalon",
     Hopping="Lumilipat...", Finding="Naghahanap...", AlreadyIn="Nasa bakanteng server na",
     NoServerFound="Walang server", Rejoined="Sumasali muli...", Teleporting="Nag-te-teleport...",
     ActionRunning="Tumatakbo...", Searching="Naghahanap...",
-    ThemeColorPicker="Kulay ng Tema", ResetSettings="I-reset", About="Tungkol", Version="Bersyon",
-    Rainbow="Bahaghari", RainbowOn="Bahaghari ON", RainbowOff="Bahaghari OFF",
-    FlyControls="Kontrol ng Paglipad", FlyUp="Taas", FlyDown="Baba", FlyForward="Harap",
-    FlyBack="Likod", FlyLeft="Kaliwa", FlyRight="Kanan",
+    ThemeColorPicker="Kulay ng Tema", ResetSettings="I-reset", About="Tungkol",
+    Version="Bersyon", Rainbow="Bahaghari", RainbowOn="Bahaghari ON", RainbowOff="Bahaghari OFF",
+    ParticleEffects="Epekto ng Partikulo", GlowEffects="Epekto ng Glow",
+    RippleClick="Epekto ng Ripple Click", NotificationSound="Tunog ng Notification",
+    AboutText="XYEL HUB v9 - Ultra Edition. Modernong UI library na may 33 wika, music player, server actions, at makinis na animation.",
+    ThemePresets="Mga Preset ng Tema", AutoSave="Auto Save", ServerActions="Mga Aksyon ng Server",
+    LanguageInfo="Piliin ang iyong wika",
 })
 
+-- ═══ SPANISH ═══
 Translations.Spanish = BK({
     Info="Información", Settings="Ajustes", Main="Principal",
     Welcome="Bienvenido a XYEL HUB", Appearance="Apariencia",
     Copy="Copiar Enlace Discord", Language="Idioma", MenuMode="Modo de Menú",
-    NormalMode="Menú Normal", FloatingMode="Menú Flotante",
+    NormalMode="Menú Clásico", FloatingMode="Menú Flotante", ClassicMode="Menú Clásico",
     Description="¡Hola a todos! Este script tiene muchos trucos, todavía es un proyecto. Si encuentras errores, únete a mi discord.",
     Loading="Cargando", Close="Cerrar", Minimize="Minimizar",
     Speed="Velocidad", Jump="Salto", Fly="Volar", Noclip="Atravesar Paredes",
@@ -339,6 +382,7 @@ Translations.Spanish = BK({
     Music="Música", MusicPlayer="Reproductor", SoundId="ID de Sonido", Volume="Volumen",
     MuteGame="Silenciar Juego", AutoPlay="Reproducción Auto", LoopMusic="Repetir",
     Apply="Aplicar", StopMusic="Detener", ClearMusic="Limpiar",
+    PlayMusic="Reproducir Música", PauseMusic="Pausar Música",
     Background="Fondo", Rejoin="Reincorporarse", Hop="Cambiar Servidor", FindLow="Servidor Vacío",
     RejoinBtn="Reincorporarse", ServerHopBtn="Cambiar Servidor", SmallServerBtn="Servidor Vacío",
     Copied="¡Enlace copiado!", SoundApplied="¡Música aplicada!",
@@ -346,24 +390,28 @@ Translations.Spanish = BK({
     InvalidSound="ID de Sonido inválido", GameMuted="Música del juego silenciada",
     GameUnmuted="Música del juego activada", MusicNotSet="Sin ID de Sonido",
     MusicEnabled="Música activada", MusicDisabled="Música desactivada",
-    PlayerFeatures="Funciones", Behavior="Comportamiento",
+    PlayerFeatures="Funciones del Jugador", Behavior="Comportamiento",
     AutoLoad="Carga Automática", AutoRejoin="Auto Reincorporación", ServerHop="Cambiar Servidor",
     LowServer="Servidor Vacío", UISize="Tamaño de UI", Small="Pequeño", Mid="Mediano", Big="Grande",
     ThemeColor="Color del Tema", ResetChar="Reiniciar", InfJump="Salto Infinito",
     Hopping="Cambiando...", Finding="Buscando...", AlreadyIn="Ya en servidor vacío",
     NoServerFound="Servidor no encontrado", Rejoined="Reincorporándose...", Teleporting="Teletransportando...",
     ActionRunning="Acción en ejecución...", Searching="Buscando...",
-    ThemeColorPicker="Color del Tema", ResetSettings="Restablecer", About="Acerca de", Version="Versión",
-    Rainbow="Arcoíris", RainbowOn="Arcoíris ON", RainbowOff="Arcoíris OFF",
-    FlyControls="Controles de Vuelo", FlyUp="Arriba", FlyDown="Abajo", FlyForward="Adelante",
-    FlyBack="Atrás", FlyLeft="Izquierda", FlyRight="Derecha",
+    ThemeColorPicker="Color del Tema", ResetSettings="Restablecer", About="Acerca de",
+    Version="Versión", Rainbow="Arcoíris", RainbowOn="Arcoíris ON", RainbowOff="Arcoíris OFF",
+    ParticleEffects="Efectos de Partículas", GlowEffects="Efectos de Brillo",
+    RippleClick="Efecto de Onda", NotificationSound="Sonido de Notificación",
+    AboutText="XYEL HUB v9 - Edición Ultra. Biblioteca UI moderna con 33 idiomas, reproductor de música, acciones de servidor y animaciones suaves.",
+    ThemePresets="Presets de Tema", AutoSave="Guardado Auto", ServerActions="Acciones del Servidor",
+    LanguageInfo="Elige tu idioma",
 })
 
+-- ═══ PORTUGUESE ═══
 Translations.Portuguese = BK({
     Info="Informação", Settings="Configurações", Main="Principal",
     Welcome="Bem-vindo ao XYEL HUB", Appearance="Aparência",
     Copy="Copiar Link Discord", Language="Idioma", MenuMode="Modo de Menu",
-    NormalMode="Menu Normal", FloatingMode="Menu Flutuante",
+    NormalMode="Menu Clássico", FloatingMode="Menu Flutuante", ClassicMode="Menu Clássico",
     Description="Olá a todos! Este script tem muitos cheats, ainda é um projeto. Se encontrar bugs, entre no meu discord.",
     Loading="Carregando", Close="Fechar", Minimize="Minimizar",
     Speed="Velocidade", Jump="Pulo", Fly="Voar", Noclip="Atravessar Paredes",
@@ -377,6 +425,7 @@ Translations.Portuguese = BK({
     Music="Música", MusicPlayer="Player de Música", SoundId="ID do Som", Volume="Volume",
     MuteGame="Silenciar Jogo", AutoPlay="Reprodução Auto", LoopMusic="Repetir",
     Apply="Aplicar", StopMusic="Parar", ClearMusic="Limpar",
+    PlayMusic="Tocar Música", PauseMusic="Pausar Música",
     Background="Fundo", Rejoin="Reentrar", Hop="Trocar Servidor", FindLow="Servidor Vazio",
     RejoinBtn="Reentrar", ServerHopBtn="Trocar Servidor", SmallServerBtn="Servidor Vazio",
     Copied="Link copiado!", SoundApplied="Música aplicada!",
@@ -384,24 +433,28 @@ Translations.Portuguese = BK({
     InvalidSound="ID do Som inválido", GameMuted="Música do jogo silenciada",
     GameUnmuted="Música do jogo ativada", MusicNotSet="Sem ID do Som",
     MusicEnabled="Música ativada", MusicDisabled="Música desativada",
-    PlayerFeatures="Recursos", Behavior="Comportamento",
+    PlayerFeatures="Recursos do Jogador", Behavior="Comportamento",
     AutoLoad="Carregamento Auto", AutoRejoin="Auto Reentrar", ServerHop="Trocar Servidor",
     LowServer="Servidor Vazio", UISize="Tamanho da UI", Small="Pequeno", Mid="Médio", Big="Grande",
     ThemeColor="Cor do Tema", ResetChar="Resetar", InfJump="Pulo Infinito",
     Hopping="Mudando...", Finding="Procurando...", AlreadyIn="Já em servidor vazio",
     NoServerFound="Servidor não encontrado", Rejoined="Reentrando...", Teleporting="Teleportando...",
     ActionRunning="Ação em execução...", Searching="Procurando...",
-    ThemeColorPicker="Cor do Tema", ResetSettings="Redefinir", About="Sobre", Version="Versão",
-    Rainbow="Arco-íris", RainbowOn="Arco-íris ON", RainbowOff="Arco-íris OFF",
-    FlyControls="Controles de Voo", FlyUp="Cima", FlyDown="Baixo", FlyForward="Frente",
-    FlyBack="Trás", FlyLeft="Esquerda", FlyRight="Direita",
+    ThemeColorPicker="Cor do Tema", ResetSettings="Redefinir", About="Sobre",
+    Version="Versão", Rainbow="Arco-íris", RainbowOn="Arco-íris ON", RainbowOff="Arco-íris OFF",
+    ParticleEffects="Efeitos de Partículas", GlowEffects="Efeitos de Brilho",
+    RippleClick="Efeito de Onda", NotificationSound="Som de Notificação",
+    AboutText="XYEL HUB v9 - Edição Ultra. Biblioteca UI moderna com 33 idiomas, player de música, ações de servidor e animações suaves.",
+    ThemePresets="Presets de Tema", AutoSave="Salvamento Auto", ServerActions="Ações do Servidor",
+    LanguageInfo="Escolha seu idioma",
 })
 
+-- ═══ FRENCH ═══
 Translations.French = BK({
     Info="Info", Settings="Paramètres", Main="Principal",
     Welcome="Bienvenue sur XYEL HUB", Appearance="Apparence",
     Copy="Copier Lien Discord", Language="Langue", MenuMode="Mode de Menu",
-    NormalMode="Menu Normal", FloatingMode="Menu Flottant",
+    NormalMode="Menu Classique", FloatingMode="Menu Flottant", ClassicMode="Menu Classique",
     Description="Bonjour à tous ! Ce script a beaucoup de triches, c'est encore un projet. Si vous trouvez des bugs, rejoignez mon discord.",
     Loading="Chargement", Close="Fermer", Minimize="Réduire",
     Speed="Vitesse", Jump="Saut", Fly="Voler", Noclip="Traverser les Murs",
@@ -415,6 +468,7 @@ Translations.French = BK({
     Music="Musique", MusicPlayer="Lecteur", SoundId="ID Son", Volume="Volume",
     MuteGame="Muet Jeu", AutoPlay="Lecture Auto", LoopMusic="Répéter",
     Apply="Appliquer", StopMusic="Arrêter", ClearMusic="Effacer",
+    PlayMusic="Jouer Musique", PauseMusic="Pause Musique",
     Background="Arrière-plan", Rejoin="Rejoindre", Hop="Changer Serveur", FindLow="Serveur Vide",
     RejoinBtn="Rejoindre", ServerHopBtn="Changer Serveur", SmallServerBtn="Serveur Vide",
     Copied="Lien copié!", SoundApplied="Musique appliquée!",
@@ -429,17 +483,21 @@ Translations.French = BK({
     Hopping="Changement...", Finding="Recherche...", AlreadyIn="Déjà dans un serveur vide",
     NoServerFound="Aucun serveur trouvé", Rejoined="Rejoindre...", Teleporting="Téléportation...",
     ActionRunning="Action en cours...", Searching="Recherche...",
-    ThemeColorPicker="Couleur du Thème", ResetSettings="Réinitialiser", About="À propos", Version="Version",
-    Rainbow="Arc-en-ciel", RainbowOn="Arc-en-ciel ON", RainbowOff="Arc-en-ciel OFF",
-    FlyControls="Contrôles de Vol", FlyUp="Haut", FlyDown="Bas", FlyForward="Avant",
-    FlyBack="Arrière", FlyLeft="Gauche", FlyRight="Droite",
+    ThemeColorPicker="Couleur du Thème", ResetSettings="Réinitialiser", About="À propos",
+    Version="Version", Rainbow="Arc-en-ciel", RainbowOn="Arc-en-ciel ON", RainbowOff="Arc-en-ciel OFF",
+    ParticleEffects="Effets de Particules", GlowEffects="Effets de Lueur",
+    RippleClick="Effet d'Onde", NotificationSound="Son de Notification",
+    AboutText="XYEL HUB v9 - Édition Ultra. Bibliothèque UI moderne avec 33 langues, lecteur de musique, actions serveur et animations fluides.",
+    ThemePresets="Presets de Thème", AutoSave="Sauvegarde Auto", ServerActions="Actions Serveur",
+    LanguageInfo="Choisissez votre langue",
 })
 
+-- ═══ GERMAN ═══
 Translations.German = BK({
     Info="Info", Settings="Einstellungen", Main="Haupt",
     Welcome="Willkommen bei XYEL HUB", Appearance="Aussehen",
     Copy="Discord-Link Kopieren", Language="Sprache", MenuMode="Menümodus",
-    NormalMode="Normales Menü", FloatingMode="Schwebendes Menü",
+    NormalMode="Klassisches Menü", FloatingMode="Schwebendes Menü", ClassicMode="Klassisches Menü",
     Description="Hallo an alle! Dieses Skript hat viele Cheats, es ist noch ein Projekt. Bei Bugs treten Sie meinem Discord bei.",
     Loading="Laden", Close="Schließen", Minimize="Minimieren",
     Speed="Geschwindigkeit", Jump="Springen", Fly="Fliegen", Noclip="Durch Wände",
@@ -453,6 +511,7 @@ Translations.German = BK({
     Music="Musik", MusicPlayer="Musikplayer", SoundId="Sound-ID", Volume="Lautstärke",
     MuteGame="Spiel Stummschalten", AutoPlay="Auto Abspielen", LoopMusic="Wiederholen",
     Apply="Anwenden", StopMusic="Stoppen", ClearMusic="Löschen",
+    PlayMusic="Musik Abspielen", PauseMusic="Musik Pausieren",
     Background="Hintergrund", Rejoin="Wiederverbinden", Hop="Server Wechseln", FindLow="Leeren Server",
     RejoinBtn="Wiederverbinden", ServerHopBtn="Server Wechseln", SmallServerBtn="Leerer Server",
     Copied="Link kopiert!", SoundApplied="Musik angewendet!",
@@ -467,17 +526,21 @@ Translations.German = BK({
     Hopping="Wechsel...", Finding="Suche...", AlreadyIn="Bereits auf leerem Server",
     NoServerFound="Kein Server gefunden", Rejoined="Wiederverbinden...", Teleporting="Teleportiere...",
     ActionRunning="Aktion läuft...", Searching="Suche...",
-    ThemeColorPicker="Themenfarbe", ResetSettings="Zurücksetzen", About="Über", Version="Version",
-    Rainbow="Regenbogen", RainbowOn="Regenbogen ON", RainbowOff="Regenbogen OFF",
-    FlyControls="Flugsteuerung", FlyUp="Hoch", FlyDown="Runter", FlyForward="Vorwärts",
-    FlyBack="Rückwärts", FlyLeft="Links", FlyRight="Rechts",
+    ThemeColorPicker="Themenfarbe", ResetSettings="Zurücksetzen", About="Über",
+    Version="Version", Rainbow="Regenbogen", RainbowOn="Regenbogen AN", RainbowOff="Regenbogen AUS",
+    ParticleEffects="Partikeleffekte", GlowEffects="Leuchteffekte",
+    RippleClick="Welleneffekt Klick", NotificationSound="Benachrichtigungston",
+    AboutText="XYEL HUB v9 - Ultra Edition. Moderne UI-Bibliothek mit 33 Sprachen, Musikplayer, Server-Aktionen und flüssigen Animationen.",
+    ThemePresets="Themen-Presets", AutoSave="Auto Speichern", ServerActions="Server-Aktionen",
+    LanguageInfo="Wählen Sie Ihre Sprache",
 })
 
+-- ═══ ITALIAN ═══
 Translations.Italian = BK({
     Info="Informazioni", Settings="Impostazioni", Main="Principale",
     Welcome="Benvenuto su XYEL HUB", Appearance="Aspetto",
     Copy="Copia Link Discord", Language="Lingua", MenuMode="Modalità Menu",
-    NormalMode="Menu Normale", FloatingMode="Menu Fluttuante",
+    NormalMode="Menu Classico", FloatingMode="Menu Fluttuante", ClassicMode="Menu Classico",
     Description="Ciao a tutti! Questo script ha molti cheat, è ancora un progetto. Se trovi bug, unisciti al mio discord.",
     Loading="Caricamento", Close="Chiudi", Minimize="Riduci",
     Speed="Velocità", Jump="Salto", Fly="Volare", Noclip="Attraversa Muri",
@@ -491,6 +554,7 @@ Translations.Italian = BK({
     Music="Musica", MusicPlayer="Riproduttore", SoundId="ID Suono", Volume="Volume",
     MuteGame="Muto Gioco", AutoPlay="Riproduzione Auto", LoopMusic="Ripeti",
     Apply="Applica", StopMusic="Ferma", ClearMusic="Cancella",
+    PlayMusic="Riproduci Musica", PauseMusic="Pausa Musica",
     Background="Sfondo", Rejoin="Rientra", Hop="Cambia Server", FindLow="Server Vuoto",
     RejoinBtn="Rientra", ServerHopBtn="Cambia Server", SmallServerBtn="Server Vuoto",
     Copied="Link copiato!", SoundApplied="Musica applicata!",
@@ -505,17 +569,21 @@ Translations.Italian = BK({
     Hopping="Cambio...", Finding="Ricerca...", AlreadyIn="Già in server vuoto",
     NoServerFound="Nessun server trovato", Rejoined="Rientro...", Teleporting="Teletrasporto...",
     ActionRunning="Azione in esecuzione...", Searching="Ricerca...",
-    ThemeColorPicker="Colore Tema", ResetSettings="Ripristina", About="Info", Version="Versione",
-    Rainbow="Arcobaleno", RainbowOn="Arcobaleno ON", RainbowOff="Arcobaleno OFF",
-    FlyControls="Controlli di Volo", FlyUp="Su", FlyDown="Giù", FlyForward="Avanti",
-    FlyBack="Indietro", FlyLeft="Sinistra", FlyRight="Destra",
+    ThemeColorPicker="Colore Tema", ResetSettings="Ripristina", About="Info",
+    Version="Versione", Rainbow="Arcobaleno", RainbowOn="Arcobaleno ON", RainbowOff="Arcobaleno OFF",
+    ParticleEffects="Effetti Particelle", GlowEffects="Effetti Bagliore",
+    RippleClick="Effetto Onda Click", NotificationSound="Suono Notifica",
+    AboutText="XYEL HUB v9 - Edizione Ultra. Libreria UI moderna con 33 lingue, lettore musicale, azioni server e animazioni fluide.",
+    ThemePresets="Preset Tema", AutoSave="Salvataggio Auto", ServerActions="Azioni Server",
+    LanguageInfo="Scegli la tua lingua",
 })
 
+-- ═══ DUTCH ═══
 Translations.Dutch = BK({
     Info="Informatie", Settings="Instellingen", Main="Hoofd",
     Welcome="Welkom bij XYEL HUB", Appearance="Uiterlijk",
     Copy="Discord-link Kopiëren", Language="Taal", MenuMode="Menumodus",
-    NormalMode="Normaal Menu", FloatingMode="Zwevend Menu",
+    NormalMode="Klassiek Menu", FloatingMode="Zwevend Menu", ClassicMode="Klassiek Menu",
     Description="Hallo allemaal! Dit script heeft veel cheats, het is nog een project. Bij bugs sluit je aan bij mijn discord.",
     Loading="Laden", Close="Sluiten", Minimize="Minimaliseren",
     Speed="Snelheid", Jump="Springen", Fly="Vliegen", Noclip="Muren Door",
@@ -529,6 +597,7 @@ Translations.Dutch = BK({
     Music="Muziek", MusicPlayer="Muziekspeler", SoundId="Geluid-ID", Volume="Volume",
     MuteGame="Spel Dempen", AutoPlay="Auto Afspelen", LoopMusic="Herhalen",
     Apply="Toepassen", StopMusic="Stoppen", ClearMusic="Wissen",
+    PlayMusic="Muziek Afspelen", PauseMusic="Muziek Pauzeren",
     Background="Achtergrond", Rejoin="Opnieuw Deelnemen", Hop="Server Wisselen", FindLow="Lege Server",
     RejoinBtn="Opnieuw Deelnemen", ServerHopBtn="Server Wisselen", SmallServerBtn="Lege Server",
     Copied="Link gekopieerd!", SoundApplied="Muziek toegepast!",
@@ -543,17 +612,21 @@ Translations.Dutch = BK({
     Hopping="Wisselen...", Finding="Zoeken...", AlreadyIn="Al op lege server",
     NoServerFound="Geen server gevonden", Rejoined="Opnieuw deelnemen...", Teleporting="Teleporteren...",
     ActionRunning="Actie wordt uitgevoerd...", Searching="Zoeken...",
-    ThemeColorPicker="Themakleur", ResetSettings="Resetten", About="Over", Version="Versie",
-    Rainbow="Regenboog", RainbowOn="Regenboog ON", RainbowOff="Regenboog OFF",
-    FlyControls="Vluchtbesturing", FlyUp="Omhoog", FlyDown="Omlaag", FlyForward="Vooruit",
-    FlyBack="Achteruit", FlyLeft="Links", FlyRight="Rechts",
+    ThemeColorPicker="Themakleur", ResetSettings="Resetten", About="Over",
+    Version="Versie", Rainbow="Regenboog", RainbowOn="Regenboog AAN", RainbowOff="Regenboog UIT",
+    ParticleEffects="Deeltjeseffecten", GlowEffects="Gloedeffecten",
+    RippleClick="Rimpelklik Effect", NotificationSound="Melding Geluid",
+    AboutText="XYEL HUB v9 - Ultra Editie. Moderne UI-bibliotheek met 33 talen, muziekspeler, serveracties en vloeiende animaties.",
+    ThemePresets="Thema Presets", AutoSave="Auto Opslaan", ServerActions="Serveracties",
+    LanguageInfo="Kies je taal",
 })
 
+-- ═══ TURKISH ═══
 Translations.Turkish = BK({
     Info="Bilgi", Settings="Ayarlar", Main="Ana",
     Welcome="XYEL HUB'a Hoş Geldiniz", Appearance="Görünüm",
     Copy="Discord Linkini Kopyala", Language="Dil", MenuMode="Menü Modu",
-    NormalMode="Normal Menü", FloatingMode="Yüzen Menü",
+    NormalMode="Klasik Menü", FloatingMode="Yüzen Menü", ClassicMode="Klasik Menü",
     Description="Merhaba herkes! Bu scriptte birçok hile var, hala proje. Hata bulursanız discorduma katılın.",
     Loading="Yükleniyor", Close="Kapat", Minimize="Küçült",
     Speed="Hız", Jump="Zıplama", Fly="Uçma", Noclip="Duvarlardan Geç",
@@ -567,6 +640,7 @@ Translations.Turkish = BK({
     Music="Müzik", MusicPlayer="Müzik Çalar", SoundId="Ses ID", Volume="Ses",
     MuteGame="Oyunu Sessize Al", AutoPlay="Otomatik Çal", LoopMusic="Tekrarla",
     Apply="Uygula", StopMusic="Durdur", ClearMusic="Temizle",
+    PlayMusic="Müzik Çal", PauseMusic="Müziği Duraklat",
     Background="Arka Plan", Rejoin="Yeniden Katıl", Hop="Sunucu Değiştir", FindLow="Boş Sunucu",
     RejoinBtn="Yeniden Katıl", ServerHopBtn="Sunucu Değiştir", SmallServerBtn="Boş Sunucu",
     Copied="Bağlantı kopyalandı!", SoundApplied="Müzik uygulandı!",
@@ -581,17 +655,21 @@ Translations.Turkish = BK({
     Hopping="Geçiliyor...", Finding="Aranıyor...", AlreadyIn="Zaten boş sunucuda",
     NoServerFound="Sunucu bulunamadı", Rejoined="Yeniden katılıyor...", Teleporting="Işınlanıyor...",
     ActionRunning="İşlem çalışıyor...", Searching="Aranıyor...",
-    ThemeColorPicker="Tema Rengi", ResetSettings="Sıfırla", About="Hakkında", Version="Sürüm",
-    Rainbow="Gökkuşağı", RainbowOn="Gökkuşağı ON", RainbowOff="Gökkuşağı OFF",
-    FlyControls="Uçuş Kontrolleri", FlyUp="Yukarı", FlyDown="Aşağı", FlyForward="İleri",
-    FlyBack="Geri", FlyLeft="Sol", FlyRight="Sağ",
+    ThemeColorPicker="Tema Rengi", ResetSettings="Sıfırla", About="Hakkında",
+    Version="Sürüm", Rainbow="Gökkuşağı", RainbowOn="Gökkuşağı AÇIK", RainbowOff="Gökkuşağı KAPALI",
+    ParticleEffects="Parçacık Efektleri", GlowEffects="Parlama Efektleri",
+    RippleClick="Dalga Tıklama Efekti", NotificationSound="Bildirim Sesi",
+    AboutText="XYEL HUB v9 - Ultra Sürüm. 33 dil, müzik çalar, sunucu işlemleri ve akıcı animasyonlarla modern UI kütüphanesi.",
+    ThemePresets="Tema Ön Ayarları", AutoSave="Otomatik Kaydet", ServerActions="Sunucu İşlemleri",
+    LanguageInfo="Dilinizi seçin",
 })
 
+-- ═══ RUSSIAN ═══
 Translations.Russian = BK({
     Info="Информация", Settings="Настройки", Main="Главное",
     Welcome="Добро пожаловать в XYEL HUB", Appearance="Внешний Вид",
     Copy="Копировать Discord", Language="Язык", MenuMode="Режим Меню",
-    NormalMode="Обычное Меню", FloatingMode="Плавающее Меню",
+    NormalMode="Классическое Меню", FloatingMode="Плавающее Меню", ClassicMode="Классическое Меню",
     Description="Привет всем! В этом скрипте много читов, он все еще проект. Если есть ошибки, присоединяйтесь к моему discord.",
     Loading="Загрузка", Close="Закрыть", Minimize="Свернуть",
     Speed="Скорость", Jump="Прыжок", Fly="Полет", Noclip="Сквозь Стены",
@@ -605,6 +683,7 @@ Translations.Russian = BK({
     Music="Музыка", MusicPlayer="Плеер", SoundId="ID Звука", Volume="Громкость",
     MuteGame="Без Звука", AutoPlay="Авто Воспроизведение", LoopMusic="Повтор",
     Apply="Применить", StopMusic="Стоп", ClearMusic="Очистить",
+    PlayMusic="Играть Музыку", PauseMusic="Пауза Музыки",
     Background="Фон", Rejoin="Переподключиться", Hop="Сменить Сервер", FindLow="Пустой Сервер",
     RejoinBtn="Переподключиться", ServerHopBtn="Сменить Сервер", SmallServerBtn="Пустой Сервер",
     Copied="Ссылка скопирована!", SoundApplied="Музыка применена!",
@@ -619,17 +698,21 @@ Translations.Russian = BK({
     Hopping="Переход...", Finding="Поиск...", AlreadyIn="Уже на пустом сервере",
     NoServerFound="Сервер не найден", Rejoined="Переподключение...", Teleporting="Телепортация...",
     ActionRunning="Действие выполняется...", Searching="Поиск...",
-    ThemeColorPicker="Цвет Темы", ResetSettings="Сброс", About="О скрипте", Version="Версия",
-    Rainbow="Радуга", RainbowOn="Радуга ВКЛ", RainbowOff="Радуга ВЫКЛ",
-    FlyControls="Управление Полётом", FlyUp="Вверх", FlyDown="Вниз", FlyForward="Вперёд",
-    FlyBack="Назад", FlyLeft="Влево", FlyRight="Вправо",
+    ThemeColorPicker="Цвет Темы", ResetSettings="Сброс", About="О скрипте",
+    Version="Версия", Rainbow="Радуга", RainbowOn="Радуга ВКЛ", RainbowOff="Радуга ВЫКЛ",
+    ParticleEffects="Эффекты Частиц", GlowEffects="Эффекты Свечения",
+    RippleClick="Эффект Волны Клика", NotificationSound="Звук Уведомления",
+    AboutText="XYEL HUB v9 - Ультра Издание. Современная UI-библиотека с 33 языками, музыкальным плеером, действиями сервера и плавными анимациями.",
+    ThemePresets="Пресеты Темы", AutoSave="Автосохранение", ServerActions="Действия Сервера",
+    LanguageInfo="Выберите язык",
 })
 
+-- ═══ UKRAINIAN ═══
 Translations.Ukrainian = BK({
     Info="Інформація", Settings="Налаштування", Main="Головне",
     Welcome="Ласкаво просимо до XYEL HUB", Appearance="Зовнішній Вигляд",
     Copy="Копіювати Discord", Language="Мова", MenuMode="Режим Меню",
-    NormalMode="Звичайне Меню", FloatingMode="Плаваюче Меню",
+    NormalMode="Класичне Меню", FloatingMode="Плаваюче Меню", ClassicMode="Класичне Меню",
     Description="Привіт усім! У цьому скрипті багато читів, він ще проєкт. Якщо є помилки, приєднуйтесь до мого discord.",
     Loading="Завантаження", Close="Закрити", Minimize="Згорнути",
     Speed="Швидкість", Jump="Стрибок", Fly="Політ", Noclip="Крізь Стіни",
@@ -643,6 +726,7 @@ Translations.Ukrainian = BK({
     Music="Музика", MusicPlayer="Плеєр", SoundId="ID Звуку", Volume="Гучність",
     MuteGame="Без Звуку", AutoPlay="Авто Відтворення", LoopMusic="Повтор",
     Apply="Застосувати", StopMusic="Зупинити", ClearMusic="Очистити",
+    PlayMusic="Грати Музику", PauseMusic="Пауза Музики",
     Background="Фон", Rejoin="Перепідключитися", Hop="Змінити Сервер", FindLow="Порожній Сервер",
     RejoinBtn="Перепідключитися", ServerHopBtn="Змінити Сервер", SmallServerBtn="Порожній Сервер",
     Copied="Посилання скопійовано!", SoundApplied="Музику застосовано!",
@@ -657,17 +741,21 @@ Translations.Ukrainian = BK({
     Hopping="Перехід...", Finding="Пошук...", AlreadyIn="Вже на порожньому сервері",
     NoServerFound="Сервер не знайдено", Rejoined="Перепідключення...", Teleporting="Телепортація...",
     ActionRunning="Дія виконується...", Searching="Пошук...",
-    ThemeColorPicker="Колір Теми", ResetSettings="Скинути", About="Про скрипт", Version="Версія",
-    Rainbow="Веселка", RainbowOn="Веселка УВІМК", RainbowOff="Веселка ВИМК",
-    FlyControls="Керування Польотом", FlyUp="Вгору", FlyDown="Вниз", FlyForward="Вперед",
-    FlyBack="Назад", FlyLeft="Вліво", FlyRight="Вправо",
+    ThemeColorPicker="Колір Теми", ResetSettings="Скинути", About="Про скрипт",
+    Version="Версія", Rainbow="Веселка", RainbowOn="Веселка УВІМК", RainbowOff="Веселка ВИМК",
+    ParticleEffects="Ефекти Частинок", GlowEffects="Ефекти Світіння",
+    RippleClick="Ефект Хвилі Кліку", NotificationSound="Звук Сповіщення",
+    AboutText="XYEL HUB v9 - Ультра Видання. Сучасна UI-бібліотека з 33 мовами, музичним плеєром, діями сервера та плавними анімаціями.",
+    ThemePresets="Пресети Теми", AutoSave="Автозбереження", ServerActions="Дії Сервера",
+    LanguageInfo="Виберіть мову",
 })
 
+-- ═══ POLISH ═══
 Translations.Polish = BK({
     Info="Informacje", Settings="Ustawienia", Main="Główny",
     Welcome="Witamy w XYEL HUB", Appearance="Wygląd",
     Copy="Kopiuj Link Discord", Language="Język", MenuMode="Tryb Menu",
-    NormalMode="Menu Normalne", FloatingMode="Menu Pływające",
+    NormalMode="Menu Klasyczne", FloatingMode="Menu Pływające", ClassicMode="Menu Klasyczne",
     Description="Witaj wszystkich! Ten skrypt ma wiele cheatów, to wciąż projekt. Jeśli są błędy, dołącz do mojego discorda.",
     Loading="Ładowanie", Close="Zamknij", Minimize="Zminimalizuj",
     Speed="Prędkość", Jump="Skok", Fly="Lataj", Noclip="Przez Ściany",
@@ -681,12 +769,13 @@ Translations.Polish = BK({
     Music="Muzyka", MusicPlayer="Odtwarzacz", SoundId="ID Dźwięku", Volume="Głośność",
     MuteGame="Wycisz Grę", AutoPlay="Auto Odtwarzanie", LoopMusic="Powtórz",
     Apply="Zastosuj", StopMusic="Zatrzymaj", ClearMusic="Wyczyść",
+    PlayMusic="Odtwórz Muzykę", PauseMusic="Pauza Muzyki",
     Background="Tło", Rejoin="Dołącz Ponownie", Hop="Zmień Serwer", FindLow="Pusty Serwer",
     RejoinBtn="Dołącz Ponownie", ServerHopBtn="Zmień Serwer", SmallServerBtn="Pusty Serwer",
     Copied="Link skopiowany!", SoundApplied="Muzyka zastosowana!",
     SoundStopped="Muzyka zatrzymana", SoundCleared="Muzyka wyczyszczona",
-    InvalidSound="Nieprawidłowy ID", GameMuted="Muzyka gry wyciszona",
-    GameUnmuted="Muzyka gry odciszona", MusicNotSet="Nie ustawiono ID",
+    InvalidSound="Nieprawidłowy ID Dźwięku", GameMuted="Muzyka gry wyciszona",
+    GameUnmuted="Muzyka gry odciszona", MusicNotSet="Nie ustawiono ID Dźwięku",
     MusicEnabled="Muzyka włączona", MusicDisabled="Muzyka wyłączona",
     PlayerFeatures="Funkcje Gracza", Behavior="Zachowanie",
     AutoLoad="Auto Ładowanie", AutoRejoin="Auto Dołącz", ServerHop="Zmień Serwer",
@@ -695,17 +784,21 @@ Translations.Polish = BK({
     Hopping="Przechodzenie...", Finding="Szukanie...", AlreadyIn="Już na pustym serwerze",
     NoServerFound="Nie znaleziono serwera", Rejoined="Dołączanie...", Teleporting="Teleportacja...",
     ActionRunning="Akcja w toku...", Searching="Szukanie...",
-    ThemeColorPicker="Kolor Motywu", ResetSettings="Resetuj", About="O skrypcie", Version="Wersja",
-    Rainbow="Tęcza", RainbowOn="Tęcza ON", RainbowOff="Tęcza OFF",
-    FlyControls="Sterowanie Lotem", FlyUp="Góra", FlyDown="Dół", FlyForward="Przód",
-    FlyBack="Tył", FlyLeft="Lewo", FlyRight="Prawo",
+    ThemeColorPicker="Kolor Motywu", ResetSettings="Resetuj", About="O skrypcie",
+    Version="Wersja", Rainbow="Tęcza", RainbowOn="Tęcza WŁ", RainbowOff="Tęcza WYŁ",
+    ParticleEffects="Efekty Cząstek", GlowEffects="Efekty Poświaty",
+    RippleClick="Efekt Fali Kliknięcia", NotificationSound="Dźwięk Powiadomienia",
+    AboutText="XYEL HUB v9 - Edycja Ultra. Nowoczesna biblioteka UI z 33 językami, odtwarzaczem muzyki, akcjami serwera i płynnymi animacjami.",
+    ThemePresets="Presety Motywu", AutoSave="Auto Zapisz", ServerActions="Akcje Serwera",
+    LanguageInfo="Wybierz swój język",
 })
 
+-- ═══ CZECH ═══
 Translations.Czech = BK({
     Info="Informace", Settings="Nastavení", Main="Hlavní",
     Welcome="Vítejte v XYEL HUB", Appearance="Vzhled",
     Copy="Kopírovat Discord", Language="Jazyk", MenuMode="Režim Menu",
-    NormalMode="Normální Menu", FloatingMode="Plovoucí Menu",
+    NormalMode="Klasické Menu", FloatingMode="Plovoucí Menu", ClassicMode="Klasické Menu",
     Description="Ahoj všichni! Tento skript má mnoho cheatů, je stále projekt. Pokud máte chyby, připojte se k mému discordu.",
     Loading="Načítání", Close="Zavřít", Minimize="Minimalizovat",
     Speed="Rychlost", Jump="Skok", Fly="Létat", Noclip="Skrz Stěny",
@@ -719,11 +812,12 @@ Translations.Czech = BK({
     Music="Hudba", MusicPlayer="Přehrávač", SoundId="ID Zvuku", Volume="Hlasitost",
     MuteGame="Ztlumit Hru", AutoPlay="Auto Přehrát", LoopMusic="Opakovat",
     Apply="Použít", StopMusic="Zastavit", ClearMusic="Vymazat",
+    PlayMusic="Přehrát Hudbu", PauseMusic="Pozastavit Hudbu",
     Background="Pozadí", Rejoin="Znovu Připojit", Hop="Změnit Server", FindLow="Prázdný Server",
     RejoinBtn="Znovu Připojit", ServerHopBtn="Změnit Server", SmallServerBtn="Prázdný Server",
     Copied="Odkaz zkopírován!", SoundApplied="Hudba použita!",
     SoundStopped="Hudba zastavena", SoundCleared="Hudba vymazána",
-    InvalidSound="Neplatný ID", GameMuted="Hudba hry ztlumena",
+    InvalidSound="Neplatný ID Zvuku", GameMuted="Hudba hry ztlumena",
     GameUnmuted="Hudba hry zapnuta", MusicNotSet="Žádný ID Zvuku",
     MusicEnabled="Hudba povolena", MusicDisabled="Hudba zakázána",
     PlayerFeatures="Funkce Hráče", Behavior="Chování",
@@ -733,17 +827,21 @@ Translations.Czech = BK({
     Hopping="Přepínání...", Finding="Hledání...", AlreadyIn="Již na prázdném serveru",
     NoServerFound="Server nenalezen", Rejoined="Připojování...", Teleporting="Teleportace...",
     ActionRunning="Akce probíhá...", Searching="Hledání...",
-    ThemeColorPicker="Barva Tématu", ResetSettings="Resetovat", About="O skriptu", Version="Verze",
-    Rainbow="Duha", RainbowOn="Duha ZAP", RainbowOff="Duha VYP",
-    FlyControls="Ovládání Letu", FlyUp="Nahoru", FlyDown="Dolů", FlyForward="Vpřed",
-    FlyBack="Vzad", FlyLeft="Vlevo", FlyRight="Vpravo",
+    ThemeColorPicker="Barva Tématu", ResetSettings="Resetovat", About="O skriptu",
+    Version="Verze", Rainbow="Duha", RainbowOn="Duha ZAP", RainbowOff="Duha VYP",
+    ParticleEffects="Efekty Částic", GlowEffects="Efekty Záře",
+    RippleClick="Efekt Vlnky Kliknutí", NotificationSound="Zvuk Oznámení",
+    AboutText="XYEL HUB v9 - Ultra Edice. Moderní UI knihovna s 33 jazyky, hudebním přehrávačem, akcemi serveru a plynulými animacemi.",
+    ThemePresets="Presety Tématu", AutoSave="Auto Uložit", ServerActions="Akce Serveru",
+    LanguageInfo="Vyberte svůj jazyk",
 })
 
+-- ═══ ROMANIAN ═══
 Translations.Romanian = BK({
     Info="Informații", Settings="Setări", Main="Principal",
     Welcome="Bine ați venit la XYEL HUB", Appearance="Aspect",
     Copy="Copiază Link Discord", Language="Limbă", MenuMode="Mod Meniu",
-    NormalMode="Meniu Normal", FloatingMode="Meniu Flotant",
+    NormalMode="Meniu Clasic", FloatingMode="Meniu Flotant", ClassicMode="Meniu Clasic",
     Description="Salut tuturor! Acest script are multe cheat-uri, este încă un proiect. Dacă aveți erori, alăturați-vă discordului meu.",
     Loading="Se încarcă", Close="Închide", Minimize="Minimizează",
     Speed="Viteză", Jump="Salt", Fly="Zbor", Noclip="Prin Pereți",
@@ -757,6 +855,7 @@ Translations.Romanian = BK({
     Music="Muzică", MusicPlayer="Player", SoundId="ID Sunet", Volume="Volum",
     MuteGame="Fără Sunet", AutoPlay="Auto Redare", LoopMusic="Repetă",
     Apply="Aplică", StopMusic="Oprește", ClearMusic="Curăță",
+    PlayMusic="Redă Muzică", PauseMusic="Pauză Muzică",
     Background="Fundal", Rejoin="Reconectare", Hop="Schimbă Server", FindLow="Server Gol",
     RejoinBtn="Reconectare", ServerHopBtn="Schimbă Server", SmallServerBtn="Server Gol",
     Copied="Link copiat!", SoundApplied="Muzică aplicată!",
@@ -771,17 +870,21 @@ Translations.Romanian = BK({
     Hopping="Schimbare...", Finding="Căutare...", AlreadyIn="Deja pe server gol",
     NoServerFound="Server negăsit", Rejoined="Reconectare...", Teleporting="Teleportare...",
     ActionRunning="Acțiune în curs...", Searching="Căutare...",
-    ThemeColorPicker="Culoare Temă", ResetSettings="Resetare", About="Despre", Version="Versiune",
-    Rainbow="Curcubeu", RainbowOn="Curcubeu ON", RainbowOff="Curcubeu OFF",
-    FlyControls="Controale Zbor", FlyUp="Sus", FlyDown="Jos", FlyForward="Înainte",
-    FlyBack="Înapoi", FlyLeft="Stânga", FlyRight="Dreapta",
+    ThemeColorPicker="Culoare Temă", ResetSettings="Resetare", About="Despre",
+    Version="Versiune", Rainbow="Curcubeu", RainbowOn="Curcubeu ON", RainbowOff="Curcubeu OFF",
+    ParticleEffects="Efecte Particule", GlowEffects="Efecte Strălucire",
+    RippleClick="Efect Undă Click", NotificationSound="Sunet Notificare",
+    AboutText="XYEL HUB v9 - Ediție Ultra. Bibliotecă UI modernă cu 33 limbi, player muzică, acțiuni server și animații fluide.",
+    ThemePresets="Presetări Temă", AutoSave="Salvare Auto", ServerActions="Acțiuni Server",
+    LanguageInfo="Alege limba ta",
 })
 
+-- ═══ GREEK ═══
 Translations.Greek = BK({
     Info="Πληροφορίες", Settings="Ρυθμίσεις", Main="Κύριο",
     Welcome="Καλώς ήρθατε στο XYEL HUB", Appearance="Εμφάνιση",
     Copy="Αντιγραφή Discord", Language="Γλώσσα", MenuMode="Λειτουργία Μενού",
-    NormalMode="Κανονικό Μενού", FloatingMode="Αιωρούμενο Μενού",
+    NormalMode="Κλασικό Μενού", FloatingMode="Αιωρούμενο Μενού", ClassicMode="Κλασικό Μενού",
     Description="Γεια σε όλους! Αυτό το script έχει πολλά cheat, είναι ακόμα έργο. Αν έχετε σφάλματα, ελάτε στο discord μου.",
     Loading="Φόρτωση", Close="Κλείσιμο", Minimize="Ελαχιστοποίηση",
     Speed="Ταχύτητα", Jump="Άλμα", Fly="Πτήση", Noclip="Μέσα από Τοίχους",
@@ -795,11 +898,12 @@ Translations.Greek = BK({
     Music="Μουσική", MusicPlayer="Αναπαραγωγή", SoundId="ID Ήχου", Volume="Ένταση",
     MuteGame="Σίγαση", AutoPlay="Αυτόματη Αναπαραγωγή", LoopMusic="Επανάληψη",
     Apply="Εφαρμογή", StopMusic="Διακοπή", ClearMusic="Καθαρισμός",
+    PlayMusic="Αναπαραγωγή Μουσικής", PauseMusic="Παύση Μουσικής",
     Background="Φόντο", Rejoin="Επανασύνδεση", Hop="Αλλαγή Διακομιστή", FindLow="Κενός Διακομιστής",
     RejoinBtn="Επανασύνδεση", ServerHopBtn="Αλλαγή Διακομιστή", SmallServerBtn="Κενός Διακομιστής",
     Copied="Ο σύνδεσμος αντιγράφηκε!", SoundApplied="Η μουσική εφαρμόστηκε!",
     SoundStopped="Η μουσική σταμάτησε", SoundCleared="Η μουσική καθαρίστηκε",
-    InvalidSound="Μη έγκυρο ID", GameMuted="Η μουσική παιχνιδιού σίγασε",
+    InvalidSound="Μη έγκυρο ID Ήχου", GameMuted="Η μουσική παιχνιδιού σίγασε",
     GameUnmuted="Η μουσική παιχνιδιού ενεργοποιήθηκε", MusicNotSet="Χωρίς ID Ήχου",
     MusicEnabled="Η μουσική ενεργοποιήθηκε", MusicDisabled="Η μουσική απενεργοποιήθηκε",
     PlayerFeatures="Λειτουργίες Παίκτη", Behavior="Συμπεριφορά",
@@ -809,17 +913,21 @@ Translations.Greek = BK({
     Hopping="Αλλαγή...", Finding="Αναζήτηση...", AlreadyIn="Ήδη σε κενό διακομιστή",
     NoServerFound="Δεν βρέθηκε διακομιστής", Rejoined="Επανασύνδεση...", Teleporting="Τηλεμεταφορά...",
     ActionRunning="Ενέργεια σε εξέλιξη...", Searching="Αναζήτηση...",
-    ThemeColorPicker="Χρώμα Θέματος", ResetSettings="Επαναφορά", About="Σχετικά", Version="Έκδοση",
-    Rainbow="Ουράνιο Τόξο", RainbowOn="Ουράνιο Τόξο ON", RainbowOff="Ουράνιο Τόξο OFF",
-    FlyControls="Έλεγχοι Πτήσης", FlyUp="Πάνω", FlyDown="Κάτω", FlyForward="Μπροστά",
-    FlyBack="Πίσω", FlyLeft="Αριστερά", FlyRight="Δεξιά",
+    ThemeColorPicker="Χρώμα Θέματος", ResetSettings="Επαναφορά", About="Σχετικά",
+    Version="Έκδοση", Rainbow="Ουράνιο Τόξο", RainbowOn="Ουράνιο Τόξο ON", RainbowOff="Ουράνιο Τόξο OFF",
+    ParticleEffects="Εφέ Σωματιδίων", GlowEffects="Εφέ Λάμψης",
+    RippleClick="Εφέ Κύματος Κλικ", NotificationSound="Ήχος Ειδοποίησης",
+    AboutText="XYEL HUB v9 - Ultra Edition. Μοντέρνα βιβλιοθήκη UI με 33 γλώσσες, αναπαραγωγή μουσικής, ενέργειες διακομιστή και ομαλές κινήσεις.",
+    ThemePresets="Προεπιλογές Θέματος", AutoSave="Αυτόματη Αποθήκευση", ServerActions="Ενέργειες Διακομιστή",
+    LanguageInfo="Επιλέξτε τη γλώσσα σας",
 })
 
+-- ═══ ARABIC ═══
 Translations.Arabic = BK({
     Info="معلومات", Settings="الإعدادات", Main="الرئيسية",
     Welcome="مرحباً بك في XYEL HUB", Appearance="المظهر",
     Copy="نسخ رابط ديسكورد", Language="اللغة", MenuMode="وضع القائمة",
-    NormalMode="قائمة عادية", FloatingMode="قائمة عائمة",
+    NormalMode="قائمة كلاسيكية", FloatingMode="قائمة عائمة", ClassicMode="قائمة كلاسيكية",
     Description="مرحباً بالجميع! هذا السكريبت يحتوي على الكثير من الغش، لا يزال مشروعاً. إذا وجدت أخطاء انضم لديسكوردي.",
     Loading="جار التحميل", Close="إغلاق", Minimize="تصغير",
     Speed="السرعة", Jump="القفز", Fly="الطيران", Noclip="من خلال الجدران",
@@ -833,6 +941,7 @@ Translations.Arabic = BK({
     Music="الموسيقى", MusicPlayer="مشغل الموسيقى", SoundId="معرف الصوت", Volume="الصوت",
     MuteGame="كتم اللعبة", AutoPlay="تشغيل تلقائي", LoopMusic="تكرار",
     Apply="تطبيق", StopMusic="إيقاف", ClearMusic="مسح",
+    PlayMusic="تشغيل الموسيقى", PauseMusic="إيقاف مؤقت",
     Background="الخلفية", Rejoin="إعادة الانضمام", Hop="تبديل السيرفر", FindLow="سيرفر قليل",
     RejoinBtn="إعادة الانضمام", ServerHopBtn="تبديل السيرفر", SmallServerBtn="سيرفر قليل",
     Copied="تم نسخ الرابط!", SoundApplied="تم تطبيق الموسيقى!",
@@ -847,17 +956,21 @@ Translations.Arabic = BK({
     Hopping="تبديل...", Finding="بحث...", AlreadyIn="بالفعل في سيرفر قليل",
     NoServerFound="لم يتم العثور على سيرفر", Rejoined="إعادة الانضمام...", Teleporting="جار النقل...",
     ActionRunning="جار تنفيذ الإجراء...", Searching="بحث...",
-    ThemeColorPicker="لون السمة", ResetSettings="إعادة تعيين", About="حول", Version="الإصدار",
-    Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
-    FlyControls="ضوابط الطيران", FlyUp="أعلى", FlyDown="أسفل", FlyForward="أمام",
-    FlyBack="خلف", FlyLeft="يسار", FlyRight="يمين",
+    ThemeColorPicker="لون السمة", ResetSettings="إعادة تعيين", About="حول",
+    Version="الإصدار", Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
+    ParticleEffects="تأثيرات الجسيمات", GlowEffects="تأثيرات التوهج",
+    RippleClick="تأثير النقر المتموج", NotificationSound="صوت الإشعار",
+    AboutText="XYEL HUB v9 - إصدار ألترا. مكتبة UI حديثة بـ 33 لغة، مشغل موسيقى، إجراءات السيرفر، ورسوم متحركة سلسة.",
+    ThemePresets="إعدادات السمة", AutoSave="حفظ تلقائي", ServerActions="إجراءات السيرفر",
+    LanguageInfo="اختر لغتك",
 })
 
+-- ═══ PERSIAN ═══
 Translations.Persian = BK({
     Info="اطلاعات", Settings="تنظیمات", Main="اصلی",
     Welcome="به XYEL HUB خوش آمدید", Appearance="ظاهر",
     Copy="کپی لینک دیسکورد", Language="زبان", MenuMode="حالت منو",
-    NormalMode="منوی عادی", FloatingMode="منوی شناور",
+    NormalMode="منوی کلاسیک", FloatingMode="منوی شناور", ClassicMode="منوی کلاسیک",
     Description="سلام به همه! این اسکریپت تقلب‌های زیادی دارد، هنوز پروژه است. اگر خطا دیدید به دیسکورد من بپیوندید.",
     Loading="در حال بارگذاری", Close="بستن", Minimize="کوچک کردن",
     Speed="سرعت", Jump="پرش", Fly="پرواز", Noclip="از دیوارها",
@@ -871,6 +984,7 @@ Translations.Persian = BK({
     Music="موسیقی", MusicPlayer="پخش‌کننده", SoundId="شناسه صدا", Volume="صدا",
     MuteGame="بی‌صدا", AutoPlay="پخش خودکار", LoopMusic="تکرار",
     Apply="اعمال", StopMusic="توقف", ClearMusic="پاک کردن",
+    PlayMusic="پخش موسیقی", PauseMusic="توقف موقت",
     Background="پس‌زمینه", Rejoin="پیوستن مجدد", Hop="تغییر سرور", FindLow="سرور خالی",
     RejoinBtn="پیوستن مجدد", ServerHopBtn="تغییر سرور", SmallServerBtn="سرور خالی",
     Copied="لینک کپی شد!", SoundApplied="موسیقی اعمال شد!",
@@ -885,17 +999,21 @@ Translations.Persian = BK({
     Hopping="تغییر...", Finding="جستجو...", AlreadyIn="قبلاً در سرور خالی",
     NoServerFound="سرور یافت نشد", Rejoined="پیوستن مجدد...", Teleporting="انتقال...",
     ActionRunning="اقدام در حال اجرا...", Searching="جستجو...",
-    ThemeColorPicker="رنگ تم", ResetSettings="بازنشانی", About="درباره", Version="نسخه",
-    Rainbow="رنگین‌کمان", RainbowOn="رنگین‌کمان ON", RainbowOff="رنگین‌کمان OFF",
-    FlyControls="کنترل‌های پرواز", FlyUp="بالا", FlyDown="پایین", FlyForward="جلو",
-    FlyBack="عقب", FlyLeft="چپ", FlyRight="راست",
+    ThemeColorPicker="رنگ تم", ResetSettings="بازنشانی", About="درباره",
+    Version="نسخه", Rainbow="رنگین‌کمان", RainbowOn="رنگین‌کمان ON", RainbowOff="رنگین‌کمان OFF",
+    ParticleEffects="جلوه‌های ذرات", GlowEffects="جلوه‌های درخشش",
+    RippleClick="جلوه موج کلیک", NotificationSound="صدای اعلان",
+    AboutText="XYEL HUB v9 - نسخه اولترا. کتابخانه UI مدرن با 33 زبان، پخش‌کننده موسیقی، اقدامات سرور و انیمیشن‌های روان.",
+    ThemePresets="پیش‌تنظیمات تم", AutoSave="ذخیره خودکار", ServerActions="اقدامات سرور",
+    LanguageInfo="زبان خود را انتخاب کنید",
 })
 
+-- ═══ URDU ═══
 Translations.Urdu = BK({
     Info="معلومات", Settings="ترتیبات", Main="مرکزی",
     Welcome="XYEL HUB میں خوش آمدید", Appearance="ظاہری شکل",
     Copy="ڈسکارڈ لنک کاپی", Language="زبان", MenuMode="مینو موڈ",
-    NormalMode="نارمل مینو", FloatingMode="فلوٹنگ مینو",
+    NormalMode="کلاسک مینو", FloatingMode="فلوٹنگ مینو", ClassicMode="کلاسک مینو",
     Description="ہیلو سب! اس اسکرپٹ میں بہت سی چیٹ ہے، یہ ابھی پروجیکٹ ہے۔ اگر بگ ہو تو میرے ڈسکارڈ میں شامل ہوں۔",
     Loading="لوڈ ہو رہا", Close="بند", Minimize="چھوٹا کریں",
     Speed="رفتار", Jump="چھلانگ", Fly="پرواز", Noclip="دیواروں سے",
@@ -909,6 +1027,7 @@ Translations.Urdu = BK({
     Music="میوزک", MusicPlayer="میوزک پلیئر", SoundId="آواز ID", Volume="والیوم",
     MuteGame="خاموش", AutoPlay="خودکار چلائیں", LoopMusic="دہرائیں",
     Apply="لاگو", StopMusic="روکیں", ClearMusic="صاف",
+    PlayMusic="میوزک چلائیں", PauseMusic="میوزک روکیں",
     Background="پس منظر", Rejoin="دوبارہ شامل", Hop="سرور تبدیل", FindLow="کم سرور",
     RejoinBtn="دوبارہ شامل", ServerHopBtn="سرور تبدیل", SmallServerBtn="کم سرور",
     Copied="لنک کاپی!", SoundApplied="میوزک لگ گیا!",
@@ -923,17 +1042,21 @@ Translations.Urdu = BK({
     Hopping="تبدیل...", Finding="تلاش...", AlreadyIn="پہلے سے کم سرور میں",
     NoServerFound="کوئی سرور نہیں ملا", Rejoined="دوبارہ شامل...", Teleporting="ٹیلی پورٹ...",
     ActionRunning="اقدام چل رہا ہے...", Searching="تلاش...",
-    ThemeColorPicker="تھیم رنگ", ResetSettings="ری سیٹ", About="کے بارے میں", Version="ورژن",
-    Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
-    FlyControls="پرواز کنٹرول", FlyUp="اوپر", FlyDown="نیچے", FlyForward="آگے",
-    FlyBack="پیچھے", FlyLeft="بائیں", FlyRight="دائیں",
+    ThemeColorPicker="تھیم رنگ", ResetSettings="ری سیٹ", About="کے بارے میں",
+    Version="ورژن", Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
+    ParticleEffects="ذرات کے اثرات", GlowEffects="چمک کے اثرات",
+    RippleClick="کلک لہر اثر", NotificationSound="اطلاع آواز",
+    AboutText="XYEL HUB v9 - الٹرا ایڈیشن۔ 33 زبانوں، میوزک پلیئر، سرور ایکشنز، اور ہموار اینیمیشنز کے ساتھ جدید UI لائبریری۔",
+    ThemePresets="تھیم پریسیٹ", AutoSave="خودکار محفوظ", ServerActions="سرور ایکشنز",
+    LanguageInfo="اپنی زبان منتخب کریں",
 })
 
+-- ═══ HEBREW ═══
 Translations.Hebrew = BK({
     Info="מידע", Settings="הגדרות", Main="ראשי",
     Welcome="ברוכים הבאים ל-XYEL HUB", Appearance="מראה",
     Copy="העתק קישור דיסקורד", Language="שפה", MenuMode="מצב תפריט",
-    NormalMode="תפריט רגיל", FloatingMode="תפריט צף",
+    NormalMode="תפריט קלאסי", FloatingMode="תפריט צף", ClassicMode="תפריט קלאסי",
     Description="שלום לכולם! בסקריפט הזה יש הרבה צ'יטים, הוא עדיין פרויקט. אם יש באגים הצטרפו לדיסקורד שלי.",
     Loading="טוען", Close="סגור", Minimize="מזער",
     Speed="מהירות", Jump="קפיצה", Fly="תעופה", Noclip="דרך קירות",
@@ -947,13 +1070,14 @@ Translations.Hebrew = BK({
     Music="מוזיקה", MusicPlayer="נגן", SoundId="מזהה צליל", Volume="עוצמה",
     MuteGame="השתק", AutoPlay="נגן אוטומטית", LoopMusic="חזור",
     Apply="החל", StopMusic="עצור", ClearMusic="נקה",
+    PlayMusic="נגן מוזיקה", PauseMusic="השהה מוזיקה",
     Background="רקע", Rejoin="הצטרף מחדש", Hop="החלף שרת", FindLow="שרת ריק",
     RejoinBtn="הצטרף מחדש", ServerHopBtn="החלף שרת", SmallServerBtn="שרת ריק",
     Copied="הקישור הועתק!", SoundApplied="המוזיקה הוחלה!",
     SoundStopped="המוזיקה הופסקה", SoundCleared="המוזיקה נוקתה",
     InvalidSound="מזהה צליל לא חוקי", GameMuted="מוזיקת המשחק הושתקה",
     GameUnmuted="מוזיקת המשחק הופעלה", MusicNotSet="אין מזהה צליל",
-    MusicEnabled="מוזיקה מופעלת", MusicDisabled="מוזיקה מו�ושבת",
+    MusicEnabled="מוזיקה מופעלת", MusicDisabled="מוזיקה מושבתת",
     PlayerFeatures="תכונות שחקן", Behavior="התנהגות",
     AutoLoad="טעינה אוטומטית", AutoRejoin="הצטרפות אוטומטית", ServerHop="החלף שרת",
     LowServer="שרת ריק", UISize="גודל ממשק", Small="קטן", Mid="בינוני", Big="גדול",
@@ -961,17 +1085,21 @@ Translations.Hebrew = BK({
     Hopping="מחליף...", Finding="מחפש...", AlreadyIn="כבר בשרת ריק",
     NoServerFound="לא נמצא שרת", Rejoined="הצטרפות מחדש...", Teleporting="טלפורט...",
     ActionRunning="פעולה פועלת...", Searching="מחפש...",
-    ThemeColorPicker="צבע ערכה", ResetSettings="אפס", About="אודות", Version="גרסה",
-    Rainbow="קשת", RainbowOn="קשת ON", RainbowOff="קשת OFF",
-    FlyControls="בקרות תעופה", FlyUp="למעלה", FlyDown="למטה", FlyForward="קדימה",
-    FlyBack="אחורה", FlyLeft="שמאלה", FlyRight="ימינה",
+    ThemeColorPicker="צבע ערכה", ResetSettings="אפס", About="אודות",
+    Version="גרסה", Rainbow="קשת", RainbowOn="קשת ON", RainbowOff="קשת OFF",
+    ParticleEffects="אפקטי חלקיקים", GlowEffects="אפקטי זוהר",
+    RippleClick="אפקט אדווה בלחיצה", NotificationSound="צליל התראה",
+    AboutText="XYEL HUB v9 - מהדורת אולטרה. ספריית UI מודרנית עם 33 שפות, נגן מוזיקה, פעולות שרת ואנימציות חלקות.",
+    ThemePresets="הגדרות ערכה", AutoSave="שמירה אוטומטית", ServerActions="פעולות שרת",
+    LanguageInfo="בחר את השפה שלך",
 })
 
+-- ═══ HINDI ═══
 Translations.Hindi = BK({
     Info="जानकारी", Settings="सेटिंग्स", Main="मुख्य",
     Welcome="XYEL HUB में आपका स्वागत है", Appearance="रूप",
     Copy="Discord लिंक कॉपी", Language="भाषा", MenuMode="मेनू मोड",
-    NormalMode="सामान्य मेनू", FloatingMode="फ्लोटिंग मेनू",
+    NormalMode="क्लासिक मेनू", FloatingMode="फ्लोटिंग मेनू", ClassicMode="क्लासिक मेनू",
     Description="नमस्ते सभी! इस स्क्रिप्ट में बहुत सारे चीट हैं, यह अभी भी प्रोजेक्ट है। अगर बग हों तो मेरे डिस्कॉर्ड से जुड़ें।",
     Loading="लोड हो रहा", Close="बंद", Minimize="छोटा करें",
     Speed="गति", Jump="कूद", Fly="उड़ान", Noclip="दीवारों से",
@@ -985,6 +1113,7 @@ Translations.Hindi = BK({
     Music="संगीत", MusicPlayer="संगीत प्लेयर", SoundId="ध्वनि ID", Volume="वॉल्यूम",
     MuteGame="म्यूट", AutoPlay="स्वतः चलाएं", LoopMusic="दोहराएं",
     Apply="लागू करें", StopMusic="रोकें", ClearMusic="साफ़ करें",
+    PlayMusic="संगीत चलाएं", PauseMusic="संगीत रोकें",
     Background="पृष्ठभूमि", Rejoin="फिर से जुड़ें", Hop="सर्वर बदलें", FindLow="खाली सर्वर",
     RejoinBtn="फिर से जुड़ें", ServerHopBtn="सर्वर बदलें", SmallServerBtn="खाली सर्वर",
     Copied="लिंक कॉपी हो गया!", SoundApplied="संगीत लागू हो गया!",
@@ -999,17 +1128,21 @@ Translations.Hindi = BK({
     Hopping="बदल रहे...", Finding="खोज रहे...", AlreadyIn="पहले से खाली सर्वर में",
     NoServerFound="कोई सर्वर नहीं मिला", Rejoined="फिर से जुड़ रहे...", Teleporting="टेलीपोर्ट...",
     ActionRunning="कार्रवाई चल रही...", Searching="खोज रहे...",
-    ThemeColorPicker="थीम रंग", ResetSettings="रीसेट", About="जानकारी", Version="संस्करण",
-    Rainbow="इंद्रधनुष", RainbowOn="इंद्रधनुष ON", RainbowOff="इंद्रधनुष OFF",
-    FlyControls="उड़ान नियंत्रण", FlyUp="ऊपर", FlyDown="नीचे", FlyForward="आगे",
-    FlyBack="पीछे", FlyLeft="बाएं", FlyRight="दाएं",
+    ThemeColorPicker="थीम रंग", ResetSettings="रीसेट", About="जानकारी",
+    Version="संस्करण", Rainbow="इंद्रधनुष", RainbowOn="इंद्रधनुष ON", RainbowOff="इंद्रधनुष OFF",
+    ParticleEffects="कण प्रभाव", GlowEffects="चमक प्रभाव",
+    RippleClick="क्लिक तरंग प्रभाव", NotificationSound="अधिसूचना ध्वनि",
+    AboutText="XYEL HUB v9 - अल्ट्रा संस्करण। 33 भाषाओं, संगीत प्लेयर, सर्वर क्रियाओं, और सुचारू एनिमेशन के साथ आधुनिक UI लाइब्रेरी।",
+    ThemePresets="थीम प्रीसेट", AutoSave="स्वतः सहेजें", ServerActions="सर्वर क्रियाएं",
+    LanguageInfo="अपनी भाषा चुनें",
 })
 
+-- ═══ BENGALI ═══
 Translations.Bengali = BK({
     Info="তথ্য", Settings="সেটিংস", Main="প্রধান",
     Welcome="XYEL HUB এ স্বাগতম", Appearance="চেহারা",
     Copy="Discord লিঙ্ক কপি", Language="ভাষা", MenuMode="মেনু মোড",
-    NormalMode="সাধারণ মেনু", FloatingMode="ভাসমান মেনু",
+    NormalMode="ক্লাসিক মেনু", FloatingMode="ভাসমান মেনু", ClassicMode="ক্লাসিক মেনু",
     Description="হ্যালো সবাই! এই স্ক্রিপ্টে অনেক চিট আছে, এটি এখনও প্রকল্প। বাগ থাকলে আমার ডিসকর্ডে যোগ দিন।",
     Loading="লোড হচ্ছে", Close="বন্ধ", Minimize="ছোট করুন",
     Speed="গতি", Jump="লাফ", Fly="উড়া", Noclip="দেয়ালের মধ্য দিয়ে",
@@ -1023,6 +1156,7 @@ Translations.Bengali = BK({
     Music="সংগীত", MusicPlayer="মিউজিক প্লেয়ার", SoundId="সাউন্ড ID", Volume="ভলিউম",
     MuteGame="নিঃশব্দ", AutoPlay="স্বয়ংক্রিয়", LoopMusic="পুনরাবৃত্তি",
     Apply="প্রয়োগ", StopMusic="বন্ধ", ClearMusic="পরিষ্কার",
+    PlayMusic="সংগীত চালান", PauseMusic="সংগীত থামান",
     Background="পটভূমি", Rejoin="পুনরায় যোগ", Hop="সার্ভার পরিবর্তন", FindLow="খালি সার্ভার",
     RejoinBtn="পুনরায় যোগ", ServerHopBtn="সার্ভার পরিবর্তন", SmallServerBtn="খালি সার্ভার",
     Copied="লিঙ্ক কপি!", SoundApplied="সংগীত প্রয়োগ!",
@@ -1037,17 +1171,21 @@ Translations.Bengali = BK({
     Hopping="পরিবর্তন...", Finding="সন্ধান...", AlreadyIn="ইতিমধ্যে খালি সার্ভারে",
     NoServerFound="সার্ভার পাওয়া যায়নি", Rejoined="পুনরায় যোগ...", Teleporting="টেলিপোর্ট...",
     ActionRunning="কার্যক্রম চলছে...", Searching="সন্ধান...",
-    ThemeColorPicker="থিম রঙ", ResetSettings="রিসেট", About="সম্পর্কে", Version="সংস্করণ",
-    Rainbow="রংধনু", RainbowOn="রংধনু ON", RainbowOff="রংধনু OFF",
-    FlyControls="উড়ান নিয়ন্ত্রণ", FlyUp="উপরে", FlyDown="নীচে", FlyForward="সামনে",
-    FlyBack="পিছনে", FlyLeft="বামে", FlyRight="ডানে",
+    ThemeColorPicker="থিম রঙ", ResetSettings="রিসেট", About="সম্পর্কে",
+    Version="সংস্করণ", Rainbow="রংধনু", RainbowOn="রংধনু ON", RainbowOff="রংধনু OFF",
+    ParticleEffects="কণা প্রভাব", GlowEffects="গ্লো প্রভাব",
+    RippleClick="ক্লিক তরঙ্গ প্রভাব", NotificationSound="বিজ্ঞপ্তি শব্দ",
+    AboutText="XYEL HUB v9 - আল্ট্রা সংস্করণ। 33 ভাষা, সঙ্গীত প্লেয়ার, সার্ভার অ্যাকশন, এবং মসৃণ অ্যানিমেশন সহ আধুনিক UI লাইব্রেরি।",
+    ThemePresets="থিম প্রিসেট", AutoSave="স্বয়ংক্রিয় সংরক্ষণ", ServerActions="সার্ভার অ্যাকশন",
+    LanguageInfo="আপনার ভাষা চয়ন করুন",
 })
 
+-- ═══ TAMIL ═══
 Translations.Tamil = BK({
     Info="தகவல்", Settings="அமைப்புகள்", Main="முதன்மை",
     Welcome="XYEL HUB க்கு வரவேற்கிறோம்", Appearance="தோற்றம்",
     Copy="Discord இணைப்பு", Language="மொழி", MenuMode="மெனு பயன்முறை",
-    NormalMode="சாதாரண மெனு", FloatingMode="மிதக்கும் மெனு",
+    NormalMode="கிளாசிக் மெனு", FloatingMode="மிதக்கும் மெனு", ClassicMode="கிளாசிக் மெனு",
     Description="அனைவருக்கும் வணக்கம்! இந்த ஸ்கிரிப்ட்டில் பல ஏமாற்றுகள் உள்ளன, இது இன்னும் திட்டம். பிழைகள் இருந்தால் என் டிஸ்கார்டில் சேரவும்.",
     Loading="ஏற்றுகிறது", Close="மூடு", Minimize="சிறிதாக்கு",
     Speed="வேகம்", Jump="குதி", Fly="பற", Noclip="சுவர்கள் வழியாக",
@@ -1061,6 +1199,7 @@ Translations.Tamil = BK({
     Music="இசை", MusicPlayer="இசை இயந்திரம்", SoundId="ஒலி ID", Volume="ஒலி அளவு",
     MuteGame="ஒலியடக்கு", AutoPlay="தானியங்கி இயக்கு", LoopMusic="மீண்டும்",
     Apply="பயன்படுத்து", StopMusic="நிறுத்து", ClearMusic="அழி",
+    PlayMusic="இசை இயக்கு", PauseMusic="இசை இடைநிறுத்து",
     Background="பின்னணி", Rejoin="மீண்டும் இணை", Hop="சேவையகம் மாற்று", FindLow="காலி சேவையகம்",
     RejoinBtn="மீண்டும் இணை", ServerHopBtn="சேவையகம் மாற்று", SmallServerBtn="காலி சேவையகம்",
     Copied="இணைப்பு நகலெடுக்கப்பட்டது!", SoundApplied="இசை பயன்படுத்தப்பட்டது!",
@@ -1075,17 +1214,21 @@ Translations.Tamil = BK({
     Hopping="மாறுகிறது...", Finding="தேடுகிறது...", AlreadyIn="ஏற்கனவே காலி சேவையகத்தில்",
     NoServerFound="சேவையகம் இல்லை", Rejoined="மீண்டும் இணைகிறது...", Teleporting="டெலிபோர்ட்...",
     ActionRunning="செயல் இயங்குகிறது...", Searching="தேடுகிறது...",
-    ThemeColorPicker="தீம் நிறம்", ResetSettings="மீட்டமை", About="பற்றி", Version="பதிப்பு",
-    Rainbow="வானவில்", RainbowOn="வானவில் ON", RainbowOff="வானவில் OFF",
-    FlyControls="பறக்கும் கட்டுப்பாடு", FlyUp="மேலே", FlyDown="கீழே", FlyForward="முன்னே",
-    FlyBack="பின்னே", FlyLeft="இடது", FlyRight="வலது",
+    ThemeColorPicker="தீம் நிறம்", ResetSettings="மீட்டமை", About="பற்றி",
+    Version="பதிப்பு", Rainbow="வானவில்", RainbowOn="வானவில் ON", RainbowOff="வானவில் OFF",
+    ParticleEffects="துகள் விளைவுகள்", GlowEffects="ஒளிர்வு விளைவுகள்",
+    RippleClick="கிளிக் அலை விளைவு", NotificationSound="அறிவிப்பு ஒலி",
+    AboutText="XYEL HUB v9 - அல்ட்ரா பதிப்பு. 33 மொழிகள், இசை இயந்திரம், சேவையக செயல்கள், மற்றும் மென்மையான அனிமேஷன்களுடன் நவீன UI நூலகம்.",
+    ThemePresets="தீம் முன்னமைவுகள்", AutoSave="தானியங்கி சேமி", ServerActions="சேவையக செயல்கள்",
+    LanguageInfo="உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்",
 })
 
+-- ═══ JAPANESE ═══
 Translations.Japanese = BK({
     Info="情報", Settings="設定", Main="メイン",
     Welcome="XYEL HUBへようこそ", Appearance="外観",
     Copy="Discordリンクをコピー", Language="言語", MenuMode="メニューモード",
-    NormalMode="通常メニュー", FloatingMode="フローティングメニュー",
+    NormalMode="クラシックメニュー", FloatingMode="フローティングメニュー", ClassicMode="クラシックメニュー",
     Description="こんにちは！このスクリプトには多くのチートがあります。まだプロジェクト中です。バグがあればDiscordに参加してください。",
     Loading="読み込み中", Close="閉じる", Minimize="最小化",
     Speed="速度", Jump="ジャンプ", Fly="飛行", Noclip="壁を貫通",
@@ -1099,6 +1242,7 @@ Translations.Japanese = BK({
     Music="音楽", MusicPlayer="ミュージックプレイヤー", SoundId="サウンドID", Volume="音量",
     MuteGame="ミュート", AutoPlay="自動再生", LoopMusic="ループ",
     Apply="適用", StopMusic="停止", ClearMusic="クリア",
+    PlayMusic="音楽を再生", PauseMusic="音楽を一時停止",
     Background="背景", Rejoin="再参加", Hop="サーバー変更", FindLow="空きサーバー",
     RejoinBtn="再参加", ServerHopBtn="サーバー変更", SmallServerBtn="空きサーバー",
     Copied="リンクをコピーしました!", SoundApplied="音楽を適用しました!",
@@ -1113,17 +1257,21 @@ Translations.Japanese = BK({
     Hopping="変更中...", Finding="検索中...", AlreadyIn="既に空きサーバーにいます",
     NoServerFound="サーバーが見つかりません", Rejoined="再参加中...", Teleporting="テレポート中...",
     ActionRunning="アクション実行中...", Searching="検索中...",
-    ThemeColorPicker="テーマカラー", ResetSettings="リセット", About="について", Version="バージョン",
-    Rainbow="レインボー", RainbowOn="レインボー ON", RainbowOff="レインボー OFF",
-    FlyControls="飛行コントロール", FlyUp="上", FlyDown="下", FlyForward="前",
-    FlyBack="後", FlyLeft="左", FlyRight="右",
+    ThemeColorPicker="テーマカラー", ResetSettings="リセット", About="について",
+    Version="バージョン", Rainbow="レインボー", RainbowOn="レインボー ON", RainbowOff="レインボー OFF",
+    ParticleEffects="パーティクル効果", GlowEffects="グロー効果",
+    RippleClick="リップルクリック効果", NotificationSound="通知音",
+    AboutText="XYEL HUB v9 - ウルトラエディション。33言語、音楽プレイヤー、サーバーアクション、スムーズなアニメーションを備えたモダンUIライブラリ。",
+    ThemePresets="テーマプリセット", AutoSave="自動保存", ServerActions="サーバーアクション",
+    LanguageInfo="言語を選択してください",
 })
 
+-- ═══ KOREAN ═══
 Translations.Korean = BK({
     Info="정보", Settings="설정", Main="메인",
     Welcome="XYEL HUB에 오신 것을 환영합니다", Appearance="모양",
     Copy="디스코드 링크 복사", Language="언어", MenuMode="메뉴 모드",
-    NormalMode="일반 메뉴", FloatingMode="플로팅 메뉴",
+    NormalMode="클래식 메뉴", FloatingMode="플로팅 메뉴", ClassicMode="클래식 메뉴",
     Description="안녕하세요! 이 스크립트에는 많은 치트가 있습니다. 아직 프로젝트 중이며 버그가 있으면 제 디스코드에 참여하세요.",
     Loading="로딩 중", Close="닫기", Minimize="최소화",
     Speed="속도", Jump="점프", Fly="비행", Noclip="벽 통과",
@@ -1137,6 +1285,7 @@ Translations.Korean = BK({
     Music="음악", MusicPlayer="음악 플레이어", SoundId="사운드 ID", Volume="볼륨",
     MuteGame="음소거", AutoPlay="자동 재생", LoopMusic="반복",
     Apply="적용", StopMusic="정지", ClearMusic="지우기",
+    PlayMusic="음악 재생", PauseMusic="음악 일시정지",
     Background="배경", Rejoin="재접속", Hop="서버 변경", FindLow="한산한 서버",
     RejoinBtn="재접속", ServerHopBtn="서버 변경", SmallServerBtn="한산한 서버",
     Copied="링크 복사됨!", SoundApplied="음악 적용됨!",
@@ -1151,17 +1300,21 @@ Translations.Korean = BK({
     Hopping="변경 중...", Finding="검색 중...", AlreadyIn="이미 한산한 서버에 있음",
     NoServerFound="서버를 찾을 수 없음", Rejoined="재접속 중...", Teleporting="텔레포트 중...",
     ActionRunning="작업 실행 중...", Searching="검색 중...",
-    ThemeColorPicker="테마 색상", ResetSettings="리셋", About="정보", Version="버전",
-    Rainbow="무지개", RainbowOn="무지개 ON", RainbowOff="무지개 OFF",
-    FlyControls="비행 컨트롤", FlyUp="위", FlyDown="아래", FlyForward="앞",
-    FlyBack="뒤", FlyLeft="왼쪽", FlyRight="오른쪽",
+    ThemeColorPicker="테마 색상", ResetSettings="리셋", About="정보",
+    Version="버전", Rainbow="무지개", RainbowOn="무지개 ON", RainbowOff="무지개 OFF",
+    ParticleEffects="파티클 효과", GlowEffects="글로우 효과",
+    RippleClick="리플 클릭 효과", NotificationSound="알림음",
+    AboutText="XYEL HUB v9 - 울트라 에디션. 33개 언어, 음악 플레이어, 서버 작업, 부드러운 애니메이션을 갖춘 현대적인 UI 라이브러리.",
+    ThemePresets="테마 프리셋", AutoSave="자동 저장", ServerActions="서버 작업",
+    LanguageInfo="언어를 선택하세요",
 })
 
+-- ═══ CHINESE ═══
 Translations.Chinese = BK({
     Info="信息", Settings="设置", Main="主页",
     Welcome="欢迎来到XYEL HUB", Appearance="外观",
     Copy="复制Discord链接", Language="语言", MenuMode="菜单模式",
-    NormalMode="普通菜单", FloatingMode="浮动菜单",
+    NormalMode="经典菜单", FloatingMode="浮动菜单", ClassicMode="经典菜单",
     Description="大家好！此脚本中有许多作弊功能，仍在开发中。如有错误请加入我的Discord。",
     Loading="加载中", Close="关闭", Minimize="最小化",
     Speed="速度", Jump="跳跃", Fly="飞行", Noclip="穿墙",
@@ -1175,6 +1328,7 @@ Translations.Chinese = BK({
     Music="音乐", MusicPlayer="音乐播放器", SoundId="声音ID", Volume="音量",
     MuteGame="静音", AutoPlay="自动播放", LoopMusic="循环",
     Apply="应用", StopMusic="停止", ClearMusic="清除",
+    PlayMusic="播放音乐", PauseMusic="暂停音乐",
     Background="背景", Rejoin="重新加入", Hop="切换服务器", FindLow="低人数服务器",
     RejoinBtn="重新加入", ServerHopBtn="切换服务器", SmallServerBtn="低人数服务器",
     Copied="链接已复制！", SoundApplied="音乐已应用！",
@@ -1189,17 +1343,21 @@ Translations.Chinese = BK({
     Hopping="切换中...", Finding="搜索中...", AlreadyIn="已在低人数服务器中",
     NoServerFound="未找到服务器", Rejoined="重新加入中...", Teleporting="传送中...",
     ActionRunning="操作运行中...", Searching="搜索中...",
-    ThemeColorPicker="主题颜色", ResetSettings="重置", About="关于", Version="版本",
-    Rainbow="彩虹", RainbowOn="彩虹 ON", RainbowOff="彩虹 OFF",
-    FlyControls="飞行控制", FlyUp="上", FlyDown="下", FlyForward="前",
-    FlyBack="后", FlyLeft="左", FlyRight="右",
+    ThemeColorPicker="主题颜色", ResetSettings="重置", About="关于",
+    Version="版本", Rainbow="彩虹", RainbowOn="彩虹 ON", RainbowOff="彩虹 OFF",
+    ParticleEffects="粒子效果", GlowEffects="发光效果",
+    RippleClick="点击波纹效果", NotificationSound="通知声音",
+    AboutText="XYEL HUB v9 - 超级版。具有33种语言、音乐播放器、服务器操作和平滑动画的现代UI库。",
+    ThemePresets="主题预设", AutoSave="自动保存", ServerActions="服务器操作",
+    LanguageInfo="选择您的语言",
 })
 
+-- ═══ VIETNAMESE ═══
 Translations.Vietnamese = BK({
     Info="Thông tin", Settings="Cài đặt", Main="Chính",
     Welcome="Chào mừng đến XYEL HUB", Appearance="Ngoại hình",
     Copy="Sao chép Discord", Language="Ngôn ngữ", MenuMode="Chế độ Menu",
-    NormalMode="Menu Thường", FloatingMode="Menu Nổi",
+    NormalMode="Menu Cổ điển", FloatingMode="Menu Nổi", ClassicMode="Menu Cổ điển",
     Description="Xin chào mọi người! Script này có nhiều cheat, vẫn đang là dự án. Nếu có lỗi hãy tham gia discord của tôi.",
     Loading="Đang tải", Close="Đóng", Minimize="Thu nhỏ",
     Speed="Tốc độ", Jump="Nhảy", Fly="Bay", Noclip="Xuyên Tường",
@@ -1213,6 +1371,7 @@ Translations.Vietnamese = BK({
     Music="Nhạc", MusicPlayer="Trình phát nhạc", SoundId="ID âm thanh", Volume="Âm lượng",
     MuteGame="Tắt tiếng", AutoPlay="Tự động phát", LoopMusic="Lặp",
     Apply="Áp dụng", StopMusic="Dừng", ClearMusic="Xóa",
+    PlayMusic="Phát Nhạc", PauseMusic="Tạm Dừng Nhạc",
     Background="Nền", Rejoin="Vào lại", Hop="Đổi máy chủ", FindLow="Máy chủ vắng",
     RejoinBtn="Vào lại", ServerHopBtn="Đổi máy chủ", SmallServerBtn="Máy chủ vắng",
     Copied="Đã sao chép liên kết!", SoundApplied="Đã áp dụng nhạc!",
@@ -1227,17 +1386,21 @@ Translations.Vietnamese = BK({
     Hopping="Đang đổi...", Finding="Đang tìm...", AlreadyIn="Đã ở máy chủ vắng",
     NoServerFound="Không tìm thấy máy chủ", Rejoined="Đang vào lại...", Teleporting="Đang dịch chuyển...",
     ActionRunning="Đang thực hiện...", Searching="Đang tìm...",
-    ThemeColorPicker="Màu chủ đề", ResetSettings="Đặt lại", About="Giới thiệu", Version="Phiên bản",
-    Rainbow="Cầu vồng", RainbowOn="Cầu vồng ON", RainbowOff="Cầu vồng OFF",
-    FlyControls="Điều khiển Bay", FlyUp="Lên", FlyDown="Xuống", FlyForward="Tiến",
-    FlyBack="Lùi", FlyLeft="Trái", FlyRight="Phải",
+    ThemeColorPicker="Màu chủ đề", ResetSettings="Đặt lại", About="Giới thiệu",
+    Version="Phiên bản", Rainbow="Cầu vồng", RainbowOn="Cầu vồng ON", RainbowOff="Cầu vồng OFF",
+    ParticleEffects="Hiệu ứng Hạt", GlowEffects="Hiệu ứng Phát sáng",
+    RippleClick="Hiệu ứng Sóng Nhấp", NotificationSound="Âm thanh Thông báo",
+    AboutText="XYEL HUB v9 - Phiên bản Ultra. Thư viện UI hiện đại với 33 ngôn ngữ, trình phát nhạc, hành động máy chủ và hoạt ảnh mượt mà.",
+    ThemePresets="Cài đặt trước Chủ đề", AutoSave="Tự động Lưu", ServerActions="Hành động Máy chủ",
+    LanguageInfo="Chọn ngôn ngữ của bạn",
 })
 
+-- ═══ THAI ═══
 Translations.Thai = BK({
     Info="ข้อมูล", Settings="การตั้งค่า", Main="หลัก",
     Welcome="ยินดีต้อนรับสู่ XYEL HUB", Appearance="รูปลักษณ์",
     Copy="คัดลอก Discord", Language="ภาษา", MenuMode="โหมดเมนู",
-    NormalMode="เมนูปกติ", FloatingMode="เมนูลอย",
+    NormalMode="เมนูคลาสสิก", FloatingMode="เมนูลอย", ClassicMode="เมนูคลาสสิก",
     Description="สวัสดีทุกคน! สคริปต์นี้มี cheat มากมาย ยังเป็นโปรเจกต์อยู่ ถ้ามีบั๊กเข้าร่วม discord ของฉัน",
     Loading="กำลังโหลด", Close="ปิด", Minimize="ย่อ",
     Speed="ความเร็ว", Jump="กระโดด", Fly="บิน", Noclip="ทะลุกำแพง",
@@ -1251,6 +1414,7 @@ Translations.Thai = BK({
     Music="เพลง", MusicPlayer="เครื่องเล่นเพลง", SoundId="Sound ID", Volume="ระดับเสียง",
     MuteGame="ปิดเสียง", AutoPlay="เล่นอัตโนมัติ", LoopMusic="เล่นซ้ำ",
     Apply="ใช้", StopMusic="หยุด", ClearMusic="ล้าง",
+    PlayMusic="เล่นเพลง", PauseMusic="หยุดชั่วคราว",
     Background="พื้นหลัง", Rejoin="เข้าร่วมอีกครั้ง", Hop="เปลี่ยนเซิร์ฟเวอร์", FindLow="เซิร์ฟเวอร์ว่าง",
     RejoinBtn="เข้าร่วมอีกครั้ง", ServerHopBtn="เปลี่ยนเซิร์ฟเวอร์", SmallServerBtn="เซิร์ฟเวอร์ว่าง",
     Copied="คัดลอกลิงก์แล้ว!", SoundApplied="ใช้เพลงแล้ว!",
@@ -1265,17 +1429,21 @@ Translations.Thai = BK({
     Hopping="กำลังเปลี่ยน...", Finding="กำลังค้นหา...", AlreadyIn="อยู่ในเซิร์ฟเวอร์ว่างแล้ว",
     NoServerFound="ไม่พบเซิร์ฟเวอร์", Rejoined="กำลังเข้าร่วมอีกครั้ง...", Teleporting="กำลังเทเลพอร์ต...",
     ActionRunning="กำลังดำเนินการ...", Searching="กำลังค้นหา...",
-    ThemeColorPicker="สีธีม", ResetSettings="รีเซ็ต", About="เกี่ยวกับ", Version="เวอร์ชัน",
-    Rainbow="รุ้ง", RainbowOn="รุ้ง ON", RainbowOff="รุ้ง OFF",
-    FlyControls="ควบคุมการบิน", FlyUp="ขึ้น", FlyDown="ลง", FlyForward="ไปข้างหน้า",
-    FlyBack="ย้อนกลับ", FlyLeft="ซ้าย", FlyRight="ขวา",
+    ThemeColorPicker="สีธีม", ResetSettings="รีเซ็ต", About="เกี่ยวกับ",
+    Version="เวอร์ชัน", Rainbow="รุ้ง", RainbowOn="รุ้ง ON", RainbowOff="รุ้ง OFF",
+    ParticleEffects="เอฟเฟกต์อนุภาค", GlowEffects="เอฟเฟกต์เรืองแสง",
+    RippleClick="เอฟเฟกต์คลื่นคลิก", NotificationSound="เสียงแจ้งเตือน",
+    AboutText="XYEL HUB v9 - Ultra Edition ไลบรารี UI ที่ทันสมัยพร้อม 33 ภาษา เครื่องเล่นเพลง การดำเนินการเซิร์ฟเวอร์ และแอนิเมชันที่ราบรื่น",
+    ThemePresets="พรีเซ็ตธีม", AutoSave="บันทึกอัตโนมัติ", ServerActions="การดำเนินการเซิร์ฟเวอร์",
+    LanguageInfo="เลือกภาษาของคุณ",
 })
 
+-- ═══ SWAHILI ═══
 Translations.Swahili = BK({
     Info="Taarifa", Settings="Mipangilio", Main="Kuu",
     Welcome="Karibu XYEL HUB", Appearance="Mwonekano",
     Copy="Nakili Discord", Language="Lugha", MenuMode="Hali ya Menyu",
-    NormalMode="Menyu ya Kawaida", FloatingMode="Menyu Inayoelea",
+    NormalMode="Menyu ya Kawaida", FloatingMode="Menyu Inayoelea", ClassicMode="Menyu ya Kawaida",
     Description="Habari kila mtu! Script hii ina cheats nyingi, bado ni mradi. Ikiwa kuna hitilafu jiunge na discord yangu.",
     Loading="Inapakia", Close="Funga", Minimize="Punguza",
     Speed="Kasi", Jump="Kuruka", Fly="Kuruka hewani", Noclip="Kupitia Kuta",
@@ -1289,6 +1457,7 @@ Translations.Swahili = BK({
     Music="Muziki", MusicPlayer="Kicheza Muziki", SoundId="Kitambulisho cha Sauti", Volume="Kiasi",
     MuteGame="Nyamazisha", AutoPlay="Cheza Kiotomatiki", LoopMusic="Rudia",
     Apply="Tumia", StopMusic="Simamisha", ClearMusic="Futa",
+    PlayMusic="Cheza Muziki", PauseMusic="Sitisha Muziki",
     Background="Mandhari", Rejoin="Jiunge Tena", Hop="Badilisha Seva", FindLow="Seva Tupu",
     RejoinBtn="Jiunge Tena", ServerHopBtn="Badilisha Seva", SmallServerBtn="Seva Tupu",
     Copied="Kiungo kimenakiliwa!", SoundApplied="Muziki umetumika!",
@@ -1303,17 +1472,21 @@ Translations.Swahili = BK({
     Hopping="Inabadilisha...", Finding="Inatafuta...", AlreadyIn="Tayari katika seva tupu",
     NoServerFound="Hakuna seva iliyopatikana", Rejoined="Inajiunga tena...", Teleporting="Inasafiri...",
     ActionRunning="Kitendo kinaendesha...", Searching="Inatafuta...",
-    ThemeColorPicker="Rangi ya Mandhari", ResetSettings="Weka Upya", About="Kuhusu", Version="Toleo",
-    Rainbow="Upinde wa mvua", RainbowOn="Upinde ON", RainbowOff="Upinde OFF",
-    FlyControls="Vidhibiti vya Kuruka", FlyUp="Juu", FlyDown="Chini", FlyForward="Mbele",
-    FlyBack="Nyuma", FlyLeft="Kushoto", FlyRight="Kulia",
+    ThemeColorPicker="Rangi ya Mandhari", ResetSettings="Weka Upya", About="Kuhusu",
+    Version="Toleo", Rainbow="Upinde wa mvua", RainbowOn="Upinde ON", RainbowOff="Upinde OFF",
+    ParticleEffects="Athari za Chembe", GlowEffects="Athari za Mwanga",
+    RippleClick="Athari ya Wimbi la Klik", NotificationSound="Sauti ya Arifa",
+    AboutText="XYEL HUB v9 - Toleo la Ultra. Maktaba ya UI ya kisasa na lugha 33, kicheza muziki, vitendo vya seva, na uhuishaji laini.",
+    ThemePresets="Preset za Mandhari", AutoSave="Hifadhi Kiotomatiki", ServerActions="Vitendo vya Seva",
+    LanguageInfo="Chagua lugha yako",
 })
 
+-- ═══ AFRIKAANS ═══
 Translations.Afrikaans = BK({
     Info="Inligting", Settings="Instellings", Main="Hoof",
     Welcome="Welkom by XYEL HUB", Appearance="Voorkoms",
     Copy="Kopieer Discord", Language="Taal", MenuMode="Kieslysmodus",
-    NormalMode="Normale Kieslys", FloatingMode="Sweef Kieslys",
+    NormalMode="Klassieke Kieslys", FloatingMode="Sweef Kieslys", ClassicMode="Klassieke Kieslys",
     Description="Hallo almal! Hierdie script het baie cheats, dit is nog 'n projek. As daar foute is, sluit aan by my discord.",
     Loading="Laai", Close="Sluit", Minimize="Minimaliseer",
     Speed="Spoed", Jump="Spring", Fly="Vlieg", Noclip="Deur Mure",
@@ -1327,6 +1500,7 @@ Translations.Afrikaans = BK({
     Music="Musiek", MusicPlayer="Musiekspeler", SoundId="Klank ID", Volume="Volume",
     MuteGame="Demp", AutoPlay="Outo Speel", LoopMusic="Herhaal",
     Apply="Pas Toe", StopMusic="Stop", ClearMusic="Vee Uit",
+    PlayMusic="Speel Musiek", PauseMusic="Pouseer Musiek",
     Background="Agtergrond", Rejoin="Sluit Weer Aan", Hop="Verander Bediener", FindLow="Leë Bediener",
     RejoinBtn="Sluit Weer Aan", ServerHopBtn="Verander Bediener", SmallServerBtn="Leë Bediener",
     Copied="Skakel gekopieer!", SoundApplied="Musiek toegepas!",
@@ -1341,14 +1515,23 @@ Translations.Afrikaans = BK({
     Hopping="Verander...", Finding="Soek...", AlreadyIn="Al op leë bediener",
     NoServerFound="Geen bediener gevind", Rejoined="Sluit weer aan...", Teleporting="Teleporteer...",
     ActionRunning="Aksie loop...", Searching="Soek...",
-    ThemeColorPicker="Tema Kleur", ResetSettings="Herstel", About="Oor", Version="Weergawe",
-    Rainbow="Reënboog", RainbowOn="Reënboog ON", RainbowOff="Reënboog OFF",
-    FlyControls="Vlieg Beheer", FlyUp="Op", FlyDown="Af", FlyForward="Vorentoe",
-    FlyBack="Agtertoe", FlyLeft="Links", FlyRight="Regs",
+    ThemeColorPicker="Tema Kleur", ResetSettings="Herstel", About="Oor",
+    Version="Weergawe", Rainbow="Reënboog", RainbowOn="Reënboog AAN", RainbowOff="Reënboog AF",
+    ParticleEffects="Deeltjie Effekte", GlowEffects="Gloed Effekte",
+    RippleClick="Rimpel Klik Effek", NotificationSound="Kennisgewing Klank",
+    AboutText="XYEL HUB v9 - Ultra Uitgawe. Moderne UI-biblioteek met 33 tale, musiekspeler, bediener-aksies en gladde animasies.",
+    ThemePresets="Tema Voorafinstellings", AutoSave="Outo Stoor", ServerActions="Bediener Aksies",
+    LanguageInfo="Kies jou taal",
 })
 
+-- Set metatable untuk fallback
 setmetatable(Translations, {
-    __index = function(_, lang) return Translations.English end
+    __index = function(t, lang)
+        if lang ~= "English" then
+            return Translations.English
+        end
+        return nil
+    end
 })
 
 local LanguageList = {
@@ -1386,7 +1569,7 @@ end
 XYEL.RegisterI18n = RegI18n
 XYEL.RefreshI18n = RefreshI18n
 
--- ═══ UTILS ═══
+-- ═══ CORE UTILS ═══
 local function Create(class, props)
     local obj = Instance.new(class)
     for k, v in pairs(props or {}) do
@@ -1403,38 +1586,6 @@ local function Tween(obj, time, props, style, dir)
     return t
 end
 
--- ═══ SMOOTH ANIMATIONS ═══
-local ANIM = {
-    Slide = Enum.EasingStyle.Quint,
-    Bounce = Enum.EasingStyle.Back,
-    Smooth = Enum.EasingStyle.Quad,
-    Elastic = Enum.EasingStyle.Elastic,
-}
-
-local function SlideIn(obj, fromOffset, duration)
-    fromOffset = fromOffset or 20
-    duration = duration or 0.35
-    local originalPos = obj.Position
-    obj.Position = originalPos + UDim2.new(0, 0, 0, fromOffset)
-    obj.TextTransparency = obj.TextTransparency + 0.5
-    Tween(obj, duration, { Position = originalPos, TextTransparency = 0 }, ANIM.Bounce)
-end
-
-local function ScaleIn(obj, duration)
-    duration = duration or 0.4
-    local targetSize = obj.Size
-    obj.Size = UDim2.new(0, 0, 0, 0)
-    Tween(obj, duration, { Size = targetSize }, ANIM.Bounce)
-end
-
-local function FadeIn(obj, duration)
-    duration = duration or 0.3
-    local targetTrans = obj.BackgroundTransparency
-    obj.BackgroundTransparency = 1
-    Tween(obj, duration, { BackgroundTransparency = targetTrans }, ANIM.Smooth)
-end
-
--- ═══ CORNER / STROKE / GRADIENT ═══
 local function Corner(parent, radius)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, radius or 8)
@@ -1460,6 +1611,93 @@ local function Gradient(parent, c1, c2, rotation)
     g.Rotation = rotation or 90
     g.Parent = parent
     return g
+end
+
+-- ═══ COOL ANIMATION PRESETS ═══
+local ANIM = {
+    Smooth = Enum.EasingStyle.Quint,
+    Bounce = Enum.EasingStyle.Back,
+    Elastic = Enum.EasingStyle.Elastic,
+    Spring = Enum.EasingStyle.Quad,
+    Linear = Enum.EasingStyle.Linear,
+}
+
+-- ═══ ULTRA OPEN ANIMATION ═══
+local function OpenMenuAnim(frame, centerPos, targetSize)
+    if not frame then return end
+    
+    frame.Visible = true
+    frame.Size = UDim2.new(0, 0, 0, 0)
+    frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    frame.BackgroundTransparency = 1
+    
+    -- Hide children first
+    for _, child in ipairs(frame:GetDescendants()) do
+        if child:IsA("GuiObject") then
+            if not child:GetAttribute("NoAnim") then
+                child.BackgroundTransparency = 1
+                if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                    child.TextTransparency = 1
+                end
+            end
+        end
+    end
+    
+    task.wait(0.02)
+    
+    -- Main frame elastic pop
+    Tween(frame, 0.65, {
+        Size = targetSize,
+        Position = centerPos,
+        BackgroundTransparency = 0,
+    }, ANIM.Elastic)
+    
+    -- Children fade in with stagger
+    task.spawn(function()
+        local delay = 0
+        for _, child in ipairs(frame:GetDescendants()) do
+            if child:IsA("GuiObject") and not child:GetAttribute("NoAnim") then
+                task.delay(delay, function()
+                    if child and child.Parent then
+                        Tween(child, 0.35, { BackgroundTransparency = 0 }, ANIM.Smooth)
+                        if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                            Tween(child, 0.4, { TextTransparency = 0 }, ANIM.Smooth)
+                        end
+                    end
+                end)
+                delay = delay + 0.006
+            end
+        end
+    end)
+end
+
+-- ═══ ULTRA CLOSE ANIMATION ═══
+local function CloseMenuAnim(frame, onComplete)
+    if not frame then return end
+    
+    -- Children fade fast
+    for _, child in ipairs(frame:GetDescendants()) do
+        if child:IsA("GuiObject") then
+            Tween(child, 0.18, { BackgroundTransparency = 1 }, ANIM.Smooth)
+            if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                Tween(child, 0.18, { TextTransparency = 1 }, ANIM.Smooth)
+            end
+        end
+    end
+    
+    task.wait(0.1)
+    
+    -- Main frame suck in
+    local t = Tween(frame, 0.35, {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        BackgroundTransparency = 1,
+    }, ANIM.Smooth)
+    
+    t.Completed:Connect(function()
+        frame.Visible = false
+        if onComplete then onComplete() end
+    end)
 end
 
 -- ═══ DRAG ═══
@@ -1506,7 +1744,7 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- ═══ RAINBOW ANIMATION ═══
+-- ═══ RAINBOW ═══
 local rainbowConn = nil
 local function StartRainbow()
     if rainbowConn then return end
@@ -1522,10 +1760,11 @@ local function StartRainbow()
             local stroke = State.MainFrame:FindFirstChildOfClass("UIStroke")
             if stroke then stroke.Color = c end
         end
-        -- Update toggle buttons
-        for _, obj in ipairs(State.ScreenGui:GetDescendants()) do
-            if obj:IsA("TextButton") and obj.Name == "ToggleBtn" then
-                obj.BackgroundColor3 = c
+        if State.ScreenGui then
+            for _, obj in ipairs(State.ScreenGui:GetDescendants()) do
+                if obj:IsA("TextButton") and obj.Name == "ToggleBtn" then
+                    obj.BackgroundColor3 = c
+                end
             end
         end
     end)
@@ -1572,10 +1811,12 @@ function XYEL:Notify(opts)
         Size = UDim2.new(0, 320, 0, 72),
         Position = UDim2.new(1, 20, 0, baseY),
         BackgroundColor3 = State.Theme.Surface,
+        BackgroundTransparency = 1,
         BorderSizePixel = 0, ZIndex = 500, Parent = parent,
     })
     Corner(notif, 12)
     Stroke(notif, accentColor, 1.5, 0.4)
+    
     Create("Frame", {
         Size = UDim2.new(0, 4, 1, -20), Position = UDim2.new(0, 8, 0, 10),
         BackgroundColor3 = accentColor, BorderSizePixel = 0, Parent = notif,
@@ -1594,14 +1835,60 @@ function XYEL:Notify(opts)
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top, Parent = notif,
     })
-    Tween(notif, 0.4, { Position = UDim2.new(1, -340, 0, baseY) }, ANIM.Bounce)
+    
+    Tween(notif, 0.55, {
+        Position = UDim2.new(1, -340, 0, baseY),
+        BackgroundTransparency = 0,
+    }, ANIM.Elastic)
+    
     task.spawn(function()
         task.wait(duration)
-        Tween(notif, 0.35, { Position = UDim2.new(1, 20, 0, baseY), BackgroundTransparency = 1 })
+        Tween(notif, 0.35, {
+            Position = UDim2.new(1, 20, 0, baseY),
+            BackgroundTransparency = 1,
+        }, ANIM.Smooth)
         task.wait(0.35)
         if notif and notif.Parent then notif:Destroy() end
         notifStack = math.max(0, notifStack - 1)
     end)
+end
+
+-- ═══ MUSIC SYSTEM ═══
+local function SetupMusic()
+    if State.Music.Sound and State.Music.Sound.Parent then return end
+    State.Music.Sound = Create("Sound", {
+        Name = "XYEL_Music",
+        Volume = State.Music.Volume,
+        Looped = State.Music.Looped,
+        Playing = false,
+        Parent = SoundService,
+    })
+end
+
+local function PlayMusic()
+    SetupMusic()
+    if State.Music.SoundId == "" then
+        XYEL:Notify({ Title = "Music", Content = T("MusicNotSet"), Type = "warning" })
+        return false
+    end
+    local ok = pcall(function()
+        State.Music.Sound.SoundId = "rbxassetid://" .. State.Music.SoundId
+        State.Music.Sound.Volume = State.Music.Volume
+        State.Music.Sound.Looped = State.Music.Looped
+        State.Music.Sound:Play()
+    end)
+    if ok then
+        State.Music.Playing = true
+        return true
+    end
+    return false
+end
+
+local function StopMusic()
+    if State.Music.Sound then
+        pcall(function() State.Music.Sound:Stop() end)
+    end
+    State.Music.Playing = false
 end
 
 -- ═══ LOADING SCREEN ═══
@@ -1611,6 +1898,7 @@ local function ShowLoading(parent, title, callback)
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
         BorderSizePixel = 0, ZIndex = 1000, Parent = parent,
     })
+    
     local TitleLbl = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 60), Position = UDim2.new(0, 0, 0.4, -60),
         BackgroundTransparency = 1, Text = title or "XYEL HUB",
@@ -1618,7 +1906,7 @@ local function ShowLoading(parent, title, callback)
         Font = Enum.Font.GothamBold, TextSize = 48,
         TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
-    Tween(TitleLbl, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    Tween(TitleLbl, 0.8, { TextTransparency = 0 }, ANIM.Elastic)
     
     local StatusLbl = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 0.4, 10),
@@ -1627,7 +1915,7 @@ local function ShowLoading(parent, title, callback)
         Font = Enum.Font.Gotham, TextSize = 16,
         TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
-    Tween(StatusLbl, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    Tween(StatusLbl, 0.8, { TextTransparency = 0 }, ANIM.Smooth)
     
     local Wave = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 0.4, 40),
@@ -1637,7 +1925,7 @@ local function ShowLoading(parent, title, callback)
         Font = Enum.Font.Code, TextSize = 14,
         TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
-    Tween(Wave, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    Tween(Wave, 0.8, { TextTransparency = 0 }, ANIM.Smooth)
     
     local Percent = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 0.4, 70),
@@ -1646,7 +1934,7 @@ local function ShowLoading(parent, title, callback)
         Font = Enum.Font.GothamBold, TextSize = 14,
         TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
-    Tween(Percent, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    Tween(Percent, 0.8, { TextTransparency = 0 }, ANIM.Smooth)
     
     local waveOffset = 0
     local conn = RunService.RenderStepped:Connect(function(dt)
@@ -1689,44 +1977,41 @@ local function ShowLoading(parent, title, callback)
             if Percent and Percent.Parent then Percent.Text = tostring(progress) .. "%" end
             task.wait(0.03)
         end
-        task.wait(0.5)
+        task.wait(0.4)
         conn:Disconnect()
-        Tween(Loading, 0.6, { BackgroundTransparency = 1 }, ANIM.Smooth)
+        Tween(Loading, 0.7, { BackgroundTransparency = 1 }, ANIM.Smooth)
         for _, child in ipairs(Loading:GetChildren()) do
             if child:IsA("TextLabel") then Tween(child, 0.5, { TextTransparency = 1 }, ANIM.Smooth) end
         end
-        task.wait(0.65)
+        task.wait(0.75)
         Loading:Destroy()
         if callback then callback() end
     end)
 end
 
--- ═══ CREATE FLOATING WINDOW ═══
-local function CreateFloatingWindow(parent, title, contentFrame)
+-- ═══ FLOATING WINDOW ═══
+local function CreateFloatingWindow(parent, title, contentFrame, uniqueKey)
     -- Prevent duplicate
     for _, w in ipairs(State.FloatingWindows) do
-        if w and w.Parent and w:FindFirstChild("WindowTitle") and w.WindowTitle.Value == title then
+        if w and w.Parent and w:GetAttribute("Key") == uniqueKey then
             w.Visible = true
             return w
         end
     end
     
     local FloatFrame = Create("Frame", {
-        Name = "Float_" .. tostring(math.random(1000, 9999)),
+        Name = "XYEL_Float_" .. uniqueKey,
         Size = UDim2.new(0, 380, 0, 300),
-        Position = UDim2.new(0, 80 + #State.FloatingWindows * 40, 0, 80 + #State.FloatingWindows * 30),
+        Position = UDim2.new(0, 80 + #State.FloatingWindows * 35, 0, 80 + #State.FloatingWindows * 35),
         BackgroundColor3 = State.Theme.Background,
         BorderSizePixel = 0, ClipsDescendants = true,
         Active = true, Visible = true,
         ZIndex = 60, Parent = parent,
     })
+    FloatFrame:SetAttribute("Key", uniqueKey)
     Corner(FloatFrame, 14)
     Stroke(FloatFrame, State.Theme.Primary, 1.5, 0.4)
     
-    -- Store title
-    local titleVal = Create("StringValue", { Name = "WindowTitle", Value = title, Parent = FloatFrame })
-    
-    -- Top bar
     local FTop = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = State.Theme.Secondary,
@@ -1765,7 +2050,6 @@ local function CreateFloatingWindow(parent, title, contentFrame)
     })
     Corner(FMin, 7)
     
-    -- Content
     contentFrame.Parent = FloatFrame
     contentFrame.Size = UDim2.new(1, -16, 1, -46)
     contentFrame.Position = UDim2.new(0, 8, 0, 42)
@@ -1775,7 +2059,6 @@ local function CreateFloatingWindow(parent, title, contentFrame)
     
     MakeDraggable(FloatFrame, FTop)
     
-    -- Minimize
     local minimized = false
     FMin.MouseButton1Click:Connect(function()
         minimized = not minimized
@@ -1784,7 +2067,6 @@ local function CreateFloatingWindow(parent, title, contentFrame)
         }, ANIM.Smooth)
     end)
     
-    -- Close
     FClose.MouseButton1Click:Connect(function()
         FloatFrame.Visible = false
     end)
@@ -1810,7 +2092,7 @@ function XYEL:CreateWindow(opts)
     })
     State.ScreenGui = ScreenGui
     
-    -- Main Frame
+    -- ═══ MAIN FRAME ═══
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
         Size = UDim2.new(0, 640, 0, 420),
@@ -1964,6 +2246,13 @@ function XYEL:CreateWindow(opts)
     WindowObj._readyCallbacks = {}
     WindowObj._tabs = {}
     WindowObj._tabData = {}
+    WindowObj._sideBar = Sidebar
+    WindowObj._content = Content
+    WindowObj._mainFrame = MainFrame
+    WindowObj._topBar = TopBar
+    WindowObj._screenGui = ScreenGui
+    WindowObj._tabList = TabList
+    WindowObj._tabButtons = tabButtons
     
     function WindowObj:OnReady(cb)
         table.insert(self._readyCallbacks, cb)
@@ -2093,7 +2382,6 @@ function XYEL:CreateWindow(opts)
                     Tween(lbl, 0.25, { TextColor3 = State.Theme.Text }, ANIM.Smooth)
                 end)
                 btn.MouseButton1Click:Connect(function()
-                    -- Bounce animation
                     Tween(btn, 0.1, { Size = UDim2.new(0.97, 0, 0, 38) }, ANIM.Bounce)
                     task.wait(0.1)
                     Tween(btn, 0.15, { Size = UDim2.new(1, 0, 0, 40) }, ANIM.Bounce)
@@ -2283,6 +2571,38 @@ function XYEL:CreateWindow(opts)
                 }
             end
             
+            function SectionObj:CreateInput(textKey, placeholderKey, callback)
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface, Parent = page,
+                })
+                Corner(row, 10)
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(0, 130, 1, 0), Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1, Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium, TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left, Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                local box = Create("TextBox", {
+                    Size = UDim2.new(1, -166, 0, 30), Position = UDim2.new(0, 154, 0, 6),
+                    BackgroundColor3 = State.Theme.Background, Text = "",
+                    PlaceholderText = T(placeholderKey or textKey),
+                    PlaceholderColor3 = State.Theme.TextDim,
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.Gotham, TextSize = 12,
+                    ClearTextOnFocus = false, Parent = row,
+                })
+                Corner(box, 8)
+                Stroke(box, State.Theme.Primary, 1, 0.7)
+                if placeholderKey then RegI18n(box, placeholderKey, true) end
+                box.FocusLost:Connect(function()
+                    if callback then callback(box.Text) end
+                end)
+                return { Set = function(v) box.Text = v end, Get = function() return box.Text end }
+            end
+            
             function SectionObj:CreateColorPicker(textKey, default, callback)
                 local current = default or State.Theme.Primary
                 local row = Create("Frame", {
@@ -2406,8 +2726,9 @@ function XYEL:CreateWindow(opts)
         return TabObj
     end
     
-    -- Default tabs
+    -- ═══ DEFAULT TABS ═══
     if not noDefaultTabs then
+        -- INFO TAB
         local InfoTab = WindowObj:CreateTab("Info")
         local InfoSec = InfoTab:CreateSection("Welcome")
         InfoSec:CreateParagraph("Welcome", "Description")
@@ -2416,9 +2737,12 @@ function XYEL:CreateWindow(opts)
             XYEL:Notify({ Title = "Discord", Content = T("Copied"), Type = "success" })
         end)
         local AboutSec = InfoTab:CreateSection("About")
-        AboutSec:CreateParagraph("Version", "XYEL HUB v8 - Complete Edition")
+        AboutSec:CreateParagraph("About", "AboutText")
         
+        -- SETTINGS TAB
         local SettingsTab = WindowObj:CreateTab("Settings")
+        
+        -- Appearance
         local AppearanceSec = SettingsTab:CreateSection("Appearance")
         AppearanceSec:CreateColorPicker("ThemeColorPicker", State.Theme.Primary, function(c)
             State.Theme.Primary = c
@@ -2430,20 +2754,52 @@ function XYEL:CreateWindow(opts)
             RefreshI18n()
             XYEL:Notify({ Title = "Language", Content = "✓ " .. v, Type = "info", Duration = 2 })
         end)
-        AppearanceSec:CreateDropdown("MenuMode", { "Normal Mode", "Floating Mode" }, State.MenuMode, function(v)
+        AppearanceSec:CreateDropdown("MenuMode", { "Classic Mode", "Floating Mode" }, State.MenuMode, function(v)
             State.MenuMode = v
             XYEL:Notify({ Title = "Menu Mode", Content = T("ModeChanged"), Type = "info", Duration = 2 })
-            -- Fire mode change event
-            if XYEL._onModeChange then
-                XYEL._onModeChange(v)
+            if XYEL._onModeChange then XYEL._onModeChange(v) end
+        end)
+        AppearanceSec:CreateToggle("Animations", true, function(v) end)
+        
+        -- MUSIC SECTION
+        local MusicSec = SettingsTab:CreateSection("MusicPlayer")
+        local soundIdInput = MusicSec:CreateInput("SoundId", "SoundId", function(text)
+            local cleaned = string.gsub(text, "%D", "")
+            if cleaned ~= "" then
+                State.Music.SoundId = cleaned
             end
         end)
+        MusicSec:CreateButton("PlayMusic", function()
+            if PlayMusic() then
+                XYEL:Notify({ Title = "Music", Content = T("SoundApplied"), Type = "success" })
+            end
+        end)
+        MusicSec:CreateButton("PauseMusic", function()
+            StopMusic()
+            XYEL:Notify({ Title = "Music", Content = T("SoundStopped"), Type = "info" })
+        end)
+        MusicSec:CreateButton("ClearMusic", function()
+            StopMusic()
+            State.Music.SoundId = ""
+            soundIdInput.Set("")
+            XYEL:Notify({ Title = "Music", Content = T("SoundCleared"), Type = "info" })
+        end)
+        MusicSec:CreateSlider("Volume", 0, 100, 50, function(v)
+            State.Music.Volume = v / 100
+            if State.Music.Sound then State.Music.Sound.Volume = State.Music.Volume end
+        end)
+        MusicSec:CreateToggle("LoopMusic", true, function(v)
+            State.Music.Looped = v
+            if State.Music.Sound then State.Music.Sound.Looped = v end
+        end)
         
+        -- Behavior
         local BehaviorSec = SettingsTab:CreateSection("Behavior")
         BehaviorSec:CreateToggle("AutoLoad", false, function(v) end)
         BehaviorSec:CreateToggle("AutoRejoin", false, function(v) end)
         
-        local ActionSec = SettingsTab:CreateSection("Actions")
+        -- Actions
+        local ActionSec = SettingsTab:CreateSection("ServerActions")
         ActionSec:CreateButton("RejoinBtn", function()
             XYEL:Notify({ Title = "Rejoin", Content = T("Rejoined"), Type = "info" })
             task.wait(0.5)
@@ -2494,7 +2850,7 @@ function XYEL:CreateWindow(opts)
         end)
     end
     
-    -- Toggle Button
+    -- ═══ TOGGLE BUTTON ═══
     local ToggleBtn = Create("TextButton", {
         Name = "ToggleBtn",
         Size = UDim2.new(0, 56, 0, 56), Position = UDim2.new(0, 24, 0.5, -28),
@@ -2505,38 +2861,68 @@ function XYEL:CreateWindow(opts)
     })
     Corner(ToggleBtn, 28)
     Stroke(ToggleBtn, Color3.fromRGB(255,255,255), 1.5, 0.4)
+    Gradient(ToggleBtn, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 45)
     
     MakeDraggable(ToggleBtn, ToggleBtn)
     
     local menuOpen = true
     
-    -- Mode switch handler
+    -- Mode change handler
     XYEL._onModeChange = function(mode)
         if mode == "Floating Mode" then
-            MainFrame.Visible = false
-            -- Create floating windows for each tab
-            for tabName, tabPage in pairs(WindowObj._tabData) do
-                local container = Create("Frame", { BackgroundTransparency = 1 })
-                CreateFloatingWindow(ScreenGui, tabName, container)
-                tabPage.Parent = container
-                tabPage.Size = UDim2.new(1, 0, 1, 0)
-                tabPage.Position = UDim2.new(0, 0, 0, 0)
-                tabPage.Visible = true
-                tabPage.ScrollBarThickness = 3
+            -- Close classic with anim
+            if MainFrame.Visible then
+                CloseMenuAnim(MainFrame, function()
+                    -- Create floating for each tab
+                    for tabName, tabPage in pairs(WindowObj._tabData) do
+                        local container = Create("Frame", { BackgroundTransparency = 1 })
+                        CreateFloatingWindow(ScreenGui, tabName, container, tabName)
+                        tabPage.Parent = container
+                        tabPage.Size = UDim2.new(1, 0, 1, 0)
+                        tabPage.Position = UDim2.new(0, 0, 0, 0)
+                        tabPage.Visible = true
+                        tabPage.ScrollBarThickness = 3
+                    end
+                    ToggleBtn.Text = "X"
+                    menuOpen = true
+                end)
+            else
+                for tabName, tabPage in pairs(WindowObj._tabData) do
+                    local container = Create("Frame", { BackgroundTransparency = 1 })
+                    CreateFloatingWindow(ScreenGui, tabName, container, tabName)
+                    tabPage.Parent = container
+                    tabPage.Size = UDim2.new(1, 0, 1, 0)
+                    tabPage.Position = UDim2.new(0, 0, 0, 0)
+                    tabPage.Visible = true
+                    tabPage.ScrollBarThickness = 3
+                end
+                ToggleBtn.Text = "X"
+                menuOpen = true
             end
-            ToggleBtn.Text = "X"
-            menuOpen = true
         else
-            -- Close floating, show normal
+            -- Close floating
             for _, fw in ipairs(State.FloatingWindows) do
                 if fw and fw.Parent then fw.Visible = false end
             end
-            MainFrame.Visible = true
+            -- Restore pages to main Content
+            for tabName, tabPage in pairs(WindowObj._tabData) do
+                tabPage.Parent = Content
+                tabPage.Size = UDim2.new(1, -20, 1, -20)
+                tabPage.Position = UDim2.new(0, 10, 0, 10)
+                tabPage.Visible = false
+            end
+            -- Show active tab
+            if activeTab and WindowObj._tabData[activeTab] then
+                WindowObj._tabData[activeTab].Visible = true
+            end
+            -- Open with anim
+            OpenMenuAnim(MainFrame, UDim2.new(0.5, -320, 0.5, -210), UDim2.new(0, 640, 0, 420))
             ToggleBtn.Text = "X"
             menuOpen = true
         end
     end
     
+    -- Toggle button click
     ToggleBtn.MouseButton1Click:Connect(function()
         if State.MenuMode == "Floating Mode" then
             menuOpen = not menuOpen
@@ -2545,36 +2931,73 @@ function XYEL:CreateWindow(opts)
                     fw.Visible = menuOpen
                 end
             end
+            Tween(ToggleBtn, 0.3, { Rotation = menuOpen and 0 or 180 }, ANIM.Bounce)
             ToggleBtn.Text = menuOpen and "X" or "≡"
         else
-            menuOpen = not menuOpen
-            MainFrame.Visible = menuOpen
-            ToggleBtn.Text = menuOpen and "X" or "≡"
+            if menuOpen then
+                -- Close
+                CloseMenuAnim(MainFrame, function()
+                    menuOpen = false
+                    Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Success, Rotation = 180 }, ANIM.Bounce)
+                    ToggleBtn.Text = "≡"
+                end)
+                menuOpen = false
+                Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Success, Rotation = 180 }, ANIM.Bounce)
+                ToggleBtn.Text = "≡"
+            else
+                -- Open
+                OpenMenuAnim(MainFrame, UDim2.new(0.5, -320, 0.5, -210), UDim2.new(0, 640, 0, 420))
+                Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Primary, Rotation = 0 }, ANIM.Bounce)
+                ToggleBtn.Text = "X"
+                menuOpen = true
+            end
         end
     end)
     
     CloseBtn.MouseButton1Click:Connect(function()
-        MainFrame.Visible = false
-        ToggleBtn.Text = "≡"
-        menuOpen = false
-    end)
-    MinBtn.MouseButton1Click:Connect(function()
-        MainFrame.Visible = false
-        ToggleBtn.Text = "≡"
-        menuOpen = false
+        if State.MenuMode == "Floating Mode" then
+            for _, fw in ipairs(State.FloatingWindows) do
+                if fw and fw.Parent then fw.Visible = false end
+            end
+        else
+            CloseMenuAnim(MainFrame, function()
+                menuOpen = false
+                Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Success, Rotation = 180 }, ANIM.Bounce)
+                ToggleBtn.Text = "≡"
+            end)
+        end
     end)
     
-    -- Show loading
+    MinBtn.MouseButton1Click:Connect(function()
+        if State.MenuMode == "Floating Mode" then
+            for _, fw in ipairs(State.FloatingWindows) do
+                if fw and fw.Parent then fw.Visible = false end
+            end
+        else
+            CloseMenuAnim(MainFrame, function()
+                menuOpen = false
+                Tween(ToggleBtn, 0.3, { BackgroundColor3 = State.Theme.Success, Rotation = 180 }, ANIM.Bounce)
+                ToggleBtn.Text = "≡"
+            end)
+        end
+    end)
+    
+    -- ═══ SHOW LOADING + FIRE OnReady ═══
     ShowLoading(ScreenGui, baseTitle, function()
         MainFrame.Visible = true
         menuOpen = true
         TitleLbl.Text = baseTitle .. " - " .. State.GameName
-        task.wait(0.2)
+        
+        -- Open animation
+        OpenMenuAnim(MainFrame, UDim2.new(0.5, -320, 0.5, -210), UDim2.new(0, 640, 0, 420))
+        
+        task.wait(0.3)
         for _, cb in ipairs(WindowObj._readyCallbacks) do
             local ok, err = pcall(cb)
             if not ok then warn("[XYEL] OnReady error: " .. tostring(err)) end
         end
-        task.delay(1, function()
+        
+        task.delay(1.5, function()
             XYEL:Notify({
                 Title = "XYEL HUB",
                 Content = State.GameName,
@@ -2597,6 +3020,7 @@ function XYEL:GetLanguages() return LanguageList end
 function XYEL:GetGameName() return State.GameName end
 function XYEL:DestroyAll()
     StopRainbow()
+    StopMusic()
     pcall(function()
         local p = GetParent()
         if p:FindFirstChild("XYEL_HUB_Library") then
