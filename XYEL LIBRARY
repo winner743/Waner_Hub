@@ -1,6 +1,6 @@
 --[[
     ═══════════════════════════════════════════════════════
-    XYEL HUB v6 - COMPLETE LIBRARY
+    XYEL HUB v7 - COMPLETE
     OnReady • Game Detection • 33 Languages • Floating Mode
     ═══════════════════════════════════════════════════════
 --]]
@@ -35,9 +35,7 @@ end
 
 pcall(function()
     local p = GetParent()
-    for _, name in ipairs({"XYEL_HUB_Library"}) do
-        if p:FindFirstChild(name) then p[name]:Destroy() end
-    end
+    if p:FindFirstChild("XYEL_HUB_Library") then p.XYEL_HUB_Library:Destroy() end
 end)
 
 local XYEL = {}
@@ -50,7 +48,6 @@ local State = {
         Secondary = Color3.fromRGB(24, 24, 36),
         Background = Color3.fromRGB(13, 13, 20),
         Surface = Color3.fromRGB(20, 20, 30),
-        SurfaceHover = Color3.fromRGB(30, 30, 44),
         Text = Color3.fromRGB(245, 245, 250),
         TextDim = Color3.fromRGB(140, 140, 160),
         Success = Color3.fromRGB(34, 197, 94),
@@ -64,10 +61,12 @@ local State = {
     SliderActive = nil,
     GameName = "Unknown",
     MenuMode = "Normal Mode",
+    Music = { SoundId = "", Playing = false, Volume = 0.5 },
     FloatingWindows = {},
+    MainWindow = nil,
 }
 
--- ═══ ALL TRANSLATION KEYS ═══
+-- ═══ TRANSLATIONS (33 Languages, 80 keys each) ═══
 local T_KEYS = {
     "Info","Settings","Main","Welcome","Appearance","Copy","Language","MenuMode",
     "NormalMode","FloatingMode","Description","Loading","Close","Minimize",
@@ -82,6 +81,7 @@ local T_KEYS = {
     "AutoLoad","AutoRejoin","ServerHop","LowServer","UISize","Small","Mid","Big",
     "ThemeColor","ResetChar","InfJump","Hopping","Finding","AlreadyIn",
     "NoServerFound","Rejoined","Teleporting","ActionRunning","Searching",
+    "ThemeColorPicker","ResetSettings","About","Version",
 }
 
 local function BK(tbl)
@@ -92,13 +92,12 @@ end
 
 local Translations = {}
 
--- ═══ ENGLISH ═══
 Translations.English = BK({
     Info="Info", Settings="Settings", Main="Main",
     Welcome="Welcome to XYEL HUB", Appearance="Appearance",
     Copy="Copy Discord Link", Language="Language", MenuMode="Menu Mode",
     NormalMode="Normal Menu", FloatingMode="Floating Menu",
-    Description="Hello everyone using this script in this script you see a lots cheat op this script is still project if in this script have a bugs join my discord",
+    Description="Hello everyone using this script! This script has many cheats, it's still a project. If you find bugs, join my discord.",
     Loading="Loading", Close="Close", Minimize="Minimize",
     Speed="Speed", Jump="Jump", Fly="Fly", Noclip="Noclip",
     WalkSpeed="Walk Speed", JumpPower="Jump Power",
@@ -125,15 +124,15 @@ Translations.English = BK({
     Hopping="Hopping...", Finding="Finding...", AlreadyIn="Already in low server",
     NoServerFound="No server found", Rejoined="Rejoining...", Teleporting="Teleporting...",
     ActionRunning="Running action...", Searching="Searching...",
+    ThemeColorPicker="Theme Color", ResetSettings="Reset Settings", About="About", Version="Version",
 })
 
--- ═══ INDONESIAN ═══
 Translations.Indonesian = BK({
     Info="Info", Settings="Pengaturan", Main="Utama",
     Welcome="Selamat Datang di XYEL HUB", Appearance="Tampilan",
     Copy="Salin Link Discord", Language="Bahasa", MenuMode="Mode Menu",
     NormalMode="Menu Normal", FloatingMode="Menu Melayang",
-    Description="Halo semua pengguna script ini, di dalam script ini kamu lihat banyak cheat op, script ini masih project, jika ada bug join discord saya",
+    Description="Halo semua pengguna script ini! Script ini punya banyak cheat, masih project. Kalau ada bug, join discord saya.",
     Loading="Memuat", Close="Tutup", Minimize="Kecilkan",
     Speed="Kecepatan", Jump="Lompatan", Fly="Terbang", Noclip="Tembus Dinding",
     WalkSpeed="Kecepatan Jalan", JumpPower="Kekuatan Lompat",
@@ -160,15 +159,15 @@ Translations.Indonesian = BK({
     Hopping="Pindah server...", Finding="Mencari...", AlreadyIn="Sudah di server sepi",
     NoServerFound="Server tidak ditemukan", Rejoined="Menggabungkan ulang...", Teleporting="Teleportasi...",
     ActionRunning="Menjalankan aksi...", Searching="Mencari...",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Pengaturan", About="Tentang", Version="Versi",
 })
 
--- ═══ JAWA ═══
 Translations.Jawa = BK({
     Info="Info", Settings="Setelan", Main="Utama",
     Welcome="Sugeng Rawuh ing XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
     NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
-    Description="Halo kabeh pangguna script iki, ing script iki sampeyan ndeleng akeh cheat, script iki isih project, yen ana bug join discord aku",
+    Description="Halo kabeh pangguna script iki! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
     WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
@@ -195,15 +194,15 @@ Translations.Jawa = BK({
     Hopping="Pindhah server...", Finding="Golek...", AlreadyIn="Wis ana ing server sepi",
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
 })
 
--- ═══ INDRAMAYU ═══
 Translations.Indramayu = BK({
     Info="Info", Settings="Setelan", Main="Utama",
     Welcome="Sugeng Rawuh nang XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
     NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
-    Description="Halo kabeh pangguna script iki, ing script iki sampeyan ndeleng akeh cheat, script iki isih project, yen ana bug join discord aku",
+    Description="Halo kabeh pangguna script iki! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
     WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
@@ -230,9 +229,9 @@ Translations.Indramayu = BK({
     Hopping="Pindah server...", Finding="Golek...", AlreadyIn="Wis ana ing server sepi",
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
 })
 
--- ═══ MALAY ═══
 Translations.Malay = BK({
     Info="Maklumat", Settings="Tetapan", Main="Utama",
     Welcome="Selamat Datang ke XYEL HUB", Appearance="Penampilan",
@@ -265,9 +264,9 @@ Translations.Malay = BK({
     Hopping="Tukar server...", Finding="Mencari...", AlreadyIn="Sudah di server kosong",
     NoServerFound="Server tidak dijumpai", Rejoined="Sertai semula...", Teleporting="Teleportasi...",
     ActionRunning="Tindakan sedang dijalankan...", Searching="Mencari...",
+    ThemeColorPicker="Warna Tema", ResetSettings="Reset Tetapan", About="Mengenai", Version="Versi",
 })
 
--- ═══ FILIPINO ═══
 Translations.Filipino = BK({
     Info="Impormasyon", Settings="Mga Setting", Main="Pangunahin",
     Welcome="Maligayang Pagdating sa XYEL HUB", Appearance="Itsura",
@@ -300,15 +299,15 @@ Translations.Filipino = BK({
     Hopping="Lumilipat...", Finding="Naghahanap...", AlreadyIn="Nasa bakanteng server na",
     NoServerFound="Walang server", Rejoined="Sumasali muli...", Teleporting="Nag-te-teleport...",
     ActionRunning="Tumatakbo...", Searching="Naghahanap...",
+    ThemeColorPicker="Kulay ng Tema", ResetSettings="I-reset ang Settings", About="Tungkol", Version="Bersyon",
 })
 
--- ═══ SPANISH ═══
 Translations.Spanish = BK({
     Info="Información", Settings="Ajustes", Main="Principal",
     Welcome="Bienvenido a XYEL HUB", Appearance="Apariencia",
     Copy="Copiar Enlace Discord", Language="Idioma", MenuMode="Modo de Menú",
     NormalMode="Menú Normal", FloatingMode="Menú Flotante",
-    Description="Hola a todos, en este script ves muchos trucos, este script todavía es un proyecto, si tiene errores únete a mi discord",
+    Description="¡Hola a todos! Este script tiene muchos trucos, todavía es un proyecto. Si encuentras errores, únete a mi discord.",
     Loading="Cargando", Close="Cerrar", Minimize="Minimizar",
     Speed="Velocidad", Jump="Salto", Fly="Volar", Noclip="Atravesar Paredes",
     WalkSpeed="Velocidad de Caminata", JumpPower="Poder de Salto",
@@ -335,15 +334,15 @@ Translations.Spanish = BK({
     Hopping="Cambiando...", Finding="Buscando...", AlreadyIn="Ya en servidor vacío",
     NoServerFound="Servidor no encontrado", Rejoined="Reincorporándose...", Teleporting="Teletransportando...",
     ActionRunning="Acción en ejecución...", Searching="Buscando...",
+    ThemeColorPicker="Color del Tema", ResetSettings="Restablecer", About="Acerca de", Version="Versión",
 })
 
--- ═══ PORTUGUESE ═══
 Translations.Portuguese = BK({
     Info="Informação", Settings="Configurações", Main="Principal",
     Welcome="Bem-vindo ao XYEL HUB", Appearance="Aparência",
     Copy="Copiar Link Discord", Language="Idioma", MenuMode="Modo de Menu",
     NormalMode="Menu Normal", FloatingMode="Menu Flutuante",
-    Description="Olá a todos, neste script você vê muitos cheats, este script ainda é um projeto, se tiver bugs entre no meu discord",
+    Description="Olá a todos! Este script tem muitos cheats, ainda é um projeto. Se encontrar bugs, entre no meu discord.",
     Loading="Carregando", Close="Fechar", Minimize="Minimizar",
     Speed="Velocidade", Jump="Pulo", Fly="Voar", Noclip="Atravessar Paredes",
     WalkSpeed="Velocidade de Caminhada", JumpPower="Força do Pulo",
@@ -370,15 +369,15 @@ Translations.Portuguese = BK({
     Hopping="Mudando...", Finding="Procurando...", AlreadyIn="Já em servidor vazio",
     NoServerFound="Servidor não encontrado", Rejoined="Reentrando...", Teleporting="Teleportando...",
     ActionRunning="Ação em execução...", Searching="Procurando...",
+    ThemeColorPicker="Cor do Tema", ResetSettings="Redefinir", About="Sobre", Version="Versão",
 })
 
--- ═══ FRENCH ═══
 Translations.French = BK({
     Info="Info", Settings="Paramètres", Main="Principal",
     Welcome="Bienvenue sur XYEL HUB", Appearance="Apparence",
     Copy="Copier Lien Discord", Language="Langue", MenuMode="Mode de Menu",
     NormalMode="Menu Normal", FloatingMode="Menu Flottant",
-    Description="Bonjour à tous, dans ce script vous voyez beaucoup de triches, ce script est encore un projet, si vous avez des bugs rejoignez mon discord",
+    Description="Bonjour à tous ! Ce script a beaucoup de triches, c'est encore un projet. Si vous trouvez des bugs, rejoignez mon discord.",
     Loading="Chargement", Close="Fermer", Minimize="Réduire",
     Speed="Vitesse", Jump="Saut", Fly="Voler", Noclip="Traverser les Murs",
     WalkSpeed="Vitesse de Marche", JumpPower="Puissance de Saut",
@@ -398,22 +397,22 @@ Translations.French = BK({
     InvalidSound="ID Son invalide", GameMuted="Musique du jeu coupée",
     GameUnmuted="Musique du jeu activée", MusicNotSet="Pas d'ID Son",
     MusicEnabled="Musique activée", MusicDisabled="Musique désactivée",
-    PlayerFeatures="Fonctionnalités du Joueur", Behavior="Comportement",
+    PlayerFeatures="Fonctionnalités", Behavior="Comportement",
     AutoLoad="Chargement Auto", AutoRejoin="Auto Rejoindre", ServerHop="Changer Serveur",
     LowServer="Serveur Vide", UISize="Taille de l'UI", Small="Petit", Mid="Moyen", Big="Grand",
-    ThemeColor="Couleur du Thème", ResetChar="Réinitialiser le Personnage", InfJump="Saut Infini",
+    ThemeColor="Couleur du Thème", ResetChar="Réinitialiser", InfJump="Saut Infini",
     Hopping="Changement...", Finding="Recherche...", AlreadyIn="Déjà dans un serveur vide",
     NoServerFound="Aucun serveur trouvé", Rejoined="Rejoindre...", Teleporting="Téléportation...",
     ActionRunning="Action en cours...", Searching="Recherche...",
+    ThemeColorPicker="Couleur du Thème", ResetSettings="Réinitialiser", About="À propos", Version="Version",
 })
 
--- ═══ GERMAN ═══
 Translations.German = BK({
     Info="Info", Settings="Einstellungen", Main="Haupt",
     Welcome="Willkommen bei XYEL HUB", Appearance="Aussehen",
     Copy="Discord-Link Kopieren", Language="Sprache", MenuMode="Menümodus",
     NormalMode="Normales Menü", FloatingMode="Schwebendes Menü",
-    Description="Hallo an alle, in diesem Skript sehen Sie viele Cheats, dieses Skript ist noch ein Projekt, wenn es Bugs gibt, treten Sie meinem Discord bei",
+    Description="Hallo an alle! Dieses Skript hat viele Cheats, es ist noch ein Projekt. Bei Bugs treten Sie meinem Discord bei.",
     Loading="Laden", Close="Schließen", Minimize="Minimieren",
     Speed="Geschwindigkeit", Jump="Springen", Fly="Fliegen", Noclip="Durch Wände",
     WalkSpeed="Gehgeschwindigkeit", JumpPower="Sprungkraft",
@@ -440,15 +439,15 @@ Translations.German = BK({
     Hopping="Wechsel...", Finding="Suche...", AlreadyIn="Bereits auf leerem Server",
     NoServerFound="Kein Server gefunden", Rejoined="Wiederverbinden...", Teleporting="Teleportiere...",
     ActionRunning="Aktion läuft...", Searching="Suche...",
+    ThemeColorPicker="Themenfarbe", ResetSettings="Zurücksetzen", About="Über", Version="Version",
 })
 
--- ═══ ITALIAN ═══
 Translations.Italian = BK({
     Info="Informazioni", Settings="Impostazioni", Main="Principale",
     Welcome="Benvenuto su XYEL HUB", Appearance="Aspetto",
     Copy="Copia Link Discord", Language="Lingua", MenuMode="Modalità Menu",
     NormalMode="Menu Normale", FloatingMode="Menu Fluttuante",
-    Description="Ciao a tutti, in questo script vedi molti cheat, questo script è ancora un progetto, se ci sono bug unisciti al mio discord",
+    Description="Ciao a tutti! Questo script ha molti cheat, è ancora un progetto. Se trovi bug, unisciti al mio discord.",
     Loading="Caricamento", Close="Chiudi", Minimize="Riduci",
     Speed="Velocità", Jump="Salto", Fly="Volare", Noclip="Attraversa Muri",
     WalkSpeed="Velocità Camminata", JumpPower="Potenza Salto",
@@ -468,22 +467,22 @@ Translations.Italian = BK({
     InvalidSound="ID Suono non valido", GameMuted="Musica di gioco silenziata",
     GameUnmuted="Musica di gioco attivata", MusicNotSet="Nessun ID Suono",
     MusicEnabled="Musica attiva", MusicDisabled="Musica disattivata",
-    PlayerFeatures="Funzionalità Giocatore", Behavior="Comportamento",
+    PlayerFeatures="Funzionalità", Behavior="Comportamento",
     AutoLoad="Caricamento Auto", AutoRejoin="Auto Rientro", ServerHop="Cambia Server",
     LowServer="Server Vuoto", UISize="Dimensione UI", Small="Piccolo", Mid="Medio", Big="Grande",
-    ThemeColor="Colore Tema", ResetChar="Reimposta Personaggio", InfJump="Salto Infinito",
+    ThemeColor="Colore Tema", ResetChar="Reimposta", InfJump="Salto Infinito",
     Hopping="Cambio...", Finding="Ricerca...", AlreadyIn="Già in server vuoto",
     NoServerFound="Nessun server trovato", Rejoined="Rientro...", Teleporting="Teletrasporto...",
     ActionRunning="Azione in esecuzione...", Searching="Ricerca...",
+    ThemeColorPicker="Colore Tema", ResetSettings="Ripristina", About="Info", Version="Versione",
 })
 
--- ═══ DUTCH ═══
 Translations.Dutch = BK({
     Info="Informatie", Settings="Instellingen", Main="Hoofd",
     Welcome="Welkom bij XYEL HUB", Appearance="Uiterlijk",
     Copy="Discord-link Kopiëren", Language="Taal", MenuMode="Menumodus",
     NormalMode="Normaal Menu", FloatingMode="Zwevend Menu",
-    Description="Hallo allemaal, in dit script zie je veel cheats, dit script is nog een project, als er bugs zijn sluit je aan bij mijn discord",
+    Description="Hallo allemaal! Dit script heeft veel cheats, het is nog een project. Bij bugs sluit je aan bij mijn discord.",
     Loading="Laden", Close="Sluiten", Minimize="Minimaliseren",
     Speed="Snelheid", Jump="Springen", Fly="Vliegen", Noclip="Muren Door",
     WalkSpeed="Loopsnelheid", JumpPower="Springkracht",
@@ -510,15 +509,15 @@ Translations.Dutch = BK({
     Hopping="Wisselen...", Finding="Zoeken...", AlreadyIn="Al op lege server",
     NoServerFound="Geen server gevonden", Rejoined="Opnieuw deelnemen...", Teleporting="Teleporteren...",
     ActionRunning="Actie wordt uitgevoerd...", Searching="Zoeken...",
+    ThemeColorPicker="Themakleur", ResetSettings="Resetten", About="Over", Version="Versie",
 })
 
--- ═══ TURKISH ═══
 Translations.Turkish = BK({
     Info="Bilgi", Settings="Ayarlar", Main="Ana",
     Welcome="XYEL HUB'a Hoş Geldiniz", Appearance="Görünüm",
     Copy="Discord Linkini Kopyala", Language="Dil", MenuMode="Menü Modu",
     NormalMode="Normal Menü", FloatingMode="Yüzen Menü",
-    Description="Merhaba herkes, bu scriptte birçok hile görüyorsunuz bu script hala proje, hata varsa discorduma katılın",
+    Description="Merhaba herkes! Bu scriptte birçok hile var, hala proje. Hata bulursanız discorduma katılın.",
     Loading="Yükleniyor", Close="Kapat", Minimize="Küçült",
     Speed="Hız", Jump="Zıplama", Fly="Uçma", Noclip="Duvarlardan Geç",
     WalkSpeed="Yürüme Hızı", JumpPower="Zıplama Gücü",
@@ -545,15 +544,15 @@ Translations.Turkish = BK({
     Hopping="Geçiliyor...", Finding="Aranıyor...", AlreadyIn="Zaten boş sunucuda",
     NoServerFound="Sunucu bulunamadı", Rejoined="Yeniden katılıyor...", Teleporting="Işınlanıyor...",
     ActionRunning="İşlem çalışıyor...", Searching="Aranıyor...",
+    ThemeColorPicker="Tema Rengi", ResetSettings="Sıfırla", About="Hakkında", Version="Sürüm",
 })
 
--- ═══ RUSSIAN ═══
 Translations.Russian = BK({
     Info="Информация", Settings="Настройки", Main="Главное",
     Welcome="Добро пожаловать в XYEL HUB", Appearance="Внешний Вид",
     Copy="Копировать Discord", Language="Язык", MenuMode="Режим Меню",
     NormalMode="Обычное Меню", FloatingMode="Плавающее Меню",
-    Description="Привет всем, в этом скрипте вы видите много читов, этот скрипт все еще проект, если есть ошибки, присоединяйтесь к моему discord",
+    Description="Привет всем! В этом скрипте много читов, он все еще проект. Если есть ошибки, присоединяйтесь к моему discord.",
     Loading="Загрузка", Close="Закрыть", Minimize="Свернуть",
     Speed="Скорость", Jump="Прыжок", Fly="Полет", Noclip="Сквозь Стены",
     WalkSpeed="Скорость Ходьбы", JumpPower="Сила Прыжка",
@@ -580,15 +579,15 @@ Translations.Russian = BK({
     Hopping="Переход...", Finding="Поиск...", AlreadyIn="Уже на пустом сервере",
     NoServerFound="Сервер не найден", Rejoined="Переподключение...", Teleporting="Телепортация...",
     ActionRunning="Действие выполняется...", Searching="Поиск...",
+    ThemeColorPicker="Цвет Темы", ResetSettings="Сброс", About="О скрипте", Version="Версия",
 })
 
--- ═══ UKRAINIAN ═══
 Translations.Ukrainian = BK({
     Info="Інформація", Settings="Налаштування", Main="Головне",
     Welcome="Ласкаво просимо до XYEL HUB", Appearance="Зовнішній Вигляд",
     Copy="Копіювати Discord", Language="Мова", MenuMode="Режим Меню",
     NormalMode="Звичайне Меню", FloatingMode="Плаваюче Меню",
-    Description="Привіт усім, у цьому скрипті ви бачите багато читів, цей скрипт ще проєкт, якщо є помилки, приєднуйтесь до мого discord",
+    Description="Привіт усім! У цьому скрипті багато читів, він ще проєкт. Якщо є помилки, приєднуйтесь до мого discord.",
     Loading="Завантаження", Close="Закрити", Minimize="Згорнути",
     Speed="Швидкість", Jump="Стрибок", Fly="Політ", Noclip="Крізь Стіни",
     WalkSpeed="Швидкість Ходьби", JumpPower="Сила Стрибка",
@@ -615,15 +614,15 @@ Translations.Ukrainian = BK({
     Hopping="Перехід...", Finding="Пошук...", AlreadyIn="Вже на порожньому сервері",
     NoServerFound="Сервер не знайдено", Rejoined="Перепідключення...", Teleporting="Телепортація...",
     ActionRunning="Дія виконується...", Searching="Пошук...",
+    ThemeColorPicker="Колір Теми", ResetSettings="Скинути", About="Про скрипт", Version="Версія",
 })
 
--- ═══ POLISH ═══
 Translations.Polish = BK({
     Info="Informacje", Settings="Ustawienia", Main="Główny",
     Welcome="Witamy w XYEL HUB", Appearance="Wygląd",
     Copy="Kopiuj Link Discord", Language="Język", MenuMode="Tryb Menu",
     NormalMode="Menu Normalne", FloatingMode="Menu Pływające",
-    Description="Witaj wszystkich, w tym skrypcie widzisz wiele cheatów, ten skrypt jest nadal projektem, jeśli są błędy dołącz do mojego discorda",
+    Description="Witaj wszystkich! Ten skrypt ma wiele cheatów, to wciąż projekt. Jeśli są błędy, dołącz do mojego discorda.",
     Loading="Ładowanie", Close="Zamknij", Minimize="Zminimalizuj",
     Speed="Prędkość", Jump="Skok", Fly="Lataj", Noclip="Przez Ściany",
     WalkSpeed="Prędkość Chodzenia", JumpPower="Moc Skoku",
@@ -648,17 +647,17 @@ Translations.Polish = BK({
     LowServer="Pusty Serwer", UISize="Rozmiar UI", Small="Mały", Mid="Średni", Big="Duży",
     ThemeColor="Kolor Motywu", ResetChar="Resetuj Postać", InfJump="Nieskończony Skok",
     Hopping="Przechodzenie...", Finding="Szukanie...", AlreadyIn="Już na pustym serwerze",
-    NoServerFound="Nie znaleziono serwera", Rejoined="Dołączanie ponownie...", Teleporting="Teleportacja...",
+    NoServerFound="Nie znaleziono serwera", Rejoined="Dołączanie...", Teleporting="Teleportacja...",
     ActionRunning="Akcja w toku...", Searching="Szukanie...",
+    ThemeColorPicker="Kolor Motywu", ResetSettings="Resetuj", About="O skrypcie", Version="Wersja",
 })
 
--- ═══ CZECH ═══
 Translations.Czech = BK({
     Info="Informace", Settings="Nastavení", Main="Hlavní",
     Welcome="Vítejte v XYEL HUB", Appearance="Vzhled",
     Copy="Kopírovat Discord", Language="Jazyk", MenuMode="Režim Menu",
     NormalMode="Normální Menu", FloatingMode="Plovoucí Menu",
-    Description="Ahoj všichni, v tomto skriptu vidíte mnoho cheatů, tento skript je stále projekt, pokud máte chyby připojte se k mému discordu",
+    Description="Ahoj všichni! Tento skript má mnoho cheatů, je stále projekt. Pokud máte chyby, připojte se k mému discordu.",
     Loading="Načítání", Close="Zavřít", Minimize="Minimalizovat",
     Speed="Rychlost", Jump="Skok", Fly="Létat", Noclip="Skrz Stěny",
     WalkSpeed="Rychlost Chůze", JumpPower="Síla Skoku",
@@ -685,15 +684,15 @@ Translations.Czech = BK({
     Hopping="Přepínání...", Finding="Hledání...", AlreadyIn="Již na prázdném serveru",
     NoServerFound="Server nenalezen", Rejoined="Připojování...", Teleporting="Teleportace...",
     ActionRunning="Akce probíhá...", Searching="Hledání...",
+    ThemeColorPicker="Barva Tématu", ResetSettings="Resetovat", About="O skriptu", Version="Verze",
 })
 
--- ═══ ROMANIAN ═══
 Translations.Romanian = BK({
     Info="Informații", Settings="Setări", Main="Principal",
     Welcome="Bine ați venit la XYEL HUB", Appearance="Aspect",
     Copy="Copiază Link Discord", Language="Limbă", MenuMode="Mod Meniu",
     NormalMode="Meniu Normal", FloatingMode="Meniu Flotant",
-    Description="Salut tuturor, în acest script vedeți multe cheat-uri, acest script este încă un proiect, dacă aveți erori alăturați-vă discordului meu",
+    Description="Salut tuturor! Acest script are multe cheat-uri, este încă un proiect. Dacă aveți erori, alăturați-vă discordului meu.",
     Loading="Se încarcă", Close="Închide", Minimize="Minimizează",
     Speed="Viteză", Jump="Salt", Fly="Zbor", Noclip="Prin Pereți",
     WalkSpeed="Viteză Mers", JumpPower="Putere Salt",
@@ -716,19 +715,19 @@ Translations.Romanian = BK({
     PlayerFeatures="Funcții Jucător", Behavior="Comportament",
     AutoLoad="Auto Încărcare", AutoRejoin="Auto Reconectare", ServerHop="Schimbă Server",
     LowServer="Server Gol", UISize="Dimensiune UI", Small="Mic", Mid="Mediu", Big="Mare",
-    ThemeColor="Culoare Temă", ResetChar="Resetează Personajul", InfJump="Salt Infinit",
+    ThemeColor="Culoare Temă", ResetChar="Resetează", InfJump="Salt Infinit",
     Hopping="Schimbare...", Finding="Căutare...", AlreadyIn="Deja pe server gol",
     NoServerFound="Server negăsit", Rejoined="Reconectare...", Teleporting="Teleportare...",
     ActionRunning="Acțiune în curs...", Searching="Căutare...",
+    ThemeColorPicker="Culoare Temă", ResetSettings="Resetare", About="Despre", Version="Versiune",
 })
 
--- ═══ GREEK ═══
 Translations.Greek = BK({
     Info="Πληροφορίες", Settings="Ρυθμίσεις", Main="Κύριο",
     Welcome="Καλώς ήρθατε στο XYEL HUB", Appearance="Εμφάνιση",
     Copy="Αντιγραφή Discord", Language="Γλώσσα", MenuMode="Λειτουργία Μενού",
     NormalMode="Κανονικό Μενού", FloatingMode="Αιωρούμενο Μενού",
-    Description="Γεια σε όλους, σε αυτό το script βλέπετε πολλά cheat, αυτό το script είναι ακόμα έργο, αν έχετε σφάλματα ελάτε στο discord μου",
+    Description="Γεια σε όλους! Αυτό το script έχει πολλά cheat, είναι ακόμα έργο. Αν έχετε σφάλματα, ελάτε στο discord μου.",
     Loading="Φόρτωση", Close="Κλείσιμο", Minimize="Ελαχιστοποίηση",
     Speed="Ταχύτητα", Jump="Άλμα", Fly="Πτήση", Noclip="Μέσα από Τοίχους",
     WalkSpeed="Ταχύτητα Περπατήματος", JumpPower="Δύναμη Άλματος",
@@ -751,19 +750,19 @@ Translations.Greek = BK({
     PlayerFeatures="Λειτουργίες Παίκτη", Behavior="Συμπεριφορά",
     AutoLoad="Αυτόματη Φόρτωση", AutoRejoin="Αυτόματη Επανασύνδεση", ServerHop="Αλλαγή Διακομιστή",
     LowServer="Κενός Διακομιστής", UISize="Μέγεθος UI", Small="Μικρό", Mid="Μεσαίο", Big="Μεγάλο",
-    ThemeColor="Χρώμα Θέματος", ResetChar="Επαναφορά Χαρακτήρα", InfJump="Άπειρο Άλμα",
+    ThemeColor="Χρώμα Θέματος", ResetChar="Επαναφορά", InfJump="Άπειρο Άλμα",
     Hopping="Αλλαγή...", Finding="Αναζήτηση...", AlreadyIn="Ήδη σε κενό διακομιστή",
     NoServerFound="Δεν βρέθηκε διακομιστής", Rejoined="Επανασύνδεση...", Teleporting="Τηλεμεταφορά...",
     ActionRunning="Ενέργεια σε εξέλιξη...", Searching="Αναζήτηση...",
+    ThemeColorPicker="Χρώμα Θέματος", ResetSettings="Επαναφορά", About="Σχετικά", Version="Έκδοση",
 })
 
--- ═══ ARABIC ═══
 Translations.Arabic = BK({
     Info="معلومات", Settings="الإعدادات", Main="الرئيسية",
     Welcome="مرحباً بك في XYEL HUB", Appearance="المظهر",
     Copy="نسخ رابط ديسكورد", Language="اللغة", MenuMode="وضع القائمة",
     NormalMode="قائمة عادية", FloatingMode="قائمة عائمة",
-    Description="مرحباً بالجميع، في هذا السكريبت ترى الكثير من الغش، هذا السكريبت لا يزال مشروعاً، إذا كان فيه أخطاء انضم لديسكوردي",
+    Description="مرحباً بالجميع! هذا السكريبت يحتوي على الكثير من الغش، لا يزال مشروعاً. إذا وجدت أخطاء انضم لديسكوردي.",
     Loading="جار التحميل", Close="إغلاق", Minimize="تصغير",
     Speed="السرعة", Jump="القفز", Fly="الطيران", Noclip="من خلال الجدران",
     WalkSpeed="سرعة المشي", JumpPower="قوة القفز",
@@ -786,19 +785,19 @@ Translations.Arabic = BK({
     PlayerFeatures="ميزات اللاعب", Behavior="السلوك",
     AutoLoad="تحميل تلقائي", AutoRejoin="إعادة انضمام تلقائية", ServerHop="تبديل السيرفر",
     LowServer="سيرفر قليل", UISize="حجم الواجهة", Small="صغير", Mid="متوسط", Big="كبير",
-    ThemeColor="لون السمة", ResetChar="إعادة تعيين الشخصية", InfJump="قفز لا نهائي",
+    ThemeColor="لون السمة", ResetChar="إعادة تعيين", InfJump="قفز لا نهائي",
     Hopping="تبديل...", Finding="بحث...", AlreadyIn="بالفعل في سيرفر قليل",
     NoServerFound="لم يتم العثور على سيرفر", Rejoined="إعادة الانضمام...", Teleporting="جار النقل...",
     ActionRunning="جار تنفيذ الإجراء...", Searching="بحث...",
+    ThemeColorPicker="لون السمة", ResetSettings="إعادة تعيين", About="حول", Version="الإصدار",
 })
 
--- ═══ PERSIAN ═══
 Translations.Persian = BK({
     Info="اطلاعات", Settings="تنظیمات", Main="اصلی",
     Welcome="به XYEL HUB خوش آمدید", Appearance="ظاهر",
     Copy="کپی لینک دیسکورد", Language="زبان", MenuMode="حالت منو",
     NormalMode="منوی عادی", FloatingMode="منوی شناور",
-    Description="سلام به همه، در این اسکریپت تقلب‌های زیادی می‌بینید، این اسکریپت هنوز پروژه است، اگر خطا دارید به دیسکورد من بپیوندید",
+    Description="سلام به همه! این اسکریپت تقلب‌های زیادی دارد، هنوز پروژه است. اگر خطا دیدید به دیسکورد من بپیوندید.",
     Loading="در حال بارگذاری", Close="بستن", Minimize="کوچک کردن",
     Speed="سرعت", Jump="پرش", Fly="پرواز", Noclip="از دیوارها",
     WalkSpeed="سرعت راه رفتن", JumpPower="قدرت پرش",
@@ -821,19 +820,19 @@ Translations.Persian = BK({
     PlayerFeatures="ویژگی‌های بازیکن", Behavior="رفتار",
     AutoLoad="بارگذاری خودکار", AutoRejoin="پیوستن خودکار", ServerHop="تغییر سرور",
     LowServer="سرور خالی", UISize="اندازه رابط", Small="کوچک", Mid="متوسط", Big="بزرگ",
-    ThemeColor="رنگ تم", ResetChar="بازنشانی شخصیت", InfJump="پرش بی‌نهایت",
+    ThemeColor="رنگ تم", ResetChar="بازنشانی", InfJump="پرش بی‌نهایت",
     Hopping="تغییر...", Finding="جستجو...", AlreadyIn="قبلاً در سرور خالی",
     NoServerFound="سرور یافت نشد", Rejoined="پیوستن مجدد...", Teleporting="انتقال...",
     ActionRunning="اقدام در حال اجرا...", Searching="جستجو...",
+    ThemeColorPicker="رنگ تم", ResetSettings="بازنشانی", About="درباره", Version="نسخه",
 })
 
--- ═══ URDU ═══
 Translations.Urdu = BK({
     Info="معلومات", Settings="ترتیبات", Main="مرکزی",
     Welcome="XYEL HUB میں خوش آمدید", Appearance="ظاہری شکل",
     Copy="ڈسکارڈ لنک کاپی", Language="زبان", MenuMode="مینو موڈ",
     NormalMode="نارمل مینو", FloatingMode="فلوٹنگ مینو",
-    Description="ہیلو سب، اس اسکرپٹ میں آپ بہت سی چیٹ دیکھتے ہیں یہ اسکرپٹ ابھی پروجیکٹ ہے اگر بگ ہو تو میرے ڈسکارڈ میں شامل ہوں",
+    Description="ہیلو سب! اس اسکرپٹ میں بہت سی چیٹ ہے، یہ ابھی پروجیکٹ ہے۔ اگر بگ ہو تو میرے ڈسکارڈ میں شامل ہوں۔",
     Loading="لوڈ ہو رہا", Close="بند", Minimize="چھوٹا کریں",
     Speed="رفتار", Jump="چھلانگ", Fly="پرواز", Noclip="دیواروں سے",
     WalkSpeed="چلنے کی رفتار", JumpPower="چھلانگ کی طاقت",
@@ -860,15 +859,15 @@ Translations.Urdu = BK({
     Hopping="تبدیل...", Finding="تلاش...", AlreadyIn="پہلے سے کم سرور میں",
     NoServerFound="کوئی سرور نہیں ملا", Rejoined="دوبارہ شامل...", Teleporting="ٹیلی پورٹ...",
     ActionRunning="اقدام چل رہا ہے...", Searching="تلاش...",
+    ThemeColorPicker="تھیم رنگ", ResetSettings="ری سیٹ", About="کے بارے میں", Version="ورژن",
 })
 
--- ═══ HEBREW ═══
 Translations.Hebrew = BK({
     Info="מידע", Settings="הגדרות", Main="ראשי",
     Welcome="ברוכים הבאים ל-XYEL HUB", Appearance="מראה",
     Copy="העתק קישור דיסקורד", Language="שפה", MenuMode="מצב תפריט",
     NormalMode="תפריט רגיל", FloatingMode="תפריט צף",
-    Description="שלום לכולם, בסקריפט הזה אתם רואים הרבה צ'יטים, הסקריפט הזה עדיין פרויקט, אם יש באגים הצטרפו לדיסקורד שלי",
+    Description="שלום לכולם! בסקריפט הזה יש הרבה צ'יטים, הוא עדיין פרויקט. אם יש באגים הצטרפו לדיסקורד שלי.",
     Loading="טוען", Close="סגור", Minimize="מזער",
     Speed="מהירות", Jump="קפיצה", Fly="תעופה", Noclip="דרך קירות",
     WalkSpeed="מהירות הליכה", JumpPower="כוח קפיצה",
@@ -879,7 +878,7 @@ Translations.Hebrew = BK({
     SpeedDesc="סליידר מהירות", JumpDesc="סליידר קפיצה",
     FlyDesc="תעופה + מהירות", NoclipDesc="דרך קירות",
     Music="מוזיקה", MusicPlayer="נגן", SoundId="מזהה צליל", Volume="עוצמה",
-    MuteGame="השתק משחק", AutoPlay="נגן אוטומטית", LoopMusic="חזור",
+    MuteGame="השתק", AutoPlay="נגן אוטומטית", LoopMusic="חזור",
     Apply="החל", StopMusic="עצור", ClearMusic="נקה",
     Background="רקע", Rejoin="הצטרף מחדש", Hop="החלף שרת", FindLow="שרת ריק",
     RejoinBtn="הצטרף מחדש", ServerHopBtn="החלף שרת", SmallServerBtn="שרת ריק",
@@ -895,15 +894,15 @@ Translations.Hebrew = BK({
     Hopping="מחליף...", Finding="מחפש...", AlreadyIn="כבר בשרת ריק",
     NoServerFound="לא נמצא שרת", Rejoined="הצטרפות מחדש...", Teleporting="טלפורט...",
     ActionRunning="פעולה פועלת...", Searching="מחפש...",
+    ThemeColorPicker="צבע ערכה", ResetSettings="אפס", About="אודות", Version="גרסה",
 })
 
--- ═══ HINDI ═══
 Translations.Hindi = BK({
     Info="जानकारी", Settings="सेटिंग्स", Main="मुख्य",
     Welcome="XYEL HUB में आपका स्वागत है", Appearance="रूप",
     Copy="Discord लिंक कॉपी", Language="भाषा", MenuMode="मेनू मोड",
     NormalMode="सामान्य मेनू", FloatingMode="फ्लोटिंग मेनू",
-    Description="नमस्ते सभी, इस स्क्रिप्ट में आप बहुत सारे चीट देखते हैं, यह स्क्रिप्ट अभी भी प्रोजेक्ट है, अगर बग हों तो मेरे डिस्कॉर्ड से जुड़ें",
+    Description="नमस्ते सभी! इस स्क्रिप्ट में बहुत सारे चीट हैं, यह अभी भी प्रोजेक्ट है। अगर बग हों तो मेरे डिस्कॉर्ड से जुड़ें।",
     Loading="लोड हो रहा", Close="बंद", Minimize="छोटा करें",
     Speed="गति", Jump="कूद", Fly="उड़ान", Noclip="दीवारों से",
     WalkSpeed="चलने की गति", JumpPower="कूद की शक्ति",
@@ -930,15 +929,15 @@ Translations.Hindi = BK({
     Hopping="बदल रहे...", Finding="खोज रहे...", AlreadyIn="पहले से खाली सर्वर में",
     NoServerFound="कोई सर्वर नहीं मिला", Rejoined="फिर से जुड़ रहे...", Teleporting="टेलीपोर्ट...",
     ActionRunning="कार्रवाई चल रही...", Searching="खोज रहे...",
+    ThemeColorPicker="थीम रंग", ResetSettings="रीसेट", About="जानकारी", Version="संस्करण",
 })
 
--- ═══ BENGALI ═══
 Translations.Bengali = BK({
     Info="তথ্য", Settings="সেটিংস", Main="প্রধান",
     Welcome="XYEL HUB এ স্বাগতম", Appearance="চেহারা",
     Copy="Discord লিঙ্ক কপি", Language="ভাষা", MenuMode="মেনু মোড",
     NormalMode="সাধারণ মেনু", FloatingMode="ভাসমান মেনু",
-    Description="হ্যালো সবাই, এই স্ক্রিপ্টে আপনি অনেক চিট দেখতে পাবেন, এই স্ক্রিপ্ট এখনও প্রকল্প, বাগ থাকলে আমার ডিসকর্ডে যোগ দিন",
+    Description="হ্যালো সবাই! এই স্ক্রিপ্টে অনেক চিট আছে, এটি এখনও প্রকল্প। বাগ থাকলে আমার ডিসকর্ডে যোগ দিন।",
     Loading="লোড হচ্ছে", Close="বন্ধ", Minimize="ছোট করুন",
     Speed="গতি", Jump="লাফ", Fly="উড়া", Noclip="দেয়ালের মধ্য দিয়ে",
     WalkSpeed="হাঁটার গতি", JumpPower="লাফের শক্তি",
@@ -965,15 +964,15 @@ Translations.Bengali = BK({
     Hopping="পরিবর্তন...", Finding="সন্ধান...", AlreadyIn="ইতিমধ্যে খালি সার্ভারে",
     NoServerFound="সার্ভার পাওয়া যায়নি", Rejoined="পুনরায় যোগ...", Teleporting="টেলিপোর্ট...",
     ActionRunning="কার্যক্রম চলছে...", Searching="সন্ধান...",
+    ThemeColorPicker="থিম রঙ", ResetSettings="রিসেট", About="সম্পর্কে", Version="সংস্করণ",
 })
 
--- ═══ TAMIL ═══
 Translations.Tamil = BK({
     Info="தகவல்", Settings="அமைப்புகள்", Main="முதன்மை",
     Welcome="XYEL HUB க்கு வரவேற்கிறோம்", Appearance="தோற்றம்",
     Copy="Discord இணைப்பு", Language="மொழி", MenuMode="மெனு பயன்முறை",
     NormalMode="சாதாரண மெனு", FloatingMode="மிதக்கும் மெனு",
-    Description="அனைவருக்கும் வணக்கம், இந்த ஸ்கிரிப்ட்டில் பல ஏமாற்றுகளைக் காண்பீர்கள், இந்த ஸ்கிரிப்ட் இன்னும் திட்டமாக உள்ளது, பிழைகள் இருந்தால் என் டிஸ்கார்டில் சேரவும்",
+    Description="அனைவருக்கும் வணக்கம்! இந்த ஸ்கிரிப்ட்டில் பல ஏமாற்றுகள் உள்ளன, இது இன்னும் திட்டம். பிழைகள் இருந்தால் என் டிஸ்கார்டில் சேரவும்.",
     Loading="ஏற்றுகிறது", Close="மூடு", Minimize="சிறிதாக்கு",
     Speed="வேகம்", Jump="குதி", Fly="பற", Noclip="சுவர்கள் வழியாக",
     WalkSpeed="நடை வேகம்", JumpPower="குதி சக்தி",
@@ -996,19 +995,19 @@ Translations.Tamil = BK({
     PlayerFeatures="வீரர் அம்சங்கள்", Behavior="நடத்தை",
     AutoLoad="தானியங்கி ஏற்று", AutoRejoin="தானியங்கி இணை", ServerHop="சேவையகம் மாற்று",
     LowServer="காலி சேவையகம்", UISize="UI அளவு", Small="சிறிய", Mid="நடுத்தர", Big="பெரிய",
-    ThemeColor="தீம் நிறம்", ResetChar="கதாபாத்திரம் மீட்டமை", InfJump="எல்லையற்ற குதி",
+    ThemeColor="தீம் நிறம்", ResetChar="மீட்டமை", InfJump="எல்லையற்ற குதி",
     Hopping="மாறுகிறது...", Finding="தேடுகிறது...", AlreadyIn="ஏற்கனவே காலி சேவையகத்தில்",
     NoServerFound="சேவையகம் இல்லை", Rejoined="மீண்டும் இணைகிறது...", Teleporting="டெலிபோர்ட்...",
     ActionRunning="செயல் இயங்குகிறது...", Searching="தேடுகிறது...",
+    ThemeColorPicker="தீம் நிறம்", ResetSettings="மீட்டமை", About="பற்றி", Version="பதிப்பு",
 })
 
--- ═══ JAPANESE ═══
 Translations.Japanese = BK({
     Info="情報", Settings="設定", Main="メイン",
     Welcome="XYEL HUBへようこそ", Appearance="外観",
     Copy="Discordリンクをコピー", Language="言語", MenuMode="メニューモード",
     NormalMode="通常メニュー", FloatingMode="フローティングメニュー",
-    Description="こんにちは、このスクリプトには多くのチートがあります。まだプロジェクト中です。バグがあればDiscordに参加してください。",
+    Description="こんにちは！このスクリプトには多くのチートがあります。まだプロジェクト中です。バグがあればDiscordに参加してください。",
     Loading="読み込み中", Close="閉じる", Minimize="最小化",
     Speed="速度", Jump="ジャンプ", Fly="飛行", Noclip="壁を貫通",
     WalkSpeed="歩行速度", JumpPower="ジャンプ力",
@@ -1031,19 +1030,19 @@ Translations.Japanese = BK({
     PlayerFeatures="プレイヤー機能", Behavior="動作",
     AutoLoad="自動読み込み", AutoRejoin="自動再参加", ServerHop="サーバー変更",
     LowServer="空きサーバー", UISize="UIサイズ", Small="小", Mid="中", Big="大",
-    ThemeColor="テーマカラー", ResetChar="キャラクターリセット", InfJump="無限ジャンプ",
+    ThemeColor="テーマカラー", ResetChar="リセット", InfJump="無限ジャンプ",
     Hopping="変更中...", Finding="検索中...", AlreadyIn="既に空きサーバーにいます",
     NoServerFound="サーバーが見つかりません", Rejoined="再参加中...", Teleporting="テレポート中...",
     ActionRunning="アクション実行中...", Searching="検索中...",
+    ThemeColorPicker="テーマカラー", ResetSettings="リセット", About="について", Version="バージョン",
 })
 
--- ═══ KOREAN ═══
 Translations.Korean = BK({
     Info="정보", Settings="설정", Main="메인",
     Welcome="XYEL HUB에 오신 것을 환영합니다", Appearance="모양",
     Copy="디스코드 링크 복사", Language="언어", MenuMode="메뉴 모드",
     NormalMode="일반 메뉴", FloatingMode="플로팅 메뉴",
-    Description="안녕하세요, 이 스크립트에는 많은 치트가 있습니다. 아직 프로젝트 중이며 버그가 있으면 제 디스코드에 참여하세요.",
+    Description="안녕하세요! 이 스크립트에는 많은 치트가 있습니다. 아직 프로젝트 중이며 버그가 있으면 제 디스코드에 참여하세요.",
     Loading="로딩 중", Close="닫기", Minimize="최소화",
     Speed="속도", Jump="점프", Fly="비행", Noclip="벽 통과",
     WalkSpeed="걷기 속도", JumpPower="점프 파워",
@@ -1066,19 +1065,19 @@ Translations.Korean = BK({
     PlayerFeatures="플레이어 기능", Behavior="동작",
     AutoLoad="자동 로드", AutoRejoin="자동 재접속", ServerHop="서버 변경",
     LowServer="한산한 서버", UISize="UI 크기", Small="작게", Mid="중간", Big="크게",
-    ThemeColor="테마 색상", ResetChar="캐릭터 리셋", InfJump="무한 점프",
+    ThemeColor="테마 색상", ResetChar="리셋", InfJump="무한 점프",
     Hopping="변경 중...", Finding="검색 중...", AlreadyIn="이미 한산한 서버에 있음",
     NoServerFound="서버를 찾을 수 없음", Rejoined="재접속 중...", Teleporting="텔레포트 중...",
     ActionRunning="작업 실행 중...", Searching="검색 중...",
+    ThemeColorPicker="테마 색상", ResetSettings="리셋", About="정보", Version="버전",
 })
 
--- ═══ CHINESE ═══
 Translations.Chinese = BK({
     Info="信息", Settings="设置", Main="主页",
     Welcome="欢迎来到XYEL HUB", Appearance="外观",
     Copy="复制Discord链接", Language="语言", MenuMode="菜单模式",
     NormalMode="普通菜单", FloatingMode="浮动菜单",
-    Description="大家好，此脚本中有许多作弊功能，此脚本仍在开发中，如有错误请加入我的Discord",
+    Description="大家好！此脚本中有许多作弊功能，仍在开发中。如有错误请加入我的Discord。",
     Loading="加载中", Close="关闭", Minimize="最小化",
     Speed="速度", Jump="跳跃", Fly="飞行", Noclip="穿墙",
     WalkSpeed="行走速度", JumpPower="跳跃力量",
@@ -1105,15 +1104,15 @@ Translations.Chinese = BK({
     Hopping="切换中...", Finding="搜索中...", AlreadyIn="已在低人数服务器中",
     NoServerFound="未找到服务器", Rejoined="重新加入中...", Teleporting="传送中...",
     ActionRunning="操作运行中...", Searching="搜索中...",
+    ThemeColorPicker="主题颜色", ResetSettings="重置", About="关于", Version="版本",
 })
 
--- ═══ VIETNAMESE ═══
 Translations.Vietnamese = BK({
     Info="Thông tin", Settings="Cài đặt", Main="Chính",
     Welcome="Chào mừng đến XYEL HUB", Appearance="Ngoại hình",
     Copy="Sao chép Discord", Language="Ngôn ngữ", MenuMode="Chế độ Menu",
     NormalMode="Menu Thường", FloatingMode="Menu Nổi",
-    Description="Xin chào mọi người, trong script này bạn thấy rất nhiều cheat, script này vẫn đang là dự án, nếu có lỗi hãy tham gia discord của tôi",
+    Description="Xin chào mọi người! Script này có nhiều cheat, vẫn đang là dự án. Nếu có lỗi hãy tham gia discord của tôi.",
     Loading="Đang tải", Close="Đóng", Minimize="Thu nhỏ",
     Speed="Tốc độ", Jump="Nhảy", Fly="Bay", Noclip="Xuyên Tường",
     WalkSpeed="Tốc độ đi", JumpPower="Lực nhảy",
@@ -1136,19 +1135,19 @@ Translations.Vietnamese = BK({
     PlayerFeatures="Tính năng người chơi", Behavior="Hành vi",
     AutoLoad="Tự động tải", AutoRejoin="Tự động vào lại", ServerHop="Đổi máy chủ",
     LowServer="Máy chủ vắng", UISize="Kích thước UI", Small="Nhỏ", Mid="Vừa", Big="Lớn",
-    ThemeColor="Màu chủ đề", ResetChar="Đặt lại nhân vật", InfJump="Nhảy vô hạn",
+    ThemeColor="Màu chủ đề", ResetChar="Đặt lại", InfJump="Nhảy vô hạn",
     Hopping="Đang đổi...", Finding="Đang tìm...", AlreadyIn="Đã ở máy chủ vắng",
     NoServerFound="Không tìm thấy máy chủ", Rejoined="Đang vào lại...", Teleporting="Đang dịch chuyển...",
     ActionRunning="Đang thực hiện...", Searching="Đang tìm...",
+    ThemeColorPicker="Màu chủ đề", ResetSettings="Đặt lại", About="Giới thiệu", Version="Phiên bản",
 })
 
--- ═══ THAI ═══
 Translations.Thai = BK({
     Info="ข้อมูล", Settings="การตั้งค่า", Main="หลัก",
     Welcome="ยินดีต้อนรับสู่ XYEL HUB", Appearance="รูปลักษณ์",
     Copy="คัดลอก Discord", Language="ภาษา", MenuMode="โหมดเมนู",
     NormalMode="เมนูปกติ", FloatingMode="เมนูลอย",
-    Description="สวัสดีทุกคน ในสคริปต์นี้คุณจะเห็น cheat มากมาย สคริปต์นี้ยังเป็นโปรเจกต์อยู่ ถ้ามีบั๊กเข้าร่วม discord ของฉัน",
+    Description="สวัสดีทุกคน! สคริปต์นี้มี cheat มากมาย ยังเป็นโปรเจกต์อยู่ ถ้ามีบั๊กเข้าร่วม discord ของฉัน",
     Loading="กำลังโหลด", Close="ปิด", Minimize="ย่อ",
     Speed="ความเร็ว", Jump="กระโดด", Fly="บิน", Noclip="ทะลุกำแพง",
     WalkSpeed="ความเร็วเดิน", JumpPower="พลังกระโดด",
@@ -1171,19 +1170,19 @@ Translations.Thai = BK({
     PlayerFeatures="คุณสมบัติผู้เล่น", Behavior="พฤติกรรม",
     AutoLoad="โหลดอัตโนมัติ", AutoRejoin="เข้าร่วมอัตโนมัติ", ServerHop="เปลี่ยนเซิร์ฟเวอร์",
     LowServer="เซิร์ฟเวอร์ว่าง", UISize="ขนาด UI", Small="เล็ก", Mid="กลาง", Big="ใหญ่",
-    ThemeColor="สีธีม", ResetChar="รีเซ็ตตัวละคร", InfJump="กระโดดไม่จำกัด",
+    ThemeColor="สีธีม", ResetChar="รีเซ็ต", InfJump="กระโดดไม่จำกัด",
     Hopping="กำลังเปลี่ยน...", Finding="กำลังค้นหา...", AlreadyIn="อยู่ในเซิร์ฟเวอร์ว่างแล้ว",
     NoServerFound="ไม่พบเซิร์ฟเวอร์", Rejoined="กำลังเข้าร่วมอีกครั้ง...", Teleporting="กำลังเทเลพอร์ต...",
     ActionRunning="กำลังดำเนินการ...", Searching="กำลังค้นหา...",
+    ThemeColorPicker="สีธีม", ResetSettings="รีเซ็ต", About="เกี่ยวกับ", Version="เวอร์ชัน",
 })
 
--- ═══ SWAHILI ═══
 Translations.Swahili = BK({
     Info="Taarifa", Settings="Mipangilio", Main="Kuu",
     Welcome="Karibu XYEL HUB", Appearance="Mwonekano",
     Copy="Nakili Discord", Language="Lugha", MenuMode="Hali ya Menyu",
     NormalMode="Menyu ya Kawaida", FloatingMode="Menyu Inayoelea",
-    Description="Habari kila mtu, katika script hii unaona cheats nyingi, script hii bado ni mradi, ikiwa kuna hitilafu jiunge na discord yangu",
+    Description="Habari kila mtu! Script hii ina cheats nyingi, bado ni mradi. Ikiwa kuna hitilafu jiunge na discord yangu.",
     Loading="Inapakia", Close="Funga", Minimize="Punguza",
     Speed="Kasi", Jump="Kuruka", Fly="Kuruka hewani", Noclip="Kupitia Kuta",
     WalkSpeed="Kasi ya Kutembea", JumpPower="Nguvu ya Kuruka",
@@ -1206,19 +1205,19 @@ Translations.Swahili = BK({
     PlayerFeatures="Vipengele vya Mchezaji", Behavior="Tabia",
     AutoLoad="Pakia Kiotomatiki", AutoRejoin="Jiunge Kiotomatiki", ServerHop="Badilisha Seva",
     LowServer="Seva Tupu", UISize="Ukubwa wa UI", Small="Ndogo", Mid="Wastani", Big="Kubwa",
-    ThemeColor="Rangi ya Mandhari", ResetChar="Weka Upya Mhusika", InfJump="Kuruka Bila Kikomo",
+    ThemeColor="Rangi ya Mandhari", ResetChar="Weka Upya", InfJump="Kuruka Bila Kikomo",
     Hopping="Inabadilisha...", Finding="Inatafuta...", AlreadyIn="Tayari katika seva tupu",
     NoServerFound="Hakuna seva iliyopatikana", Rejoined="Inajiunga tena...", Teleporting="Inasafiri...",
     ActionRunning="Kitendo kinaendesha...", Searching="Inatafuta...",
+    ThemeColorPicker="Rangi ya Mandhari", ResetSettings="Weka Upya", About="Kuhusu", Version="Toleo",
 })
 
--- ═══ AFRIKAANS ═══
 Translations.Afrikaans = BK({
     Info="Inligting", Settings="Instellings", Main="Hoof",
     Welcome="Welkom by XYEL HUB", Appearance="Voorkoms",
     Copy="Kopieer Discord", Language="Taal", MenuMode="Kieslysmodus",
     NormalMode="Normale Kieslys", FloatingMode="Sweef Kieslys",
-    Description="Hallo almal, in hierdie script sien jy baie cheats, hierdie script is nog 'n projek, as daar foute is sluit aan by my discord",
+    Description="Hallo almal! Hierdie script het baie cheats, dit is nog 'n projek. As daar foute is, sluit aan by my discord.",
     Loading="Laai", Close="Sluit", Minimize="Minimaliseer",
     Speed="Spoed", Jump="Spring", Fly="Vlieg", Noclip="Deur Mure",
     WalkSpeed="Stap Spoed", JumpPower="Spring Krag",
@@ -1241,10 +1240,11 @@ Translations.Afrikaans = BK({
     PlayerFeatures="Speler Kenmerke", Behavior="Gedrag",
     AutoLoad="Outo Laai", AutoRejoin="Outo Sluit Aan", ServerHop="Verander Bediener",
     LowServer="Leë Bediener", UISize="UI Grootte", Small="Klein", Mid="Medium", Big="Groot",
-    ThemeColor="Tema Kleur", ResetChar="Herstel Karakter", InfJump="Oneindige Spring",
+    ThemeColor="Tema Kleur", ResetChar="Herstel", InfJump="Oneindige Spring",
     Hopping="Verander...", Finding="Soek...", AlreadyIn="Al op leë bediener",
     NoServerFound="Geen bediener gevind", Rejoined="Sluit weer aan...", Teleporting="Teleporteer...",
     ActionRunning="Aksie loop...", Searching="Soek...",
+    ThemeColorPicker="Tema Kleur", ResetSettings="Herstel", About="Oor", Version="Weergawe",
 })
 
 setmetatable(Translations, {
@@ -1268,7 +1268,6 @@ local function T(key)
 end
 XYEL.T = T
 
--- i18n Registry
 local i18nElements = {}
 local function RegI18n(obj, key, isPlaceholder)
     table.insert(i18nElements, { obj = obj, key = key, isPlaceholder = isPlaceholder or false })
@@ -1331,6 +1330,35 @@ local function Gradient(parent, c1, c2, rotation)
     return g
 end
 
+-- ═══ DRAG SYSTEM ═══
+local function MakeDraggable(frame, handle)
+    local dragging, dragStart, startPos
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+        end
+    end)
+    handle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+end
+
 -- Global slider drag
 UserInputService.InputChanged:Connect(function(input)
     if not State.SliderActive then return end
@@ -1357,7 +1385,7 @@ local function DetectGameName()
     return "Game " .. tostring(game.PlaceId)
 end
 
--- Notify
+-- ═══ NOTIFY ═══
 local notifStack = 0
 function XYEL:Notify(opts)
     opts = opts or {}
@@ -1411,7 +1439,7 @@ function XYEL:Notify(opts)
     end)
 end
 
--- Loading Screen (waits for game)
+-- ═══ LOADING SCREEN ═══
 local function ShowLoading(parent, title, callback)
     local Loading = Create("Frame", {
         Name = "XYEL_LOADING", Size = UDim2.new(1, 0, 1, 0),
@@ -1495,96 +1523,70 @@ local function ShowLoading(parent, title, callback)
     end)
 end
 
--- ═══ FLOATING WINDOW SYSTEM ═══
-local function CreateFloatingWindow(screenGui, title, contentFrame, onClose)
+-- ═══ FLOATING WINDOW ═══
+local function CreateFloatingWindow(parent, title, content, width, height)
     local FloatFrame = Create("Frame", {
         Name = "Float_" .. tostring(math.random(1000, 9999)),
-        Size = UDim2.new(0, 400, 0, 320),
+        Size = UDim2.new(0, width or 380, 0, height or 300),
         Position = UDim2.new(0, 100 + math.random(1, 200), 0, 100 + math.random(1, 100)),
         BackgroundColor3 = State.Theme.Background,
         BorderSizePixel = 0, ClipsDescendants = true,
-        Active = true, ZIndex = 50, Parent = screenGui,
+        Active = true, ZIndex = 60, Parent = parent,
     })
     Corner(FloatFrame, 14)
     Stroke(FloatFrame, State.Theme.Primary, 1.5, 0.4)
     
-    local FloatTopBar = Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 40),
+    local FTop = Create("Frame", {
+        Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = State.Theme.Secondary,
-        BorderSizePixel = 0, ZIndex = 51, Parent = FloatFrame,
+        BorderSizePixel = 0, ZIndex = 61, Parent = FloatFrame,
     })
-    Corner(FloatTopBar, 14)
+    Corner(FTop, 14)
     Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 14), Position = UDim2.new(0, 0, 1, -14),
+        Size = UDim2.new(1, 0, 0, 12), Position = UDim2.new(0, 0, 1, -12),
         BackgroundColor3 = State.Theme.Secondary,
-        BorderSizePixel = 0, ZIndex = 51, Parent = FloatTopBar,
+        BorderSizePixel = 0, ZIndex = 61, Parent = FTop,
     })
+    
     Create("TextLabel", {
-        Size = UDim2.new(1, -80, 1, 0), Position = UDim2.new(0, 12, 0, 0),
+        Size = UDim2.new(1, -70, 1, 0), Position = UDim2.new(0, 12, 0, 0),
         BackgroundTransparency = 1, Text = title,
         TextColor3 = State.Theme.Text, Font = Enum.Font.GothamBold,
-        TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 52, Parent = FloatTopBar,
+        TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 62, Parent = FTop,
     })
+    
     local FClose = Create("TextButton", {
-        Size = UDim2.new(0, 26, 0, 26), Position = UDim2.new(1, -32, 0, 7),
+        Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(1, -30, 0, 6),
         BackgroundColor3 = State.Theme.Danger, Text = "×",
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold, TextSize = 16,
-        AutoButtonColor = false, ZIndex = 52, Parent = FloatTopBar,
+        Font = Enum.Font.GothamBold, TextSize = 15,
+        AutoButtonColor = false, ZIndex = 62, Parent = FTop,
     })
-    Corner(FClose, 8)
-    local FMin = Create("TextButton", {
-        Size = UDim2.new(0, 26, 0, 26), Position = UDim2.new(1, -64, 0, 7),
-        BackgroundColor3 = State.Theme.Surface, Text = "—",
-        TextColor3 = State.Theme.Text,
-        Font = Enum.Font.GothamBold, TextSize = 14,
-        AutoButtonColor = false, ZIndex = 52, Parent = FloatTopBar,
-    })
-    Corner(FMin, 8)
+    Corner(FClose, 7)
     
-    contentFrame.Parent = FloatFrame
-    contentFrame.Size = UDim2.new(1, -20, 1, -60)
-    contentFrame.Position = UDim2.new(0, 10, 0, 50)
-    contentFrame.BackgroundTransparency = 1
-    contentFrame.ZIndex = 51
+    content.Parent = FloatFrame
+    content.Size = UDim2.new(1, -16, 1, -46)
+    content.Position = UDim2.new(0, 8, 0, 42)
+    content.BackgroundTransparency = 1
+    content.ZIndex = 61
     
-    local fdrag, fstart, fpos
-    FloatTopBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            fdrag = true; fstart = input.Position; fpos = FloatFrame.Position
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            fdrag = false
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if fdrag and (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - fstart
-            FloatFrame.Position = UDim2.new(
-                fpos.X.Scale, fpos.X.Offset + delta.X,
-                fpos.Y.Scale, fpos.Y.Offset + delta.Y
-            )
-        end
-    end)
+    MakeDraggable(FloatFrame, FTop)
     
-    local fminimized = false
-    FMin.MouseButton1Click:Connect(function()
-        fminimized = not fminimized
-        Tween(FloatFrame, 0.25, {
-            Size = fminimized and UDim2.new(0, 400, 0, 40) or UDim2.new(0, 400, 0, 320)
-        }, Enum.EasingStyle.Quint)
-    end)
     FClose.MouseButton1Click:Connect(function()
-        if onClose then onClose() end
         FloatFrame:Destroy()
     end)
     
+    -- Stack handling: put new floating windows lower
+    local existing = 0
+    for _, child in ipairs(parent:GetChildren()) do
+        if child.Name:sub(1, 6) == "Float_" and child ~= FloatFrame then
+            existing = existing + 1
+        end
+    end
+    FloatFrame.Position = UDim2.new(0, 60 + existing * 40, 0, 80 + existing * 50)
+    
+    table.insert(State.FloatingWindows, FloatFrame)
     return FloatFrame
 end
 
@@ -1603,8 +1605,9 @@ function XYEL:CreateWindow(opts)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         IgnoreGuiInset = true, Parent = parent,
     })
+    State.MainWindow = ScreenGui
     
-    -- Main Frame (Normal Mode)
+    -- ═══ MAIN FRAME ═══
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
         Size = UDim2.new(0, 640, 0, 420),
@@ -1628,6 +1631,7 @@ function XYEL:CreateWindow(opts)
         BackgroundColor3 = State.Theme.Secondary,
         BorderSizePixel = 0, ZIndex = 5, Parent = TopBar,
     })
+    
     local logo = Create("Frame", {
         Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(0, 12, 0, 8),
         BackgroundColor3 = State.Theme.Primary,
@@ -1640,6 +1644,7 @@ function XYEL:CreateWindow(opts)
         Text = "X", TextColor3 = Color3.fromRGB(255,255,255),
         Font = Enum.Font.GothamBold, TextSize = 18, ZIndex = 7, Parent = logo,
     })
+    
     local TitleLbl = Create("TextLabel", {
         Size = UDim2.new(0, 400, 1, 0), Position = UDim2.new(0, 54, 0, 0),
         BackgroundTransparency = 1, Text = baseTitle,
@@ -1648,6 +1653,7 @@ function XYEL:CreateWindow(opts)
         TextTruncate = Enum.TextTruncate.AtEnd,
         ZIndex = 6, Parent = TopBar,
     })
+    
     local CloseBtn = Create("TextButton", {
         Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -42, 0, 8),
         BackgroundColor3 = State.Theme.Danger, Text = "×",
@@ -1656,6 +1662,13 @@ function XYEL:CreateWindow(opts)
         AutoButtonColor = false, ZIndex = 6, Parent = TopBar,
     })
     Corner(CloseBtn, 10)
+    CloseBtn.MouseEnter:Connect(function()
+        Tween(CloseBtn, 0.2, { BackgroundColor3 = Color3.fromRGB(255, 100, 100) })
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        Tween(CloseBtn, 0.2, { BackgroundColor3 = State.Theme.Danger })
+    end)
+    
     local MinBtn = Create("TextButton", {
         Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -80, 0, 8),
         BackgroundColor3 = State.Theme.Surface, Text = "—",
@@ -1665,34 +1678,11 @@ function XYEL:CreateWindow(opts)
     })
     Corner(MinBtn, 10)
     
-    local dragging, dragStart, startPos
-    local function makeDraggable(frame, handle)
-        handle.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1
-            or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true; dragStart = input.Position; startPos = frame.Position
-            end
-        end)
-    end
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    makeDraggable(MainFrame, TopBar)
-    makeDraggable(MainFrame, TitleLbl)
+    -- Drag — pakai TopBar dan TitleLbl sebagai handle
+    MakeDraggable(MainFrame, TopBar)
+    MakeDraggable(MainFrame, TitleLbl)
     
+    -- ═══ SIDEBAR ═══
     local Sidebar = Create("Frame", {
         Size = UDim2.new(0, 160, 1, -48), Position = UDim2.new(0, 0, 0, 48),
         BackgroundColor3 = State.Theme.Surface,
@@ -1711,6 +1701,7 @@ function XYEL:CreateWindow(opts)
         PaddingRight = UDim.new(0, 8), Parent = TabList,
     })
     
+    -- User panel
     local UserPanel = Create("Frame", {
         Size = UDim2.new(1, -16, 0, 116), Position = UDim2.new(0, 8, 1, -124),
         BackgroundColor3 = State.Theme.Background,
@@ -1774,6 +1765,7 @@ function XYEL:CreateWindow(opts)
     local WindowObj = {}
     WindowObj._readyCallbacks = {}
     WindowObj._tabs = {}
+    WindowObj._tabData = {}
     
     function WindowObj:OnReady(cb)
         table.insert(self._readyCallbacks, cb)
@@ -2081,34 +2073,235 @@ function XYEL:CreateWindow(opts)
                     Frame = container, Label = lbl,
                 }
             end
+            function SectionObj:CreateInput(textKey, placeholderKey, callback)
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 42),
+                    BackgroundColor3 = State.Theme.Surface, Parent = page,
+                })
+                Corner(row, 10)
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(0, 130, 1, 0), Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1, Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium, TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left, Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                local box = Create("TextBox", {
+                    Size = UDim2.new(1, -166, 0, 30), Position = UDim2.new(0, 154, 0, 6),
+                    BackgroundColor3 = State.Theme.Background, Text = "",
+                    PlaceholderText = T(placeholderKey or textKey),
+                    PlaceholderColor3 = State.Theme.TextDim,
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.Gotham, TextSize = 12,
+                    ClearTextOnFocus = false, Parent = row,
+                })
+                Corner(box, 8)
+                Stroke(box, State.Theme.Primary, 1, 0.7)
+                if placeholderKey then RegI18n(box, placeholderKey, true) end
+                box.FocusLost:Connect(function()
+                    if callback then callback(box.Text) end
+                end)
+                return { Set = function(v) box.Text = v end, Get = function() return box.Text end }
+            end
+            function SectionObj:CreateColorPicker(textKey, default, callback)
+                local current = default or State.Theme.Primary
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 54),
+                    BackgroundColor3 = State.Theme.Surface,
+                    ClipsDescendants = true, Parent = page,
+                })
+                Corner(row, 10)
+                local lbl = Create("TextLabel", {
+                    Size = UDim2.new(1, -70, 0, 54), Position = UDim2.new(0, 16, 0, 0),
+                    BackgroundTransparency = 1, Text = T(textKey),
+                    TextColor3 = State.Theme.Text,
+                    Font = Enum.Font.GothamMedium, TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left, Parent = row,
+                })
+                RegI18n(lbl, textKey)
+                local colorBtn = Create("TextButton", {
+                    Size = UDim2.new(0, 46, 0, 26), Position = UDim2.new(1, -60, 0, 14),
+                    BackgroundColor3 = current, Text = "",
+                    AutoButtonColor = false, Parent = row,
+                })
+                Corner(colorBtn, 8)
+                Stroke(colorBtn, Color3.fromRGB(255,255,255), 1.5, 0.6)
+                local colors = {
+                    Color3.fromRGB(99, 102, 241), Color3.fromRGB(239, 68, 68),
+                    Color3.fromRGB(34, 197, 94), Color3.fromRGB(168, 85, 247),
+                    Color3.fromRGB(251, 146, 60), Color3.fromRGB(236, 72, 153),
+                    Color3.fromRGB(34, 211, 238), Color3.fromRGB(250, 204, 21),
+                }
+                local picker = Create("Frame", {
+                    Size = UDim2.new(1, -20, 0, 30), Position = UDim2.new(0, 10, 0, 60),
+                    BackgroundTransparency = 1, Parent = row,
+                })
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 5),
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    SortOrder = Enum.SortOrder.LayoutOrder, Parent = picker,
+                })
+                for _, c in ipairs(colors) do
+                    local cb = Create("TextButton", {
+                        Size = UDim2.new(0, 28, 0, 28), BackgroundColor3 = c,
+                        Text = "", AutoButtonColor = false, Parent = picker,
+                    })
+                    Corner(cb, 6)
+                    cb.MouseButton1Click:Connect(function()
+                        current = c
+                        colorBtn.BackgroundColor3 = c
+                        if callback then callback(c) end
+                    end)
+                end
+                local open = false
+                colorBtn.MouseButton1Click:Connect(function()
+                    open = not open
+                    Tween(row, 0.3, { Size = UDim2.new(1, 0, 0, open and 100 or 54) }, Enum.EasingStyle.Quint)
+                end)
+                return { Set = function(c) current = c; colorBtn.BackgroundColor3 = c end, Get = function() return current end }
+            end
+            function SectionObj:CreateParagraph(titleKey, contentKey)
+                local row = Create("Frame", {
+                    Size = UDim2.new(1, 0, 0, 0),
+                    AutomaticSize = Enum.AutomaticSize.Y,
+                    BackgroundColor3 = State.Theme.Surface, Parent = page,
+                })
+                Corner(row, 10)
+                Stroke(row, State.Theme.Primary, 1, 0.8)
+                Create("UIPadding", {
+                    PaddingTop = UDim.new(0, 12), PaddingBottom = UDim.new(0, 12),
+                    PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16),
+                    Parent = row,
+                })
+                Create("UIListLayout", {
+                    Padding = UDim.new(0, 6),
+                    SortOrder = Enum.SortOrder.LayoutOrder, Parent = row,
+                })
+                local titleLbl = Create("TextLabel", {
+                    Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1,
+                    Text = T(titleKey), TextColor3 = State.Theme.Primary,
+                    Font = Enum.Font.GothamBold, TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    LayoutOrder = 1, Parent = row,
+                })
+                RegI18n(titleLbl, titleKey)
+                local contentLbl = Create("TextLabel", {
+                    Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+                    BackgroundTransparency = 1, Text = T(contentKey),
+                    TextColor3 = State.Theme.TextDim,
+                    Font = Enum.Font.Gotham, TextSize = 12,
+                    TextWrapped = true,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextYAlignment = Enum.TextYAlignment.Top,
+                    LayoutOrder = 2, Parent = row,
+                })
+                RegI18n(contentLbl, contentKey)
+                return { Frame = row, Title = titleLbl, Content = contentLbl }
+            end
             return SectionObj
         end
         WindowObj._tabs[nameKey] = TabObj
+        WindowObj._tabData[nameKey] = page
         return TabObj
     end
     
-    -- Default tabs
+    -- ═══ DEFAULT TABS ═══
     if not noDefaultTabs then
+        -- INFO TAB (lengkap)
         local InfoTab = WindowObj:CreateTab("Info")
-        local InfoSec = InfoTab:CreateSection("Info")
+        local InfoSec = InfoTab:CreateSection("Welcome")
+        InfoSec:CreateParagraph("Welcome", "Description")
         InfoSec:CreateButton("Copy", function()
             if setclipboard then setclipboard(discord) end
             XYEL:Notify({ Title = "Discord", Content = T("Copied"), Type = "success" })
         end)
+        local aboutSec = InfoTab:CreateSection("About")
+        aboutSec:CreateParagraph("Version", "XYEL HUB v7 - Complete Edition")
+        
+        -- SETTINGS TAB (lengkap)
         local SettingsTab = WindowObj:CreateTab("Settings")
+        
+        -- Appearance
         local AppearanceSec = SettingsTab:CreateSection("Appearance")
+        AppearanceSec:CreateColorPicker("ThemeColorPicker", State.Theme.Primary, function(c)
+            State.Theme.Primary = c
+            -- Update semua UI
+            MainFrame.UIStroke.Color = c
+            if ToggleBtn then
+                ToggleBtn.BackgroundColor3 = c
+            end
+        end)
         AppearanceSec:CreateDropdown("Language", LanguageList, CurrentLang, function(v)
             CurrentLang = v
             State.Language = v
             RefreshI18n()
             XYEL:Notify({ Title = "Language", Content = "✓ " .. v, Type = "info", Duration = 2 })
         end)
-        AppearanceSec:CreateDropdown("MenuMode", { "Normal Mode", "Floating Mode" }, "Normal Mode", function(v)
+        AppearanceSec:CreateDropdown("MenuMode", { "Normal Mode", "Floating Mode" }, State.MenuMode, function(v)
             State.MenuMode = v
             XYEL:Notify({ Title = "Menu Mode", Content = T("ModeChanged"), Type = "info", Duration = 2 })
         end)
+        AppearanceSec:CreateToggle("Animations", true, function(v) end)
+        
+        -- Behavior
+        local BehaviorSec = SettingsTab:CreateSection("Behavior")
+        BehaviorSec:CreateToggle("AutoLoad", false, function(v) end)
+        BehaviorSec:CreateToggle("AutoRejoin", false, function(v) end)
+        
+        -- Actions
+        local ActionSec = SettingsTab:CreateSection("Actions")
+        ActionSec:CreateButton("RejoinBtn", function()
+            XYEL:Notify({ Title = "Rejoin", Content = T("Rejoined"), Type = "info" })
+            task.wait(0.5)
+            pcall(function()
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+            end)
+        end)
+        ActionSec:CreateButton("ServerHopBtn", function()
+            XYEL:Notify({ Title = "Server Hop", Content = T("Hopping"), Type = "info" })
+            task.wait(0.5)
+            pcall(function()
+                local url = "https://games.roblox.com/v1/games/" .. game.PlaceId ..
+                    "/servers/Public?sortOrder=Asc&limit=100"
+                local resp = HttpService:JSONDecode(game:HttpGet(url))
+                if resp and resp.data then
+                    for _, srv in ipairs(resp.data) do
+                        if srv.playing < srv.maxPlayers and srv.id ~= game.JobId then
+                            TeleportService:TeleportToPlaceInstance(game.PlaceId, srv.id, LocalPlayer)
+                            return
+                        end
+                    end
+                end
+                XYEL:Notify({ Title = "Server Hop", Content = T("NoServerFound"), Type = "warning" })
+            end)
+        end)
+        ActionSec:CreateButton("SmallServerBtn", function()
+            XYEL:Notify({ Title = "Small Server", Content = T("Finding"), Type = "info" })
+            task.wait(0.5)
+            pcall(function()
+                local url = "https://games.roblox.com/v1/games/" .. game.PlaceId ..
+                    "/servers/Public?sortOrder=Asc&limit=100"
+                local resp = HttpService:JSONDecode(game:HttpGet(url))
+                if resp and resp.data then
+                    local best, cnt = nil, math.huge
+                    for _, srv in ipairs(resp.data) do
+                        if srv.id ~= game.JobId and srv.playing < cnt then
+                            cnt = srv.playing
+                            best = srv
+                        end
+                    end
+                    if best then
+                        TeleportService:TeleportToPlaceInstance(game.PlaceId, best.id, LocalPlayer)
+                    else
+                        XYEL:Notify({ Title = "Small Server", Content = T("AlreadyIn"), Type = "warning" })
+                    end
+                end
+            end)
+        end)
     end
     
+    -- ═══ TOGGLE BUTTON (floating) ═══
     local ToggleBtn = Create("TextButton", {
         Name = "ToggleBtn",
         Size = UDim2.new(0, 56, 0, 56), Position = UDim2.new(0, 24, 0.5, -28),
@@ -2121,12 +2314,62 @@ function XYEL:CreateWindow(opts)
     local toggleStroke = Stroke(ToggleBtn, Color3.fromRGB(255,255,255), 1.5, 0.4)
     Gradient(ToggleBtn, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 45)
     
+    -- Drag toggle button
+    local tbDrag, tbStart, tbStartPos
+    ToggleBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            tbDrag = true
+            tbStart = input.Position
+            tbStartPos = ToggleBtn.Position
+        end
+    end)
+    ToggleBtn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            tbDrag = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if tbDrag and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - tbStart
+            ToggleBtn.Position = UDim2.new(
+                tbStartPos.X.Scale, tbStartPos.X.Offset + delta.X,
+                tbStartPos.Y.Scale, tbStartPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
     local menuOpen = true
     ToggleBtn.MouseButton1Click:Connect(function()
         menuOpen = not menuOpen
-        MainFrame.Visible = menuOpen
+        if State.MenuMode == "Floating Mode" then
+            -- Toggle semua floating windows
+            for _, fw in ipairs(State.FloatingWindows) do
+                if fw and fw.Parent then
+                    fw.Visible = menuOpen
+                end
+            end
+            if menuOpen and #State.FloatingWindows == 0 then
+                -- Spawn floating windows dari tiap tab
+                for tabName, tabPage in pairs(WindowObj._tabData) do
+                    local container = Create("Frame", { BackgroundTransparency = 1, Parent = nil })
+                    local closeBtn = nil
+                    CreateFloatingWindow(ScreenGui, "XYEL - " .. T(tabName), container, 360, 280)
+                    -- Move children ke container
+                    tabPage.Parent = container
+                    tabPage.Size = UDim2.new(1, 0, 1, 0)
+                    tabPage.Position = UDim2.new(0, 0, 0, 0)
+                    tabPage.Visible = true
+                end
+            end
+        else
+            MainFrame.Visible = menuOpen
+        end
         ToggleBtn.Text = menuOpen and "X" or "≡"
     end)
+    
     CloseBtn.MouseButton1Click:Connect(function()
         menuOpen = false
         MainFrame.Visible = false
@@ -2138,6 +2381,7 @@ function XYEL:CreateWindow(opts)
         ToggleBtn.Text = "≡"
     end)
     
+    -- ═══ SHOW LOADING + FIRE OnReady ═══
     ShowLoading(ScreenGui, baseTitle, function()
         MainFrame.Visible = true
         menuOpen = true
@@ -2149,8 +2393,10 @@ function XYEL:CreateWindow(opts)
         end
         task.delay(1, function()
             XYEL:Notify({
-                Title = "XYEL HUB", Content = State.GameName,
-                Type = "success", Duration = 3,
+                Title = "XYEL HUB",
+                Content = State.GameName,
+                Type = "success",
+                Duration = 3,
             })
         end)
     end)
