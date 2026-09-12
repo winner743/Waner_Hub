@@ -1,7 +1,7 @@
 --[[
     ═══════════════════════════════════════════════════════
-    XYEL HUB v7 - COMPLETE
-    OnReady • Game Detection • 33 Languages • Floating Mode
+    XYEL HUB v8 - FIXED & ENHANCED
+    Smooth animations • Working floating mode • Rainbow colors
     ═══════════════════════════════════════════════════════
 --]]
 
@@ -17,7 +17,6 @@ local MarketplaceService = game:GetService("MarketplaceService")
 
 local LocalPlayer = Players.LocalPlayer
 
--- ═══ Get Parent ═══
 local function GetParent()
     if gethui then
         local ok, hui = pcall(gethui)
@@ -41,7 +40,6 @@ end)
 local XYEL = {}
 _G.XYEL_LIBRARY = XYEL
 
--- ═══ STATE ═══
 local State = {
     Theme = {
         Primary = Color3.fromRGB(99, 102, 241),
@@ -57,16 +55,18 @@ local State = {
         ToggleOff = Color3.fromRGB(55, 55, 70),
     },
     Language = "English",
-    Animations = true,
     SliderActive = nil,
     GameName = "Unknown",
     MenuMode = "Normal Mode",
-    Music = { SoundId = "", Playing = false, Volume = 0.5 },
+    RainbowEnabled = false,
+    MainFrame = nil,
+    ScreenGui = nil,
     FloatingWindows = {},
-    MainWindow = nil,
+    TabData = {},
+    WindowObj = nil,
 }
 
--- ═══ TRANSLATIONS (33 Languages, 80 keys each) ═══
+-- ═══ TRANSLATIONS (33 languages × 85 keys) ═══
 local T_KEYS = {
     "Info","Settings","Main","Welcome","Appearance","Copy","Language","MenuMode",
     "NormalMode","FloatingMode","Description","Loading","Close","Minimize",
@@ -81,7 +81,8 @@ local T_KEYS = {
     "AutoLoad","AutoRejoin","ServerHop","LowServer","UISize","Small","Mid","Big",
     "ThemeColor","ResetChar","InfJump","Hopping","Finding","AlreadyIn",
     "NoServerFound","Rejoined","Teleporting","ActionRunning","Searching",
-    "ThemeColorPicker","ResetSettings","About","Version",
+    "ThemeColorPicker","ResetSettings","About","Version","Rainbow","RainbowOn","RainbowOff",
+    "FlyControls","FlyUp","FlyDown","FlyForward","FlyBack","FlyLeft","FlyRight",
 }
 
 local function BK(tbl)
@@ -125,6 +126,9 @@ Translations.English = BK({
     NoServerFound="No server found", Rejoined="Rejoining...", Teleporting="Teleporting...",
     ActionRunning="Running action...", Searching="Searching...",
     ThemeColorPicker="Theme Color", ResetSettings="Reset Settings", About="About", Version="Version",
+    Rainbow="Rainbow", RainbowOn="Rainbow ON", RainbowOff="Rainbow OFF",
+    FlyControls="Fly Controls", FlyUp="Up", FlyDown="Down", FlyForward="Forward",
+    FlyBack="Back", FlyLeft="Left", FlyRight="Right",
 })
 
 Translations.Indonesian = BK({
@@ -132,7 +136,7 @@ Translations.Indonesian = BK({
     Welcome="Selamat Datang di XYEL HUB", Appearance="Tampilan",
     Copy="Salin Link Discord", Language="Bahasa", MenuMode="Mode Menu",
     NormalMode="Menu Normal", FloatingMode="Menu Melayang",
-    Description="Halo semua pengguna script ini! Script ini punya banyak cheat, masih project. Kalau ada bug, join discord saya.",
+    Description="Halo semua! Script ini punya banyak cheat, masih project. Kalau ada bug, join discord saya.",
     Loading="Memuat", Close="Tutup", Minimize="Kecilkan",
     Speed="Kecepatan", Jump="Lompatan", Fly="Terbang", Noclip="Tembus Dinding",
     WalkSpeed="Kecepatan Jalan", JumpPower="Kekuatan Lompat",
@@ -160,6 +164,9 @@ Translations.Indonesian = BK({
     NoServerFound="Server tidak ditemukan", Rejoined="Menggabungkan ulang...", Teleporting="Teleportasi...",
     ActionRunning="Menjalankan aksi...", Searching="Mencari...",
     ThemeColorPicker="Warna Tema", ResetSettings="Reset Pengaturan", About="Tentang", Version="Versi",
+    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    FlyControls="Kontrol Terbang", FlyUp="Atas", FlyDown="Bawah", FlyForward="Maju",
+    FlyBack="Mundur", FlyLeft="Kiri", FlyRight="Kanan",
 })
 
 Translations.Jawa = BK({
@@ -167,7 +174,7 @@ Translations.Jawa = BK({
     Welcome="Sugeng Rawuh ing XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
     NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
-    Description="Halo kabeh pangguna script iki! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
+    Description="Halo kabeh! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
     WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
@@ -195,6 +202,9 @@ Translations.Jawa = BK({
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
     ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
+    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    FlyControls="Kontrol Mabur", FlyUp="Ndhuwur", FlyDown="Ngisor", FlyForward="Maju",
+    FlyBack="Mundur", FlyLeft="Kiwa", FlyRight="Tengen",
 })
 
 Translations.Indramayu = BK({
@@ -202,7 +212,7 @@ Translations.Indramayu = BK({
     Welcome="Sugeng Rawuh nang XYEL HUB", Appearance="Penampilan",
     Copy="Salin Link Discord", Language="Basa", MenuMode="Mode Menu",
     NormalMode="Menu Biasa", FloatingMode="Menu Melayang",
-    Description="Halo kabeh pangguna script iki! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
+    Description="Halo kabeh! Script iki akeh cheat, isih project. Yen ana bug, join discord aku.",
     Loading="Ngamot", Close="Tutup", Minimize="Cilikake",
     Speed="Kacepetan", Jump="Mlumpat", Fly="Mabur", Noclip="Tembus Tembok",
     WalkSpeed="Kacepetan Mlaku", JumpPower="Kekuwatan Mlumpat",
@@ -230,6 +240,9 @@ Translations.Indramayu = BK({
     NoServerFound="Server ora ketemu", Rejoined="Mlebu maneh...", Teleporting="Teleportasi...",
     ActionRunning="Nglakokake aksi...", Searching="Golek...",
     ThemeColorPicker="Warna Tema", ResetSettings="Reset Setelan", About="Babagan", Version="Versi",
+    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    FlyControls="Kontrol Mabur", FlyUp="Ndhuwur", FlyDown="Ngisor", FlyForward="Maju",
+    FlyBack="Mundur", FlyLeft="Kiwa", FlyRight="Tengen",
 })
 
 Translations.Malay = BK({
@@ -237,7 +250,7 @@ Translations.Malay = BK({
     Welcome="Selamat Datang ke XYEL HUB", Appearance="Penampilan",
     Copy="Salin Pautan Discord", Language="Bahasa", MenuMode="Mod Menu",
     NormalMode="Menu Biasa", FloatingMode="Menu Terapung",
-    Description="Helo semua, dalam skrip ini anda melihat banyak cheat, skrip ini masih projek, jika ada bug sertai discord saya",
+    Description="Helo semua! Skrip ini ada banyak cheat, masih projek. Jika ada bug, sertai discord saya.",
     Loading="Memuatkan", Close="Tutup", Minimize="Kecilkan",
     Speed="Kelajuan", Jump="Lompat", Fly="Terbang", Noclip="Tembus Dinding",
     WalkSpeed="Kelajuan Berjalan", JumpPower="Kuasa Lompat",
@@ -260,11 +273,14 @@ Translations.Malay = BK({
     PlayerFeatures="Ciri Pemain", Behavior="Tingkah Laku",
     AutoLoad="Muat Auto", AutoRejoin="Sertai Semula Auto", ServerHop="Tukar Server",
     LowServer="Server Kosong", UISize="Saiz UI", Small="Kecil", Mid="Sederhana", Big="Besar",
-    ThemeColor="Warna Tema", ResetChar="Set Semula Watak", InfJump="Lompat Tanpa Had",
+    ThemeColor="Warna Tema", ResetChar="Set Semula", InfJump="Lompat Tanpa Had",
     Hopping="Tukar server...", Finding="Mencari...", AlreadyIn="Sudah di server kosong",
     NoServerFound="Server tidak dijumpai", Rejoined="Sertai semula...", Teleporting="Teleportasi...",
     ActionRunning="Tindakan sedang dijalankan...", Searching="Mencari...",
     ThemeColorPicker="Warna Tema", ResetSettings="Reset Tetapan", About="Mengenai", Version="Versi",
+    Rainbow="Pelangi", RainbowOn="Pelangi ON", RainbowOff="Pelangi OFF",
+    FlyControls="Kawalan Terbang", FlyUp="Atas", FlyDown="Bawah", FlyForward="Hadapan",
+    FlyBack="Belakang", FlyLeft="Kiri", FlyRight="Kanan",
 })
 
 Translations.Filipino = BK({
@@ -272,7 +288,7 @@ Translations.Filipino = BK({
     Welcome="Maligayang Pagdating sa XYEL HUB", Appearance="Itsura",
     Copy="Kopyahin ang Discord", Language="Wika", MenuMode="Menu Mode",
     NormalMode="Normal na Menu", FloatingMode="Lumulutang na Menu",
-    Description="Kamusta sa lahat, sa script na ito makikita mo ang maraming cheat, ang script na ito ay project pa rin, kung may bugs sumali sa aking discord",
+    Description="Kamusta sa lahat! Maraming cheat sa script na ito, project pa rin. Kung may bugs, sumali sa aking discord.",
     Loading="Naglo-load", Close="Isara", Minimize="I-minimize",
     Speed="Bilis", Jump="Talon", Fly="Lumipad", Noclip="Tembus Dinding",
     WalkSpeed="Bilis ng Paglalakad", JumpPower="Lakas ng Pagtalon",
@@ -292,14 +308,17 @@ Translations.Filipino = BK({
     InvalidSound="Invalid na Sound ID", GameMuted="Naka-mute ang musika ng laro",
     GameUnmuted="Naka-unmute ang musika ng laro", MusicNotSet="Walang Sound ID",
     MusicEnabled="Naka-enable ang musika", MusicDisabled="Naka-disable ang musika",
-    PlayerFeatures="Mga Tampok ng Manlalaro", Behavior="Pag-uugali",
+    PlayerFeatures="Mga Tampok", Behavior="Pag-uugali",
     AutoLoad="Auto Load", AutoRejoin="Auto Rejoin", ServerHop="Lumipat ng Server",
     LowServer="Bakanteng Server", UISize="Laki ng UI", Small="Maliit", Mid="Katamtaman", Big="Malaki",
     ThemeColor="Kulay ng Tema", ResetChar="I-reset ang Karakter", InfJump="Walang Hanggang Pagtalon",
     Hopping="Lumilipat...", Finding="Naghahanap...", AlreadyIn="Nasa bakanteng server na",
     NoServerFound="Walang server", Rejoined="Sumasali muli...", Teleporting="Nag-te-teleport...",
     ActionRunning="Tumatakbo...", Searching="Naghahanap...",
-    ThemeColorPicker="Kulay ng Tema", ResetSettings="I-reset ang Settings", About="Tungkol", Version="Bersyon",
+    ThemeColorPicker="Kulay ng Tema", ResetSettings="I-reset", About="Tungkol", Version="Bersyon",
+    Rainbow="Bahaghari", RainbowOn="Bahaghari ON", RainbowOff="Bahaghari OFF",
+    FlyControls="Kontrol ng Paglipad", FlyUp="Taas", FlyDown="Baba", FlyForward="Harap",
+    FlyBack="Likod", FlyLeft="Kaliwa", FlyRight="Kanan",
 })
 
 Translations.Spanish = BK({
@@ -320,21 +339,24 @@ Translations.Spanish = BK({
     Music="Música", MusicPlayer="Reproductor", SoundId="ID de Sonido", Volume="Volumen",
     MuteGame="Silenciar Juego", AutoPlay="Reproducción Auto", LoopMusic="Repetir",
     Apply="Aplicar", StopMusic="Detener", ClearMusic="Limpiar",
-    Background="Fondo", Rejoin="Reincorporarse", Hop="Cambiar Servidor", FindLow="Buscar Servidor Vacío",
+    Background="Fondo", Rejoin="Reincorporarse", Hop="Cambiar Servidor", FindLow="Servidor Vacío",
     RejoinBtn="Reincorporarse", ServerHopBtn="Cambiar Servidor", SmallServerBtn="Servidor Vacío",
     Copied="¡Enlace copiado!", SoundApplied="¡Música aplicada!",
     SoundStopped="Música detenida", SoundCleared="Música limpiada",
     InvalidSound="ID de Sonido inválido", GameMuted="Música del juego silenciada",
     GameUnmuted="Música del juego activada", MusicNotSet="Sin ID de Sonido",
     MusicEnabled="Música activada", MusicDisabled="Música desactivada",
-    PlayerFeatures="Funciones del Jugador", Behavior="Comportamiento",
-    AutoLoad="Carga Automática", AutoRejoin="Reincorporación Auto", ServerHop="Cambiar Servidor",
+    PlayerFeatures="Funciones", Behavior="Comportamiento",
+    AutoLoad="Carga Automática", AutoRejoin="Auto Reincorporación", ServerHop="Cambiar Servidor",
     LowServer="Servidor Vacío", UISize="Tamaño de UI", Small="Pequeño", Mid="Mediano", Big="Grande",
-    ThemeColor="Color del Tema", ResetChar="Reiniciar Personaje", InfJump="Salto Infinito",
+    ThemeColor="Color del Tema", ResetChar="Reiniciar", InfJump="Salto Infinito",
     Hopping="Cambiando...", Finding="Buscando...", AlreadyIn="Ya en servidor vacío",
     NoServerFound="Servidor no encontrado", Rejoined="Reincorporándose...", Teleporting="Teletransportando...",
     ActionRunning="Acción en ejecución...", Searching="Buscando...",
     ThemeColorPicker="Color del Tema", ResetSettings="Restablecer", About="Acerca de", Version="Versión",
+    Rainbow="Arcoíris", RainbowOn="Arcoíris ON", RainbowOff="Arcoíris OFF",
+    FlyControls="Controles de Vuelo", FlyUp="Arriba", FlyDown="Abajo", FlyForward="Adelante",
+    FlyBack="Atrás", FlyLeft="Izquierda", FlyRight="Derecha",
 })
 
 Translations.Portuguese = BK({
@@ -362,14 +384,17 @@ Translations.Portuguese = BK({
     InvalidSound="ID do Som inválido", GameMuted="Música do jogo silenciada",
     GameUnmuted="Música do jogo ativada", MusicNotSet="Sem ID do Som",
     MusicEnabled="Música ativada", MusicDisabled="Música desativada",
-    PlayerFeatures="Recursos do Jogador", Behavior="Comportamento",
+    PlayerFeatures="Recursos", Behavior="Comportamento",
     AutoLoad="Carregamento Auto", AutoRejoin="Auto Reentrar", ServerHop="Trocar Servidor",
     LowServer="Servidor Vazio", UISize="Tamanho da UI", Small="Pequeno", Mid="Médio", Big="Grande",
-    ThemeColor="Cor do Tema", ResetChar="Resetar Personagem", InfJump="Pulo Infinito",
+    ThemeColor="Cor do Tema", ResetChar="Resetar", InfJump="Pulo Infinito",
     Hopping="Mudando...", Finding="Procurando...", AlreadyIn="Já em servidor vazio",
     NoServerFound="Servidor não encontrado", Rejoined="Reentrando...", Teleporting="Teleportando...",
     ActionRunning="Ação em execução...", Searching="Procurando...",
     ThemeColorPicker="Cor do Tema", ResetSettings="Redefinir", About="Sobre", Version="Versão",
+    Rainbow="Arco-íris", RainbowOn="Arco-íris ON", RainbowOff="Arco-íris OFF",
+    FlyControls="Controles de Voo", FlyUp="Cima", FlyDown="Baixo", FlyForward="Frente",
+    FlyBack="Trás", FlyLeft="Esquerda", FlyRight="Direita",
 })
 
 Translations.French = BK({
@@ -405,6 +430,9 @@ Translations.French = BK({
     NoServerFound="Aucun serveur trouvé", Rejoined="Rejoindre...", Teleporting="Téléportation...",
     ActionRunning="Action en cours...", Searching="Recherche...",
     ThemeColorPicker="Couleur du Thème", ResetSettings="Réinitialiser", About="À propos", Version="Version",
+    Rainbow="Arc-en-ciel", RainbowOn="Arc-en-ciel ON", RainbowOff="Arc-en-ciel OFF",
+    FlyControls="Contrôles de Vol", FlyUp="Haut", FlyDown="Bas", FlyForward="Avant",
+    FlyBack="Arrière", FlyLeft="Gauche", FlyRight="Droite",
 })
 
 Translations.German = BK({
@@ -435,11 +463,14 @@ Translations.German = BK({
     PlayerFeatures="Spielerfunktionen", Behavior="Verhalten",
     AutoLoad="Auto Laden", AutoRejoin="Auto Beitreten", ServerHop="Server Wechseln",
     LowServer="Leerer Server", UISize="UI-Größe", Small="Klein", Mid="Mittel", Big="Groß",
-    ThemeColor="Themenfarbe", ResetChar="Charakter Zurücksetzen", InfJump="Unendlicher Sprung",
+    ThemeColor="Themenfarbe", ResetChar="Zurücksetzen", InfJump="Unendlicher Sprung",
     Hopping="Wechsel...", Finding="Suche...", AlreadyIn="Bereits auf leerem Server",
     NoServerFound="Kein Server gefunden", Rejoined="Wiederverbinden...", Teleporting="Teleportiere...",
     ActionRunning="Aktion läuft...", Searching="Suche...",
     ThemeColorPicker="Themenfarbe", ResetSettings="Zurücksetzen", About="Über", Version="Version",
+    Rainbow="Regenbogen", RainbowOn="Regenbogen ON", RainbowOff="Regenbogen OFF",
+    FlyControls="Flugsteuerung", FlyUp="Hoch", FlyDown="Runter", FlyForward="Vorwärts",
+    FlyBack="Rückwärts", FlyLeft="Links", FlyRight="Rechts",
 })
 
 Translations.Italian = BK({
@@ -475,6 +506,9 @@ Translations.Italian = BK({
     NoServerFound="Nessun server trovato", Rejoined="Rientro...", Teleporting="Teletrasporto...",
     ActionRunning="Azione in esecuzione...", Searching="Ricerca...",
     ThemeColorPicker="Colore Tema", ResetSettings="Ripristina", About="Info", Version="Versione",
+    Rainbow="Arcobaleno", RainbowOn="Arcobaleno ON", RainbowOff="Arcobaleno OFF",
+    FlyControls="Controlli di Volo", FlyUp="Su", FlyDown="Giù", FlyForward="Avanti",
+    FlyBack="Indietro", FlyLeft="Sinistra", FlyRight="Destra",
 })
 
 Translations.Dutch = BK({
@@ -505,11 +539,14 @@ Translations.Dutch = BK({
     PlayerFeatures="Spelersfuncties", Behavior="Gedrag",
     AutoLoad="Auto Laden", AutoRejoin="Auto Deelnemen", ServerHop="Server Wisselen",
     LowServer="Lege Server", UISize="UI-grootte", Small="Klein", Mid="Gemiddeld", Big="Groot",
-    ThemeColor="Themakleur", ResetChar="Personage Resetten", InfJump="Oneindige Sprong",
+    ThemeColor="Themakleur", ResetChar="Resetten", InfJump="Oneindige Sprong",
     Hopping="Wisselen...", Finding="Zoeken...", AlreadyIn="Al op lege server",
     NoServerFound="Geen server gevonden", Rejoined="Opnieuw deelnemen...", Teleporting="Teleporteren...",
     ActionRunning="Actie wordt uitgevoerd...", Searching="Zoeken...",
     ThemeColorPicker="Themakleur", ResetSettings="Resetten", About="Over", Version="Versie",
+    Rainbow="Regenboog", RainbowOn="Regenboog ON", RainbowOff="Regenboog OFF",
+    FlyControls="Vluchtbesturing", FlyUp="Omhoog", FlyDown="Omlaag", FlyForward="Vooruit",
+    FlyBack="Achteruit", FlyLeft="Links", FlyRight="Rechts",
 })
 
 Translations.Turkish = BK({
@@ -540,11 +577,14 @@ Translations.Turkish = BK({
     PlayerFeatures="Oyuncu Özellikleri", Behavior="Davranış",
     AutoLoad="Otomatik Yükle", AutoRejoin="Otomatik Katıl", ServerHop="Sunucu Değiştir",
     LowServer="Boş Sunucu", UISize="Arayüz Boyutu", Small="Küçük", Mid="Orta", Big="Büyük",
-    ThemeColor="Tema Rengi", ResetChar="Karakteri Sıfırla", InfJump="Sonsuz Zıplama",
+    ThemeColor="Tema Rengi", ResetChar="Sıfırla", InfJump="Sonsuz Zıplama",
     Hopping="Geçiliyor...", Finding="Aranıyor...", AlreadyIn="Zaten boş sunucuda",
     NoServerFound="Sunucu bulunamadı", Rejoined="Yeniden katılıyor...", Teleporting="Işınlanıyor...",
     ActionRunning="İşlem çalışıyor...", Searching="Aranıyor...",
     ThemeColorPicker="Tema Rengi", ResetSettings="Sıfırla", About="Hakkında", Version="Sürüm",
+    Rainbow="Gökkuşağı", RainbowOn="Gökkuşağı ON", RainbowOff="Gökkuşağı OFF",
+    FlyControls="Uçuş Kontrolleri", FlyUp="Yukarı", FlyDown="Aşağı", FlyForward="İleri",
+    FlyBack="Geri", FlyLeft="Sol", FlyRight="Sağ",
 })
 
 Translations.Russian = BK({
@@ -575,11 +615,14 @@ Translations.Russian = BK({
     PlayerFeatures="Функции игрока", Behavior="Поведение",
     AutoLoad="Автозагрузка", AutoRejoin="Автопереподключение", ServerHop="Сменить Сервер",
     LowServer="Пустой Сервер", UISize="Размер UI", Small="Маленький", Mid="Средний", Big="Большой",
-    ThemeColor="Цвет Темы", ResetChar="Сбросить Персонажа", InfJump="Бесконечный Прыжок",
+    ThemeColor="Цвет Темы", ResetChar="Сбросить", InfJump="Бесконечный Прыжок",
     Hopping="Переход...", Finding="Поиск...", AlreadyIn="Уже на пустом сервере",
     NoServerFound="Сервер не найден", Rejoined="Переподключение...", Teleporting="Телепортация...",
     ActionRunning="Действие выполняется...", Searching="Поиск...",
     ThemeColorPicker="Цвет Темы", ResetSettings="Сброс", About="О скрипте", Version="Версия",
+    Rainbow="Радуга", RainbowOn="Радуга ВКЛ", RainbowOff="Радуга ВЫКЛ",
+    FlyControls="Управление Полётом", FlyUp="Вверх", FlyDown="Вниз", FlyForward="Вперёд",
+    FlyBack="Назад", FlyLeft="Влево", FlyRight="Вправо",
 })
 
 Translations.Ukrainian = BK({
@@ -610,11 +653,14 @@ Translations.Ukrainian = BK({
     PlayerFeatures="Функції гравця", Behavior="Поведінка",
     AutoLoad="Автозавантаження", AutoRejoin="Автоперепідключення", ServerHop="Змінити Сервер",
     LowServer="Порожній Сервер", UISize="Розмір UI", Small="Малий", Mid="Середній", Big="Великий",
-    ThemeColor="Колір Теми", ResetChar="Скинути Персонажа", InfJump="Нескінченний Стрибок",
+    ThemeColor="Колір Теми", ResetChar="Скинути", InfJump="Нескінченний Стрибок",
     Hopping="Перехід...", Finding="Пошук...", AlreadyIn="Вже на порожньому сервері",
     NoServerFound="Сервер не знайдено", Rejoined="Перепідключення...", Teleporting="Телепортація...",
     ActionRunning="Дія виконується...", Searching="Пошук...",
     ThemeColorPicker="Колір Теми", ResetSettings="Скинути", About="Про скрипт", Version="Версія",
+    Rainbow="Веселка", RainbowOn="Веселка УВІМК", RainbowOff="Веселка ВИМК",
+    FlyControls="Керування Польотом", FlyUp="Вгору", FlyDown="Вниз", FlyForward="Вперед",
+    FlyBack="Назад", FlyLeft="Вліво", FlyRight="Вправо",
 })
 
 Translations.Polish = BK({
@@ -639,17 +685,20 @@ Translations.Polish = BK({
     RejoinBtn="Dołącz Ponownie", ServerHopBtn="Zmień Serwer", SmallServerBtn="Pusty Serwer",
     Copied="Link skopiowany!", SoundApplied="Muzyka zastosowana!",
     SoundStopped="Muzyka zatrzymana", SoundCleared="Muzyka wyczyszczona",
-    InvalidSound="Nieprawidłowy ID Dźwięku", GameMuted="Muzyka gry wyciszona",
-    GameUnmuted="Muzyka gry odciszona", MusicNotSet="Nie ustawiono ID Dźwięku",
+    InvalidSound="Nieprawidłowy ID", GameMuted="Muzyka gry wyciszona",
+    GameUnmuted="Muzyka gry odciszona", MusicNotSet="Nie ustawiono ID",
     MusicEnabled="Muzyka włączona", MusicDisabled="Muzyka wyłączona",
     PlayerFeatures="Funkcje Gracza", Behavior="Zachowanie",
     AutoLoad="Auto Ładowanie", AutoRejoin="Auto Dołącz", ServerHop="Zmień Serwer",
     LowServer="Pusty Serwer", UISize="Rozmiar UI", Small="Mały", Mid="Średni", Big="Duży",
-    ThemeColor="Kolor Motywu", ResetChar="Resetuj Postać", InfJump="Nieskończony Skok",
+    ThemeColor="Kolor Motywu", ResetChar="Resetuj", InfJump="Nieskończony Skok",
     Hopping="Przechodzenie...", Finding="Szukanie...", AlreadyIn="Już na pustym serwerze",
     NoServerFound="Nie znaleziono serwera", Rejoined="Dołączanie...", Teleporting="Teleportacja...",
     ActionRunning="Akcja w toku...", Searching="Szukanie...",
     ThemeColorPicker="Kolor Motywu", ResetSettings="Resetuj", About="O skrypcie", Version="Wersja",
+    Rainbow="Tęcza", RainbowOn="Tęcza ON", RainbowOff="Tęcza OFF",
+    FlyControls="Sterowanie Lotem", FlyUp="Góra", FlyDown="Dół", FlyForward="Przód",
+    FlyBack="Tył", FlyLeft="Lewo", FlyRight="Prawo",
 })
 
 Translations.Czech = BK({
@@ -674,17 +723,20 @@ Translations.Czech = BK({
     RejoinBtn="Znovu Připojit", ServerHopBtn="Změnit Server", SmallServerBtn="Prázdný Server",
     Copied="Odkaz zkopírován!", SoundApplied="Hudba použita!",
     SoundStopped="Hudba zastavena", SoundCleared="Hudba vymazána",
-    InvalidSound="Neplatný ID Zvuku", GameMuted="Hudba hry ztlumena",
+    InvalidSound="Neplatný ID", GameMuted="Hudba hry ztlumena",
     GameUnmuted="Hudba hry zapnuta", MusicNotSet="Žádný ID Zvuku",
     MusicEnabled="Hudba povolena", MusicDisabled="Hudba zakázána",
     PlayerFeatures="Funkce Hráče", Behavior="Chování",
     AutoLoad="Auto Načíst", AutoRejoin="Auto Připojit", ServerHop="Změnit Server",
     LowServer="Prázdný Server", UISize="Velikost UI", Small="Malý", Mid="Střední", Big="Velký",
-    ThemeColor="Barva Tématu", ResetChar="Resetovat Postavu", InfJump="Nekonečný Skok",
+    ThemeColor="Barva Tématu", ResetChar="Resetovat", InfJump="Nekonečný Skok",
     Hopping="Přepínání...", Finding="Hledání...", AlreadyIn="Již na prázdném serveru",
     NoServerFound="Server nenalezen", Rejoined="Připojování...", Teleporting="Teleportace...",
     ActionRunning="Akce probíhá...", Searching="Hledání...",
     ThemeColorPicker="Barva Tématu", ResetSettings="Resetovat", About="O skriptu", Version="Verze",
+    Rainbow="Duha", RainbowOn="Duha ZAP", RainbowOff="Duha VYP",
+    FlyControls="Ovládání Letu", FlyUp="Nahoru", FlyDown="Dolů", FlyForward="Vpřed",
+    FlyBack="Vzad", FlyLeft="Vlevo", FlyRight="Vpravo",
 })
 
 Translations.Romanian = BK({
@@ -720,6 +772,9 @@ Translations.Romanian = BK({
     NoServerFound="Server negăsit", Rejoined="Reconectare...", Teleporting="Teleportare...",
     ActionRunning="Acțiune în curs...", Searching="Căutare...",
     ThemeColorPicker="Culoare Temă", ResetSettings="Resetare", About="Despre", Version="Versiune",
+    Rainbow="Curcubeu", RainbowOn="Curcubeu ON", RainbowOff="Curcubeu OFF",
+    FlyControls="Controale Zbor", FlyUp="Sus", FlyDown="Jos", FlyForward="Înainte",
+    FlyBack="Înapoi", FlyLeft="Stânga", FlyRight="Dreapta",
 })
 
 Translations.Greek = BK({
@@ -738,13 +793,13 @@ Translations.Greek = BK({
     SpeedDesc="Ρυθμιστικό ταχύτητας", JumpDesc="Ρυθμιστικό άλματος",
     FlyDesc="Πτήση + ταχύτητα", NoclipDesc="Μέσα από τοίχους",
     Music="Μουσική", MusicPlayer="Αναπαραγωγή", SoundId="ID Ήχου", Volume="Ένταση",
-    MuteGame="Σίγαση Παιχνιδιού", AutoPlay="Αυτόματη Αναπαραγωγή", LoopMusic="Επανάληψη",
+    MuteGame="Σίγαση", AutoPlay="Αυτόματη Αναπαραγωγή", LoopMusic="Επανάληψη",
     Apply="Εφαρμογή", StopMusic="Διακοπή", ClearMusic="Καθαρισμός",
     Background="Φόντο", Rejoin="Επανασύνδεση", Hop="Αλλαγή Διακομιστή", FindLow="Κενός Διακομιστής",
     RejoinBtn="Επανασύνδεση", ServerHopBtn="Αλλαγή Διακομιστή", SmallServerBtn="Κενός Διακομιστής",
     Copied="Ο σύνδεσμος αντιγράφηκε!", SoundApplied="Η μουσική εφαρμόστηκε!",
     SoundStopped="Η μουσική σταμάτησε", SoundCleared="Η μουσική καθαρίστηκε",
-    InvalidSound="Μη έγκυρο ID Ήχου", GameMuted="Η μουσική παιχνιδιού σίγασε",
+    InvalidSound="Μη έγκυρο ID", GameMuted="Η μουσική παιχνιδιού σίγασε",
     GameUnmuted="Η μουσική παιχνιδιού ενεργοποιήθηκε", MusicNotSet="Χωρίς ID Ήχου",
     MusicEnabled="Η μουσική ενεργοποιήθηκε", MusicDisabled="Η μουσική απενεργοποιήθηκε",
     PlayerFeatures="Λειτουργίες Παίκτη", Behavior="Συμπεριφορά",
@@ -755,6 +810,9 @@ Translations.Greek = BK({
     NoServerFound="Δεν βρέθηκε διακομιστής", Rejoined="Επανασύνδεση...", Teleporting="Τηλεμεταφορά...",
     ActionRunning="Ενέργεια σε εξέλιξη...", Searching="Αναζήτηση...",
     ThemeColorPicker="Χρώμα Θέματος", ResetSettings="Επαναφορά", About="Σχετικά", Version="Έκδοση",
+    Rainbow="Ουράνιο Τόξο", RainbowOn="Ουράνιο Τόξο ON", RainbowOff="Ουράνιο Τόξο OFF",
+    FlyControls="Έλεγχοι Πτήσης", FlyUp="Πάνω", FlyDown="Κάτω", FlyForward="Μπροστά",
+    FlyBack="Πίσω", FlyLeft="Αριστερά", FlyRight="Δεξιά",
 })
 
 Translations.Arabic = BK({
@@ -790,6 +848,9 @@ Translations.Arabic = BK({
     NoServerFound="لم يتم العثور على سيرفر", Rejoined="إعادة الانضمام...", Teleporting="جار النقل...",
     ActionRunning="جار تنفيذ الإجراء...", Searching="بحث...",
     ThemeColorPicker="لون السمة", ResetSettings="إعادة تعيين", About="حول", Version="الإصدار",
+    Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
+    FlyControls="ضوابط الطيران", FlyUp="أعلى", FlyDown="أسفل", FlyForward="أمام",
+    FlyBack="خلف", FlyLeft="يسار", FlyRight="يمين",
 })
 
 Translations.Persian = BK({
@@ -825,6 +886,9 @@ Translations.Persian = BK({
     NoServerFound="سرور یافت نشد", Rejoined="پیوستن مجدد...", Teleporting="انتقال...",
     ActionRunning="اقدام در حال اجرا...", Searching="جستجو...",
     ThemeColorPicker="رنگ تم", ResetSettings="بازنشانی", About="درباره", Version="نسخه",
+    Rainbow="رنگین‌کمان", RainbowOn="رنگین‌کمان ON", RainbowOff="رنگین‌کمان OFF",
+    FlyControls="کنترل‌های پرواز", FlyUp="بالا", FlyDown="پایین", FlyForward="جلو",
+    FlyBack="عقب", FlyLeft="چپ", FlyRight="راست",
 })
 
 Translations.Urdu = BK({
@@ -860,6 +924,9 @@ Translations.Urdu = BK({
     NoServerFound="کوئی سرور نہیں ملا", Rejoined="دوبارہ شامل...", Teleporting="ٹیلی پورٹ...",
     ActionRunning="اقدام چل رہا ہے...", Searching="تلاش...",
     ThemeColorPicker="تھیم رنگ", ResetSettings="ری سیٹ", About="کے بارے میں", Version="ورژن",
+    Rainbow="قوس قزح", RainbowOn="قوس قزح ON", RainbowOff="قوس قزح OFF",
+    FlyControls="پرواز کنٹرول", FlyUp="اوپر", FlyDown="نیچے", FlyForward="آگے",
+    FlyBack="پیچھے", FlyLeft="بائیں", FlyRight="دائیں",
 })
 
 Translations.Hebrew = BK({
@@ -886,15 +953,18 @@ Translations.Hebrew = BK({
     SoundStopped="המוזיקה הופסקה", SoundCleared="המוזיקה נוקתה",
     InvalidSound="מזהה צליל לא חוקי", GameMuted="מוזיקת המשחק הושתקה",
     GameUnmuted="מוזיקת המשחק הופעלה", MusicNotSet="אין מזהה צליל",
-    MusicEnabled="מוזיקה מופעלת", MusicDisabled="מוזיקה מושבתת",
+    MusicEnabled="מוזיקה מופעלת", MusicDisabled="מוזיקה מו�ושבת",
     PlayerFeatures="תכונות שחקן", Behavior="התנהגות",
     AutoLoad="טעינה אוטומטית", AutoRejoin="הצטרפות אוטומטית", ServerHop="החלף שרת",
     LowServer="שרת ריק", UISize="גודל ממשק", Small="קטן", Mid="בינוני", Big="גדול",
-    ThemeColor="צבע ערכה", ResetChar="אפס דמות", InfJump="קפיצה אינסופית",
+    ThemeColor="צבע ערכה", ResetChar="אפס", InfJump="קפיצה אינסופית",
     Hopping="מחליף...", Finding="מחפש...", AlreadyIn="כבר בשרת ריק",
     NoServerFound="לא נמצא שרת", Rejoined="הצטרפות מחדש...", Teleporting="טלפורט...",
     ActionRunning="פעולה פועלת...", Searching="מחפש...",
     ThemeColorPicker="צבע ערכה", ResetSettings="אפס", About="אודות", Version="גרסה",
+    Rainbow="קשת", RainbowOn="קשת ON", RainbowOff="קשת OFF",
+    FlyControls="בקרות תעופה", FlyUp="למעלה", FlyDown="למטה", FlyForward="קדימה",
+    FlyBack="אחורה", FlyLeft="שמאלה", FlyRight="ימינה",
 })
 
 Translations.Hindi = BK({
@@ -930,6 +1000,9 @@ Translations.Hindi = BK({
     NoServerFound="कोई सर्वर नहीं मिला", Rejoined="फिर से जुड़ रहे...", Teleporting="टेलीपोर्ट...",
     ActionRunning="कार्रवाई चल रही...", Searching="खोज रहे...",
     ThemeColorPicker="थीम रंग", ResetSettings="रीसेट", About="जानकारी", Version="संस्करण",
+    Rainbow="इंद्रधनुष", RainbowOn="इंद्रधनुष ON", RainbowOff="इंद्रधनुष OFF",
+    FlyControls="उड़ान नियंत्रण", FlyUp="ऊपर", FlyDown="नीचे", FlyForward="आगे",
+    FlyBack="पीछे", FlyLeft="बाएं", FlyRight="दाएं",
 })
 
 Translations.Bengali = BK({
@@ -965,6 +1038,9 @@ Translations.Bengali = BK({
     NoServerFound="সার্ভার পাওয়া যায়নি", Rejoined="পুনরায় যোগ...", Teleporting="টেলিপোর্ট...",
     ActionRunning="কার্যক্রম চলছে...", Searching="সন্ধান...",
     ThemeColorPicker="থিম রঙ", ResetSettings="রিসেট", About="সম্পর্কে", Version="সংস্করণ",
+    Rainbow="রংধনু", RainbowOn="রংধনু ON", RainbowOff="রংধনু OFF",
+    FlyControls="উড়ান নিয়ন্ত্রণ", FlyUp="উপরে", FlyDown="নীচে", FlyForward="সামনে",
+    FlyBack="পিছনে", FlyLeft="বামে", FlyRight="ডানে",
 })
 
 Translations.Tamil = BK({
@@ -1000,6 +1076,9 @@ Translations.Tamil = BK({
     NoServerFound="சேவையகம் இல்லை", Rejoined="மீண்டும் இணைகிறது...", Teleporting="டெலிபோர்ட்...",
     ActionRunning="செயல் இயங்குகிறது...", Searching="தேடுகிறது...",
     ThemeColorPicker="தீம் நிறம்", ResetSettings="மீட்டமை", About="பற்றி", Version="பதிப்பு",
+    Rainbow="வானவில்", RainbowOn="வானவில் ON", RainbowOff="வானவில் OFF",
+    FlyControls="பறக்கும் கட்டுப்பாடு", FlyUp="மேலே", FlyDown="கீழே", FlyForward="முன்னே",
+    FlyBack="பின்னே", FlyLeft="இடது", FlyRight="வலது",
 })
 
 Translations.Japanese = BK({
@@ -1035,6 +1114,9 @@ Translations.Japanese = BK({
     NoServerFound="サーバーが見つかりません", Rejoined="再参加中...", Teleporting="テレポート中...",
     ActionRunning="アクション実行中...", Searching="検索中...",
     ThemeColorPicker="テーマカラー", ResetSettings="リセット", About="について", Version="バージョン",
+    Rainbow="レインボー", RainbowOn="レインボー ON", RainbowOff="レインボー OFF",
+    FlyControls="飛行コントロール", FlyUp="上", FlyDown="下", FlyForward="前",
+    FlyBack="後", FlyLeft="左", FlyRight="右",
 })
 
 Translations.Korean = BK({
@@ -1070,6 +1152,9 @@ Translations.Korean = BK({
     NoServerFound="서버를 찾을 수 없음", Rejoined="재접속 중...", Teleporting="텔레포트 중...",
     ActionRunning="작업 실행 중...", Searching="검색 중...",
     ThemeColorPicker="테마 색상", ResetSettings="리셋", About="정보", Version="버전",
+    Rainbow="무지개", RainbowOn="무지개 ON", RainbowOff="무지개 OFF",
+    FlyControls="비행 컨트롤", FlyUp="위", FlyDown="아래", FlyForward="앞",
+    FlyBack="뒤", FlyLeft="왼쪽", FlyRight="오른쪽",
 })
 
 Translations.Chinese = BK({
@@ -1100,11 +1185,14 @@ Translations.Chinese = BK({
     PlayerFeatures="玩家功能", Behavior="行为",
     AutoLoad="自动加载", AutoRejoin="自动重新加入", ServerHop="切换服务器",
     LowServer="低人数服务器", UISize="界面大小", Small="小", Mid="中", Big="大",
-    ThemeColor="主题颜色", ResetChar="重置角色", InfJump="无限跳跃",
+    ThemeColor="主题颜色", ResetChar="重置", InfJump="无限跳跃",
     Hopping="切换中...", Finding="搜索中...", AlreadyIn="已在低人数服务器中",
     NoServerFound="未找到服务器", Rejoined="重新加入中...", Teleporting="传送中...",
     ActionRunning="操作运行中...", Searching="搜索中...",
     ThemeColorPicker="主题颜色", ResetSettings="重置", About="关于", Version="版本",
+    Rainbow="彩虹", RainbowOn="彩虹 ON", RainbowOff="彩虹 OFF",
+    FlyControls="飞行控制", FlyUp="上", FlyDown="下", FlyForward="前",
+    FlyBack="后", FlyLeft="左", FlyRight="右",
 })
 
 Translations.Vietnamese = BK({
@@ -1140,6 +1228,9 @@ Translations.Vietnamese = BK({
     NoServerFound="Không tìm thấy máy chủ", Rejoined="Đang vào lại...", Teleporting="Đang dịch chuyển...",
     ActionRunning="Đang thực hiện...", Searching="Đang tìm...",
     ThemeColorPicker="Màu chủ đề", ResetSettings="Đặt lại", About="Giới thiệu", Version="Phiên bản",
+    Rainbow="Cầu vồng", RainbowOn="Cầu vồng ON", RainbowOff="Cầu vồng OFF",
+    FlyControls="Điều khiển Bay", FlyUp="Lên", FlyDown="Xuống", FlyForward="Tiến",
+    FlyBack="Lùi", FlyLeft="Trái", FlyRight="Phải",
 })
 
 Translations.Thai = BK({
@@ -1175,6 +1266,9 @@ Translations.Thai = BK({
     NoServerFound="ไม่พบเซิร์ฟเวอร์", Rejoined="กำลังเข้าร่วมอีกครั้ง...", Teleporting="กำลังเทเลพอร์ต...",
     ActionRunning="กำลังดำเนินการ...", Searching="กำลังค้นหา...",
     ThemeColorPicker="สีธีม", ResetSettings="รีเซ็ต", About="เกี่ยวกับ", Version="เวอร์ชัน",
+    Rainbow="รุ้ง", RainbowOn="รุ้ง ON", RainbowOff="รุ้ง OFF",
+    FlyControls="ควบคุมการบิน", FlyUp="ขึ้น", FlyDown="ลง", FlyForward="ไปข้างหน้า",
+    FlyBack="ย้อนกลับ", FlyLeft="ซ้าย", FlyRight="ขวา",
 })
 
 Translations.Swahili = BK({
@@ -1210,6 +1304,9 @@ Translations.Swahili = BK({
     NoServerFound="Hakuna seva iliyopatikana", Rejoined="Inajiunga tena...", Teleporting="Inasafiri...",
     ActionRunning="Kitendo kinaendesha...", Searching="Inatafuta...",
     ThemeColorPicker="Rangi ya Mandhari", ResetSettings="Weka Upya", About="Kuhusu", Version="Toleo",
+    Rainbow="Upinde wa mvua", RainbowOn="Upinde ON", RainbowOff="Upinde OFF",
+    FlyControls="Vidhibiti vya Kuruka", FlyUp="Juu", FlyDown="Chini", FlyForward="Mbele",
+    FlyBack="Nyuma", FlyLeft="Kushoto", FlyRight="Kulia",
 })
 
 Translations.Afrikaans = BK({
@@ -1245,6 +1342,9 @@ Translations.Afrikaans = BK({
     NoServerFound="Geen bediener gevind", Rejoined="Sluit weer aan...", Teleporting="Teleporteer...",
     ActionRunning="Aksie loop...", Searching="Soek...",
     ThemeColorPicker="Tema Kleur", ResetSettings="Herstel", About="Oor", Version="Weergawe",
+    Rainbow="Reënboog", RainbowOn="Reënboog ON", RainbowOff="Reënboog OFF",
+    FlyControls="Vlieg Beheer", FlyUp="Op", FlyDown="Af", FlyForward="Vorentoe",
+    FlyBack="Agtertoe", FlyLeft="Links", FlyRight="Regs",
 })
 
 setmetatable(Translations, {
@@ -1286,7 +1386,7 @@ end
 XYEL.RegisterI18n = RegI18n
 XYEL.RefreshI18n = RefreshI18n
 
--- ═══ UTILITIES ═══
+-- ═══ UTILS ═══
 local function Create(class, props)
     local obj = Instance.new(class)
     for k, v in pairs(props or {}) do
@@ -1303,6 +1403,38 @@ local function Tween(obj, time, props, style, dir)
     return t
 end
 
+-- ═══ SMOOTH ANIMATIONS ═══
+local ANIM = {
+    Slide = Enum.EasingStyle.Quint,
+    Bounce = Enum.EasingStyle.Back,
+    Smooth = Enum.EasingStyle.Quad,
+    Elastic = Enum.EasingStyle.Elastic,
+}
+
+local function SlideIn(obj, fromOffset, duration)
+    fromOffset = fromOffset or 20
+    duration = duration or 0.35
+    local originalPos = obj.Position
+    obj.Position = originalPos + UDim2.new(0, 0, 0, fromOffset)
+    obj.TextTransparency = obj.TextTransparency + 0.5
+    Tween(obj, duration, { Position = originalPos, TextTransparency = 0 }, ANIM.Bounce)
+end
+
+local function ScaleIn(obj, duration)
+    duration = duration or 0.4
+    local targetSize = obj.Size
+    obj.Size = UDim2.new(0, 0, 0, 0)
+    Tween(obj, duration, { Size = targetSize }, ANIM.Bounce)
+end
+
+local function FadeIn(obj, duration)
+    duration = duration or 0.3
+    local targetTrans = obj.BackgroundTransparency
+    obj.BackgroundTransparency = 1
+    Tween(obj, duration, { BackgroundTransparency = targetTrans }, ANIM.Smooth)
+end
+
+-- ═══ CORNER / STROKE / GRADIENT ═══
 local function Corner(parent, radius)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, radius or 8)
@@ -1330,7 +1462,7 @@ local function Gradient(parent, c1, c2, rotation)
     return g
 end
 
--- ═══ DRAG SYSTEM ═══
+-- ═══ DRAG ═══
 local function MakeDraggable(frame, handle)
     local dragging, dragStart, startPos
     handle.InputBegan:Connect(function(input)
@@ -1359,7 +1491,7 @@ local function MakeDraggable(frame, handle)
     end)
 end
 
--- Global slider drag
+-- ═══ GLOBAL SLIDER ═══
 UserInputService.InputChanged:Connect(function(input)
     if not State.SliderActive then return end
     if input.UserInputType == Enum.UserInputType.MouseMovement
@@ -1374,7 +1506,40 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Detect game name
+-- ═══ RAINBOW ANIMATION ═══
+local rainbowConn = nil
+local function StartRainbow()
+    if rainbowConn then return end
+    State.RainbowEnabled = true
+    local hue = 0
+    rainbowConn = RunService.RenderStepped:Connect(function(dt)
+        if not State.RainbowEnabled then return end
+        hue = (hue + dt * 0.15) % 1
+        local c = Color3.fromHSV(hue, 0.8, 1)
+        State.Theme.Primary = c
+        State.Theme.ToggleOn = c
+        if State.MainFrame then
+            local stroke = State.MainFrame:FindFirstChildOfClass("UIStroke")
+            if stroke then stroke.Color = c end
+        end
+        -- Update toggle buttons
+        for _, obj in ipairs(State.ScreenGui:GetDescendants()) do
+            if obj:IsA("TextButton") and obj.Name == "ToggleBtn" then
+                obj.BackgroundColor3 = c
+            end
+        end
+    end)
+end
+
+local function StopRainbow()
+    State.RainbowEnabled = false
+    if rainbowConn then
+        rainbowConn:Disconnect()
+        rainbowConn = nil
+    end
+end
+
+-- ═══ DETECT GAME ═══
 local function DetectGameName()
     local ok, name = pcall(function()
         local info = MarketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
@@ -1429,7 +1594,7 @@ function XYEL:Notify(opts)
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top, Parent = notif,
     })
-    Tween(notif, 0.4, { Position = UDim2.new(1, -340, 0, baseY) }, Enum.EasingStyle.Back)
+    Tween(notif, 0.4, { Position = UDim2.new(1, -340, 0, baseY) }, ANIM.Bounce)
     task.spawn(function()
         task.wait(duration)
         Tween(notif, 0.35, { Position = UDim2.new(1, 20, 0, baseY), BackgroundTransparency = 1 })
@@ -1446,31 +1611,43 @@ local function ShowLoading(parent, title, callback)
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
         BorderSizePixel = 0, ZIndex = 1000, Parent = parent,
     })
-    Create("TextLabel", {
+    local TitleLbl = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 60), Position = UDim2.new(0, 0, 0.4, -60),
         BackgroundTransparency = 1, Text = title or "XYEL HUB",
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold, TextSize = 48, ZIndex = 1001, Parent = Loading,
+        Font = Enum.Font.GothamBold, TextSize = 48,
+        TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
+    Tween(TitleLbl, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    
     local StatusLbl = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 24), Position = UDim2.new(0, 0, 0.4, 10),
         BackgroundTransparency = 1, Text = T("LoadingGame"),
         TextColor3 = Color3.fromRGB(180, 180, 190),
-        Font = Enum.Font.Gotham, TextSize = 16, ZIndex = 1001, Parent = Loading,
+        Font = Enum.Font.Gotham, TextSize = 16,
+        TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
+    Tween(StatusLbl, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    
     local Wave = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 0.4, 40),
         BackgroundTransparency = 1,
         Text = "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_",
         TextColor3 = State.Theme.Primary,
-        Font = Enum.Font.Code, TextSize = 14, ZIndex = 1001, Parent = Loading,
+        Font = Enum.Font.Code, TextSize = 14,
+        TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
+    Tween(Wave, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    
     local Percent = Create("TextLabel", {
         Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 0, 0.4, 70),
         BackgroundTransparency = 1, Text = "0%",
         TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamBold, TextSize = 14, ZIndex = 1001, Parent = Loading,
+        Font = Enum.Font.GothamBold, TextSize = 14,
+        TextTransparency = 1, ZIndex = 1001, Parent = Loading,
     })
+    Tween(Percent, 0.6, { TextTransparency = 0 }, ANIM.Smooth)
+    
     local waveOffset = 0
     local conn = RunService.RenderStepped:Connect(function(dt)
         waveOffset = waveOffset + dt * 8
@@ -1481,6 +1658,7 @@ local function ShowLoading(parent, title, callback)
         end
         if Wave and Wave.Parent then Wave.Text = pattern end
     end)
+    
     local progress = 0
     task.spawn(function()
         while progress < 60 do
@@ -1513,9 +1691,9 @@ local function ShowLoading(parent, title, callback)
         end
         task.wait(0.5)
         conn:Disconnect()
-        Tween(Loading, 0.6, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint)
+        Tween(Loading, 0.6, { BackgroundTransparency = 1 }, ANIM.Smooth)
         for _, child in ipairs(Loading:GetChildren()) do
-            if child:IsA("TextLabel") then Tween(child, 0.5, { TextTransparency = 1 }) end
+            if child:IsA("TextLabel") then Tween(child, 0.5, { TextTransparency = 1 }, ANIM.Smooth) end
         end
         task.wait(0.65)
         Loading:Destroy()
@@ -1523,19 +1701,32 @@ local function ShowLoading(parent, title, callback)
     end)
 end
 
--- ═══ FLOATING WINDOW ═══
-local function CreateFloatingWindow(parent, title, content, width, height)
+-- ═══ CREATE FLOATING WINDOW ═══
+local function CreateFloatingWindow(parent, title, contentFrame)
+    -- Prevent duplicate
+    for _, w in ipairs(State.FloatingWindows) do
+        if w and w.Parent and w:FindFirstChild("WindowTitle") and w.WindowTitle.Value == title then
+            w.Visible = true
+            return w
+        end
+    end
+    
     local FloatFrame = Create("Frame", {
         Name = "Float_" .. tostring(math.random(1000, 9999)),
-        Size = UDim2.new(0, width or 380, 0, height or 300),
-        Position = UDim2.new(0, 100 + math.random(1, 200), 0, 100 + math.random(1, 100)),
+        Size = UDim2.new(0, 380, 0, 300),
+        Position = UDim2.new(0, 80 + #State.FloatingWindows * 40, 0, 80 + #State.FloatingWindows * 30),
         BackgroundColor3 = State.Theme.Background,
         BorderSizePixel = 0, ClipsDescendants = true,
-        Active = true, ZIndex = 60, Parent = parent,
+        Active = true, Visible = true,
+        ZIndex = 60, Parent = parent,
     })
     Corner(FloatFrame, 14)
     Stroke(FloatFrame, State.Theme.Primary, 1.5, 0.4)
     
+    -- Store title
+    local titleVal = Create("StringValue", { Name = "WindowTitle", Value = title, Parent = FloatFrame })
+    
+    -- Top bar
     local FTop = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
         BackgroundColor3 = State.Theme.Secondary,
@@ -1557,7 +1748,7 @@ local function CreateFloatingWindow(parent, title, content, width, height)
     })
     
     local FClose = Create("TextButton", {
-        Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(1, -30, 0, 6),
+        Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(1, -58, 0, 6),
         BackgroundColor3 = State.Theme.Danger, Text = "×",
         TextColor3 = Color3.fromRGB(255, 255, 255),
         Font = Enum.Font.GothamBold, TextSize = 15,
@@ -1565,26 +1756,38 @@ local function CreateFloatingWindow(parent, title, content, width, height)
     })
     Corner(FClose, 7)
     
-    content.Parent = FloatFrame
-    content.Size = UDim2.new(1, -16, 1, -46)
-    content.Position = UDim2.new(0, 8, 0, 42)
-    content.BackgroundTransparency = 1
-    content.ZIndex = 61
+    local FMin = Create("TextButton", {
+        Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(1, -30, 0, 6),
+        BackgroundColor3 = State.Theme.Surface, Text = "—",
+        TextColor3 = State.Theme.Text,
+        Font = Enum.Font.GothamBold, TextSize = 14,
+        AutoButtonColor = false, ZIndex = 62, Parent = FTop,
+    })
+    Corner(FMin, 7)
+    
+    -- Content
+    contentFrame.Parent = FloatFrame
+    contentFrame.Size = UDim2.new(1, -16, 1, -46)
+    contentFrame.Position = UDim2.new(0, 8, 0, 42)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.Visible = true
+    contentFrame.ZIndex = 61
     
     MakeDraggable(FloatFrame, FTop)
     
-    FClose.MouseButton1Click:Connect(function()
-        FloatFrame:Destroy()
+    -- Minimize
+    local minimized = false
+    FMin.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        Tween(FloatFrame, 0.3, {
+            Size = minimized and UDim2.new(0, 380, 0, 36) or UDim2.new(0, 380, 0, 300)
+        }, ANIM.Smooth)
     end)
     
-    -- Stack handling: put new floating windows lower
-    local existing = 0
-    for _, child in ipairs(parent:GetChildren()) do
-        if child.Name:sub(1, 6) == "Float_" and child ~= FloatFrame then
-            existing = existing + 1
-        end
-    end
-    FloatFrame.Position = UDim2.new(0, 60 + existing * 40, 0, 80 + existing * 50)
+    -- Close
+    FClose.MouseButton1Click:Connect(function()
+        FloatFrame.Visible = false
+    end)
     
     table.insert(State.FloatingWindows, FloatFrame)
     return FloatFrame
@@ -1605,9 +1808,9 @@ function XYEL:CreateWindow(opts)
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         IgnoreGuiInset = true, Parent = parent,
     })
-    State.MainWindow = ScreenGui
+    State.ScreenGui = ScreenGui
     
-    -- ═══ MAIN FRAME ═══
+    -- Main Frame
     local MainFrame = Create("Frame", {
         Name = "MainFrame",
         Size = UDim2.new(0, 640, 0, 420),
@@ -1618,8 +1821,10 @@ function XYEL:CreateWindow(opts)
         ZIndex = 10, Parent = ScreenGui,
     })
     Corner(MainFrame, 16)
-    Stroke(MainFrame, State.Theme.Primary, 1, 0.5)
+    local mainStroke = Stroke(MainFrame, State.Theme.Primary, 1, 0.5)
+    State.MainFrame = MainFrame
     
+    -- TopBar
     local TopBar = Create("Frame", {
         Size = UDim2.new(1, 0, 0, 48),
         BackgroundColor3 = State.Theme.Secondary,
@@ -1662,12 +1867,6 @@ function XYEL:CreateWindow(opts)
         AutoButtonColor = false, ZIndex = 6, Parent = TopBar,
     })
     Corner(CloseBtn, 10)
-    CloseBtn.MouseEnter:Connect(function()
-        Tween(CloseBtn, 0.2, { BackgroundColor3 = Color3.fromRGB(255, 100, 100) })
-    end)
-    CloseBtn.MouseLeave:Connect(function()
-        Tween(CloseBtn, 0.2, { BackgroundColor3 = State.Theme.Danger })
-    end)
     
     local MinBtn = Create("TextButton", {
         Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -80, 0, 8),
@@ -1678,11 +1877,10 @@ function XYEL:CreateWindow(opts)
     })
     Corner(MinBtn, 10)
     
-    -- Drag — pakai TopBar dan TitleLbl sebagai handle
     MakeDraggable(MainFrame, TopBar)
     MakeDraggable(MainFrame, TitleLbl)
     
-    -- ═══ SIDEBAR ═══
+    -- Sidebar
     local Sidebar = Create("Frame", {
         Size = UDim2.new(0, 160, 1, -48), Position = UDim2.new(0, 0, 0, 48),
         BackgroundColor3 = State.Theme.Surface,
@@ -1701,7 +1899,7 @@ function XYEL:CreateWindow(opts)
         PaddingRight = UDim.new(0, 8), Parent = TabList,
     })
     
-    -- User panel
+    -- User Panel
     local UserPanel = Create("Frame", {
         Size = UDim2.new(1, -16, 0, 116), Position = UDim2.new(0, 8, 1, -124),
         BackgroundColor3 = State.Theme.Background,
@@ -1795,29 +1993,30 @@ function XYEL:CreateWindow(opts)
             ZIndex = 8, Parent = btn,
         })
         Corner(indicator, 2)
+        
         btn.MouseEnter:Connect(function()
             if activeTab ~= nameKey then
-                Tween(btn, 0.2, { BackgroundTransparency = 0.3 })
-                Tween(label, 0.2, { TextColor3 = State.Theme.Text })
+                Tween(btn, 0.2, { BackgroundTransparency = 0.3 }, ANIM.Smooth)
+                Tween(label, 0.2, { TextColor3 = State.Theme.Text }, ANIM.Smooth)
             end
         end)
         btn.MouseLeave:Connect(function()
             if activeTab ~= nameKey then
-                Tween(btn, 0.2, { BackgroundTransparency = 0.5 })
-                Tween(label, 0.2, { TextColor3 = State.Theme.TextDim })
+                Tween(btn, 0.2, { BackgroundTransparency = 0.5 }, ANIM.Smooth)
+                Tween(label, 0.2, { TextColor3 = State.Theme.TextDim }, ANIM.Smooth)
             end
         end)
         btn.MouseButton1Click:Connect(function()
             if activeTab == nameKey then return end
             activeTab = nameKey
             for n, data in pairs(tabButtons) do
-                Tween(data.btn, 0.2, { BackgroundTransparency = 0.5 })
-                Tween(data.label, 0.2, { TextColor3 = State.Theme.TextDim })
-                Tween(data.indicator, 0.2, { BackgroundTransparency = 1 })
+                Tween(data.btn, 0.2, { BackgroundTransparency = 0.5 }, ANIM.Smooth)
+                Tween(data.label, 0.2, { TextColor3 = State.Theme.TextDim }, ANIM.Smooth)
+                Tween(data.indicator, 0.2, { BackgroundTransparency = 1 }, ANIM.Smooth)
             end
-            Tween(btn, 0.2, { BackgroundTransparency = 0 })
-            Tween(label, 0.2, { TextColor3 = State.Theme.Text })
-            Tween(indicator, 0.2, { BackgroundTransparency = 0 })
+            Tween(btn, 0.2, { BackgroundTransparency = 0 }, ANIM.Smooth)
+            Tween(label, 0.2, { TextColor3 = State.Theme.Text }, ANIM.Smooth)
+            Tween(indicator, 0.2, { BackgroundTransparency = 0 }, ANIM.Smooth)
             if callback then callback() end
         end)
         tabButtons[nameKey] = { btn = btn, label = label, indicator = indicator }
@@ -1845,9 +2044,9 @@ function XYEL:CreateWindow(opts)
         if not activeTab then
             activeTab = nameKey
             local data = tabButtons[nameKey]
-            Tween(data.btn, 0.25, { BackgroundTransparency = 0 })
-            Tween(data.label, 0.25, { TextColor3 = State.Theme.Text })
-            Tween(data.indicator, 0.25, { BackgroundTransparency = 0 })
+            Tween(data.btn, 0.25, { BackgroundTransparency = 0 }, ANIM.Smooth)
+            Tween(data.label, 0.25, { TextColor3 = State.Theme.Text }, ANIM.Smooth)
+            Tween(data.indicator, 0.25, { BackgroundTransparency = 0 }, ANIM.Smooth)
             page.Visible = true
         end
         local TabObj = {}
@@ -1870,6 +2069,7 @@ function XYEL:CreateWindow(opts)
                 BorderSizePixel = 0, Parent = section,
             })
             local SectionObj = {}
+            
             function SectionObj:CreateButton(textKey, callback)
                 local btn = Create("TextButton", {
                     Size = UDim2.new(1, 0, 0, 40),
@@ -1885,16 +2085,23 @@ function XYEL:CreateWindow(opts)
                 })
                 RegI18n(lbl, textKey)
                 btn.MouseEnter:Connect(function()
-                    Tween(btn, 0.2, { BackgroundColor3 = State.Theme.Primary })
-                    Tween(lbl, 0.2, { TextColor3 = Color3.fromRGB(255,255,255) })
+                    Tween(btn, 0.25, { BackgroundColor3 = State.Theme.Primary }, ANIM.Smooth)
+                    Tween(lbl, 0.25, { TextColor3 = Color3.fromRGB(255,255,255) }, ANIM.Smooth)
                 end)
                 btn.MouseLeave:Connect(function()
-                    Tween(btn, 0.2, { BackgroundColor3 = State.Theme.Surface })
-                    Tween(lbl, 0.2, { TextColor3 = State.Theme.Text })
+                    Tween(btn, 0.25, { BackgroundColor3 = State.Theme.Surface }, ANIM.Smooth)
+                    Tween(lbl, 0.25, { TextColor3 = State.Theme.Text }, ANIM.Smooth)
                 end)
-                btn.MouseButton1Click:Connect(function() if callback then callback() end end)
+                btn.MouseButton1Click:Connect(function()
+                    -- Bounce animation
+                    Tween(btn, 0.1, { Size = UDim2.new(0.97, 0, 0, 38) }, ANIM.Bounce)
+                    task.wait(0.1)
+                    Tween(btn, 0.15, { Size = UDim2.new(1, 0, 0, 40) }, ANIM.Bounce)
+                    if callback then callback() end
+                end)
                 return { Frame = btn, Label = lbl }
             end
+            
             function SectionObj:CreateToggle(textKey, default, callback)
                 local state = default or false
                 local row = Create("Frame", {
@@ -1926,13 +2133,14 @@ function XYEL:CreateWindow(opts)
                 Corner(knob, 10)
                 local function setState(v)
                     state = v
-                    Tween(toggleBg, 0.25, { BackgroundColor3 = v and State.Theme.ToggleOn or State.Theme.ToggleOff })
-                    Tween(knob, 0.25, { Position = v and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10) }, Enum.EasingStyle.Back)
+                    Tween(toggleBg, 0.3, { BackgroundColor3 = v and State.Theme.ToggleOn or State.Theme.ToggleOff }, ANIM.Smooth)
+                    Tween(knob, 0.35, { Position = v and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10) }, ANIM.Bounce)
                     if callback then callback(v) end
                 end
                 toggleBg.MouseButton1Click:Connect(function() setState(not state) end)
                 return { Set = setState, Get = function() return state end, Frame = row, Label = lbl }
             end
+            
             function SectionObj:CreateSlider(textKey, min, max, default, callback)
                 min = min or 0; max = max or 100; default = default or min
                 local value = default
@@ -1980,8 +2188,8 @@ function XYEL:CreateWindow(opts)
                     local pos = math.clamp((input.Position.X - barBg.AbsolutePosition.X) / barBg.AbsoluteSize.X, 0, 1)
                     value = math.floor(min + (max - min) * pos)
                     valueLabel.Text = tostring(value)
-                    Tween(fill, 0.05, { Size = UDim2.new(pos, 0, 1, 0) })
-                    Tween(knob, 0.05, { Position = UDim2.new(pos, -8, 0.5, -8) })
+                    Tween(fill, 0.08, { Size = UDim2.new(pos, 0, 1, 0) }, ANIM.Smooth)
+                    Tween(knob, 0.08, { Position = UDim2.new(pos, -8, 0.5, -8) }, ANIM.Smooth)
                     if callback then callback(value) end
                 end
                 barBg.InputBegan:Connect(function(input)
@@ -1996,14 +2204,15 @@ function XYEL:CreateWindow(opts)
                         value = math.clamp(v, min, max)
                         local pos = (value - min) / (max - min)
                         valueLabel.Text = tostring(value)
-                        Tween(fill, 0.1, { Size = UDim2.new(pos, 0, 1, 0) })
-                        Tween(knob, 0.1, { Position = UDim2.new(pos, -8, 0.5, -8) })
+                        Tween(fill, 0.1, { Size = UDim2.new(pos, 0, 1, 0) }, ANIM.Smooth)
+                        Tween(knob, 0.1, { Position = UDim2.new(pos, -8, 0.5, -8) }, ANIM.Smooth)
                         if callback then callback(value) end
                     end,
                     Get = function() return value end,
                     Frame = row, Label = lbl,
                 }
             end
+            
             function SectionObj:CreateDropdown(textKey, options, default, callback)
                 options = options or {}
                 local selected = default or options[1]
@@ -2049,23 +2258,23 @@ function XYEL:CreateWindow(opts)
                     })
                     Corner(optBtn, 6)
                     optBtn.MouseEnter:Connect(function()
-                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Primary, TextColor3 = State.Theme.Text })
+                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Primary, TextColor3 = State.Theme.Text }, ANIM.Smooth)
                     end)
                     optBtn.MouseLeave:Connect(function()
-                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Background, TextColor3 = State.Theme.TextDim })
+                        Tween(optBtn, 0.15, { BackgroundColor3 = State.Theme.Background, TextColor3 = State.Theme.TextDim }, ANIM.Smooth)
                     end)
                     optBtn.MouseButton1Click:Connect(function()
                         selected = opt
                         selBtn.Text = tostring(opt)
                         open = false
-                        Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, 42) }, Enum.EasingStyle.Quint)
+                        Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, 42) }, ANIM.Smooth)
                         if callback then callback(opt) end
                     end)
                 end
                 selBtn.MouseButton1Click:Connect(function()
                     open = not open
                     local totalH = 42 + (#options * 32) + 14
-                    Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, open and totalH or 42) }, Enum.EasingStyle.Quint)
+                    Tween(container, 0.3, { Size = UDim2.new(1, 0, 0, open and totalH or 42) }, ANIM.Smooth)
                 end)
                 return {
                     Set = function(v) selected = v; selBtn.Text = tostring(v) end,
@@ -2073,37 +2282,7 @@ function XYEL:CreateWindow(opts)
                     Frame = container, Label = lbl,
                 }
             end
-            function SectionObj:CreateInput(textKey, placeholderKey, callback)
-                local row = Create("Frame", {
-                    Size = UDim2.new(1, 0, 0, 42),
-                    BackgroundColor3 = State.Theme.Surface, Parent = page,
-                })
-                Corner(row, 10)
-                local lbl = Create("TextLabel", {
-                    Size = UDim2.new(0, 130, 1, 0), Position = UDim2.new(0, 16, 0, 0),
-                    BackgroundTransparency = 1, Text = T(textKey),
-                    TextColor3 = State.Theme.Text,
-                    Font = Enum.Font.GothamMedium, TextSize = 13,
-                    TextXAlignment = Enum.TextXAlignment.Left, Parent = row,
-                })
-                RegI18n(lbl, textKey)
-                local box = Create("TextBox", {
-                    Size = UDim2.new(1, -166, 0, 30), Position = UDim2.new(0, 154, 0, 6),
-                    BackgroundColor3 = State.Theme.Background, Text = "",
-                    PlaceholderText = T(placeholderKey or textKey),
-                    PlaceholderColor3 = State.Theme.TextDim,
-                    TextColor3 = State.Theme.Text,
-                    Font = Enum.Font.Gotham, TextSize = 12,
-                    ClearTextOnFocus = false, Parent = row,
-                })
-                Corner(box, 8)
-                Stroke(box, State.Theme.Primary, 1, 0.7)
-                if placeholderKey then RegI18n(box, placeholderKey, true) end
-                box.FocusLost:Connect(function()
-                    if callback then callback(box.Text) end
-                end)
-                return { Set = function(v) box.Text = v end, Get = function() return box.Text end }
-            end
+            
             function SectionObj:CreateColorPicker(textKey, default, callback)
                 local current = default or State.Theme.Primary
                 local row = Create("Frame", {
@@ -2154,13 +2333,33 @@ function XYEL:CreateWindow(opts)
                         if callback then callback(c) end
                     end)
                 end
+                -- Rainbow button
+                local rainbowBtn = Create("TextButton", {
+                    Size = UDim2.new(0, 28, 0, 28),
+                    BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+                    Text = "🌈", Font = Enum.Font.GothamBold,
+                    TextSize = 14, AutoButtonColor = false, Parent = picker,
+                })
+                Corner(rainbowBtn, 6)
+                local rainbowGrad = Gradient(rainbowBtn, Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 255, 255), 0)
+                task.spawn(function()
+                    while rainbowBtn.Parent do
+                        rainbowGrad.Rotation = (rainbowGrad.Rotation + 5) % 360
+                        task.wait(0.05)
+                    end
+                end)
+                rainbowBtn.MouseButton1Click:Connect(function()
+                    StartRainbow()
+                    if callback then callback(Color3.fromRGB(255, 100, 180)) end
+                end)
                 local open = false
                 colorBtn.MouseButton1Click:Connect(function()
                     open = not open
-                    Tween(row, 0.3, { Size = UDim2.new(1, 0, 0, open and 100 or 54) }, Enum.EasingStyle.Quint)
+                    Tween(row, 0.3, { Size = UDim2.new(1, 0, 0, open and 100 or 54) }, ANIM.Smooth)
                 end)
                 return { Set = function(c) current = c; colorBtn.BackgroundColor3 = c end, Get = function() return current end }
             end
+            
             function SectionObj:CreateParagraph(titleKey, contentKey)
                 local row = Create("Frame", {
                     Size = UDim2.new(1, 0, 0, 0),
@@ -2199,6 +2398,7 @@ function XYEL:CreateWindow(opts)
                 RegI18n(contentLbl, contentKey)
                 return { Frame = row, Title = titleLbl, Content = contentLbl }
             end
+            
             return SectionObj
         end
         WindowObj._tabs[nameKey] = TabObj
@@ -2206,9 +2406,8 @@ function XYEL:CreateWindow(opts)
         return TabObj
     end
     
-    -- ═══ DEFAULT TABS ═══
+    -- Default tabs
     if not noDefaultTabs then
-        -- INFO TAB (lengkap)
         local InfoTab = WindowObj:CreateTab("Info")
         local InfoSec = InfoTab:CreateSection("Welcome")
         InfoSec:CreateParagraph("Welcome", "Description")
@@ -2216,21 +2415,14 @@ function XYEL:CreateWindow(opts)
             if setclipboard then setclipboard(discord) end
             XYEL:Notify({ Title = "Discord", Content = T("Copied"), Type = "success" })
         end)
-        local aboutSec = InfoTab:CreateSection("About")
-        aboutSec:CreateParagraph("Version", "XYEL HUB v7 - Complete Edition")
+        local AboutSec = InfoTab:CreateSection("About")
+        AboutSec:CreateParagraph("Version", "XYEL HUB v8 - Complete Edition")
         
-        -- SETTINGS TAB (lengkap)
         local SettingsTab = WindowObj:CreateTab("Settings")
-        
-        -- Appearance
         local AppearanceSec = SettingsTab:CreateSection("Appearance")
         AppearanceSec:CreateColorPicker("ThemeColorPicker", State.Theme.Primary, function(c)
             State.Theme.Primary = c
-            -- Update semua UI
-            MainFrame.UIStroke.Color = c
-            if ToggleBtn then
-                ToggleBtn.BackgroundColor3 = c
-            end
+            if mainStroke then mainStroke.Color = c end
         end)
         AppearanceSec:CreateDropdown("Language", LanguageList, CurrentLang, function(v)
             CurrentLang = v
@@ -2241,15 +2433,16 @@ function XYEL:CreateWindow(opts)
         AppearanceSec:CreateDropdown("MenuMode", { "Normal Mode", "Floating Mode" }, State.MenuMode, function(v)
             State.MenuMode = v
             XYEL:Notify({ Title = "Menu Mode", Content = T("ModeChanged"), Type = "info", Duration = 2 })
+            -- Fire mode change event
+            if XYEL._onModeChange then
+                XYEL._onModeChange(v)
+            end
         end)
-        AppearanceSec:CreateToggle("Animations", true, function(v) end)
         
-        -- Behavior
         local BehaviorSec = SettingsTab:CreateSection("Behavior")
         BehaviorSec:CreateToggle("AutoLoad", false, function(v) end)
         BehaviorSec:CreateToggle("AutoRejoin", false, function(v) end)
         
-        -- Actions
         local ActionSec = SettingsTab:CreateSection("Actions")
         ActionSec:CreateButton("RejoinBtn", function()
             XYEL:Notify({ Title = "Rejoin", Content = T("Rejoined"), Type = "info" })
@@ -2301,7 +2494,7 @@ function XYEL:CreateWindow(opts)
         end)
     end
     
-    -- ═══ TOGGLE BUTTON (floating) ═══
+    -- Toggle Button
     local ToggleBtn = Create("TextButton", {
         Name = "ToggleBtn",
         Size = UDim2.new(0, 56, 0, 56), Position = UDim2.new(0, 24, 0.5, -28),
@@ -2311,77 +2504,67 @@ function XYEL:CreateWindow(opts)
         AutoButtonColor = false, ZIndex = 50, Parent = ScreenGui,
     })
     Corner(ToggleBtn, 28)
-    local toggleStroke = Stroke(ToggleBtn, Color3.fromRGB(255,255,255), 1.5, 0.4)
-    Gradient(ToggleBtn, State.Theme.Primary, Color3.fromRGB(255, 100, 180), 45)
+    Stroke(ToggleBtn, Color3.fromRGB(255,255,255), 1.5, 0.4)
     
-    -- Drag toggle button
-    local tbDrag, tbStart, tbStartPos
-    ToggleBtn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            tbDrag = true
-            tbStart = input.Position
-            tbStartPos = ToggleBtn.Position
-        end
-    end)
-    ToggleBtn.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            tbDrag = false
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if tbDrag and (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - tbStart
-            ToggleBtn.Position = UDim2.new(
-                tbStartPos.X.Scale, tbStartPos.X.Offset + delta.X,
-                tbStartPos.Y.Scale, tbStartPos.Y.Offset + delta.Y
-            )
-        end
-    end)
+    MakeDraggable(ToggleBtn, ToggleBtn)
     
     local menuOpen = true
+    
+    -- Mode switch handler
+    XYEL._onModeChange = function(mode)
+        if mode == "Floating Mode" then
+            MainFrame.Visible = false
+            -- Create floating windows for each tab
+            for tabName, tabPage in pairs(WindowObj._tabData) do
+                local container = Create("Frame", { BackgroundTransparency = 1 })
+                CreateFloatingWindow(ScreenGui, tabName, container)
+                tabPage.Parent = container
+                tabPage.Size = UDim2.new(1, 0, 1, 0)
+                tabPage.Position = UDim2.new(0, 0, 0, 0)
+                tabPage.Visible = true
+                tabPage.ScrollBarThickness = 3
+            end
+            ToggleBtn.Text = "X"
+            menuOpen = true
+        else
+            -- Close floating, show normal
+            for _, fw in ipairs(State.FloatingWindows) do
+                if fw and fw.Parent then fw.Visible = false end
+            end
+            MainFrame.Visible = true
+            ToggleBtn.Text = "X"
+            menuOpen = true
+        end
+    end
+    
     ToggleBtn.MouseButton1Click:Connect(function()
-        menuOpen = not menuOpen
         if State.MenuMode == "Floating Mode" then
-            -- Toggle semua floating windows
+            menuOpen = not menuOpen
             for _, fw in ipairs(State.FloatingWindows) do
                 if fw and fw.Parent then
                     fw.Visible = menuOpen
                 end
             end
-            if menuOpen and #State.FloatingWindows == 0 then
-                -- Spawn floating windows dari tiap tab
-                for tabName, tabPage in pairs(WindowObj._tabData) do
-                    local container = Create("Frame", { BackgroundTransparency = 1, Parent = nil })
-                    local closeBtn = nil
-                    CreateFloatingWindow(ScreenGui, "XYEL - " .. T(tabName), container, 360, 280)
-                    -- Move children ke container
-                    tabPage.Parent = container
-                    tabPage.Size = UDim2.new(1, 0, 1, 0)
-                    tabPage.Position = UDim2.new(0, 0, 0, 0)
-                    tabPage.Visible = true
-                end
-            end
+            ToggleBtn.Text = menuOpen and "X" or "≡"
         else
+            menuOpen = not menuOpen
             MainFrame.Visible = menuOpen
+            ToggleBtn.Text = menuOpen and "X" or "≡"
         end
-        ToggleBtn.Text = menuOpen and "X" or "≡"
     end)
     
     CloseBtn.MouseButton1Click:Connect(function()
-        menuOpen = false
         MainFrame.Visible = false
         ToggleBtn.Text = "≡"
+        menuOpen = false
     end)
     MinBtn.MouseButton1Click:Connect(function()
-        menuOpen = false
         MainFrame.Visible = false
         ToggleBtn.Text = "≡"
+        menuOpen = false
     end)
     
-    -- ═══ SHOW LOADING + FIRE OnReady ═══
+    -- Show loading
     ShowLoading(ScreenGui, baseTitle, function()
         MainFrame.Visible = true
         menuOpen = true
@@ -2413,6 +2596,7 @@ function XYEL:GetLanguage() return CurrentLang end
 function XYEL:GetLanguages() return LanguageList end
 function XYEL:GetGameName() return State.GameName end
 function XYEL:DestroyAll()
+    StopRainbow()
     pcall(function()
         local p = GetParent()
         if p:FindFirstChild("XYEL_HUB_Library") then
